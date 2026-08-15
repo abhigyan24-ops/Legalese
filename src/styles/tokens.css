@@ -1,0 +1,46 @@
+/*
+ * Design Tokens - Rights Quest
+ * Single source of truth for colors, typography, spacing, border-radius.
+ * Tailored for ages 8-16: warm, friendly, rounded tones.
+ * Per spec Section 10. Fonts load via index.html (Baloo 2 + Noto Sans).
+ */
+
+:root {
+  /* ── Colors ── warm, friendly palette */
+  --color-primary:        #FF6B6B;  /* coral red  */
+  --color-secondary:      #4ECDC4;  /* turquoise  */
+  --color-accent:         #FFE66D;  /* warm yellow */
+  --color-background:     #FFF8F0;  /* cream       */
+  --color-surface:        #FFFFFF;  /* card white  */
+  --color-text-primary:   #2C3E50;  /* dark slate  */
+  --color-text-secondary: #7F8C8D;  /* medium gray */
+  --color-success:        #2ECC71;  /* green       */
+  --color-warning:        #F39C12;  /* orange      */
+  --color-error:          #E74C3C;  /* red         */
+
+  /* ── Extra semantic tokens (used by story HUD) ── */
+  --color-hearts:         #F44336;
+  --color-stage-active:   #FF6B6B;
+  --color-stage-inactive: #CBD5E1;
+  --color-shadow:         #0000001A;
+
+  /* ── Typography ── Baloo 2 (display) + Noto Sans (body, Devanagari + Kannada) */
+  --font-display: 'Baloo 2', 'Quicksand', cursive;
+  --font-body:    'Noto Sans', 'Noto Sans Devanagari', 'Noto Sans Kannada', sans-serif;
+
+  /* ── Spacing scale (4px base) ── */
+  --space-1: 0.25rem;  /* 4px  */
+  --space-2: 0.5rem;   /* 8px  */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.5rem;   /* 24px */
+  --space-6: 2rem;     /* 32px */
+  --space-7: 3rem;     /* 48px */
+  --space-8: 4rem;     /* 64px */
+
+  /* ── Border radius ── rounded, friendly ── */
+  --radius-sm: 0.25rem;  /* 4px  */
+  --radius-md: 0.5rem;   /* 8px  */
+  --radius-lg: 1rem;     /* 16px */
+  --radius-xl: 1.5rem;   /* 24px */
+}

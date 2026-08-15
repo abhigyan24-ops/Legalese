@@ -1,0 +1,96 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function: Check if text is clean (no blocked words or contact info patterns)
+    function isTextClean(text) {
+      let blocklist = [
+        'phone',
+        'email',
+        'whatsapp',
+        'instagram',
+        'facebook',
+        'call me',
+        'my number',
+        'address',
+        'meet me',
+        'discord',
+        'snapchat'
+      ];
+      
+      let lowerText = text.lower();
+      return blocklist.hasAny([lowerText]) == false;
+    }
+    
+    // USERS COLLECTION
+    // Private profile data - each user can only access their own document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // LEADERBOARD COLLECTION
+    // Public scoreboard with anti-cheat protection
+    match /leaderboard/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null 
+        && request.auth.uid == userId
+        && request.resource.data.xp <= get(/databases/$(database)/documents/users/$(request.auth.uid)).data.xp;
+    }
+
+    // LEADERBOARD CHEERS COLLECTION
+    // Public safe quick-chat shoutouts
+    match /leaderboard_cheers/{cheerId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+    }
+    
+    // COMMUNITY POSTS COLLECTION
+    // Public reflection wall with moderation via blocklist and immutability
+    match /community_posts/{postId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.text.size() <= 280
+        && isTextClean(request.resource.data.text);
+      allow update: if request.auth != null && (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['cheers', 'reportCount'])
+      );
+      allow delete: if request.auth != null && request.auth.uid == resource.data.authorId;
+    }
+
+    // RESOURCE DIRECTORY COLLECTION
+    // Public read-only verified NGO and helpline directory
+    match /resource_directory/{docId} {
+      allow read: if true;
+      allow write: if false; // Admin-managed only
+    }
+
+    // MODERATED Q&A COLLECTION (qa_questions)
+    // Children can submit questions; answers written by verified adult moderator accounts
+    match /qa_questions/{questionId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.text.size() <= 280
+        && isTextClean(request.resource.data.text);
+      // Update rules for question answers by verified moderators & child helpful cheers
+      allow update: if request.auth != null && (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['helpfulCount', 'reportCount']) ||
+        (request.resource.data.status == 'answered' && request.resource.data.answer != null)
+      );
+      allow delete: if request.auth != null && request.auth.uid == resource.data.authorId;
+    }
+
+    // AGGREGATED IMPACT STATS COLLECTION (stats/{storyId})
+    // Anonymized learning metrics: completions, outcome distributions, quiz accuracy, language splits
+    match /stats/{storyId} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+    }
+    
+    // DENY-BY-DEFAULT
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

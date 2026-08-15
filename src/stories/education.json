@@ -1,0 +1,831 @@
+{
+  "startNode": "start",
+  "stages": [
+    { "icon": "🏫", "label": "The Beginning" },
+    { "icon": "📚", "label": "Discovery" },
+    { "icon": "⚖️", "label": "Understanding Rights" },
+    { "icon": "💪", "label": "Taking Action" },
+    { "icon": "🎓", "label": "Resolution" }
+  ],
+  "nodes": {
+    "start": {
+      "stage": 0,
+      "mood": "neutral",
+      "characters": ["student", "parent"],
+      "text": {
+        "en": "You are 10 years old and live in a small village. Your parents want you to help in the family shop instead of going to school. But you love learning and want to continue your education.",
+        "hi": "आप 10 साल के हैं और एक छोटे से गांव में रहते हैं। आपके माता-पिता चाहते हैं कि आप स्कूल जाने के बजाय परिवार की दुकान में मदद करें। लेकिन आपको सीखना बहुत पसंद है और आप अपनी शिक्षा जारी रखना चाहते हैं।",
+        "kn": "ನೀವು 10 ವರ್ಷ ವಯಸ್ಸಿನವರು ಮತ್ತು ಸಣ್ಣ ಗ್ರಾಮದಲ್ಲಿ ವಾಸಿಸುತ್ತಿದ್ದೀರಿ. ನಿಮ್ಮ ಪೋಷಕರು ನೀವು ಶಾಲೆಗೆ ಹೋಗುವ ಬದಲು ಕುಟುಂಬದ ಅಂಗಡಿಯಲ್ಲಿ ಸಹಾಯ ಮಾಡಬೇಕೆಂದು ಬಯಸುತ್ತಾರೆ. ಆದರೆ ನೀವು ಕಲಿಯಲು ಇಷ್ಟಪಡುತ್ತೀರಿ ಮತ್ತು ನಿಮ್ಮ ಶಿಕ್ಷಣವನ್ನು ಮುಂದುವರಿಸಲು ಬಯಸುತ್ತೀರಿ."
+      },
+      "sceneObjects": ["home", "village"],
+      "choices": [
+        {
+          "label": {
+            "en": "Talk to your parents about wanting to go to school",
+            "hi": "स्कूल जाने की इच्छा के बारे में अपने माता-पिता से बात करें",
+            "kn": "ಶಾಲೆಗೆ ಹೋಗಲು ಬಯಸುವ ಬಗ್ಗೆ ನಿಮ್ಮ ಪೋಷಕರೊಂದಿಗೆ ಮಾತನಾಡಿ"
+          },
+          "next": "talk_parents",
+          "xp": 15
+        },
+        {
+          "label": {
+            "en": "Obey your parents and stop going to school",
+            "hi": "अपने माता-पिता की आज्ञा मानें और स्कूल जाना बंद कर दें",
+            "kn": "ನಿಮ್ಮ ಪೋಷಕರಿಗೆ ವಿಧೇಯರಾಗಿ ಶಾಲೆಗೆ ಹೋಗುವುದನ್ನು ನಿಲ್ಲಿಸಿ"
+          },
+          "next": "obey_parents",
+          "xp": 5
+        },
+        {
+          "label": {
+            "en": "Ask your teacher for help",
+            "hi": "अपने शिक्षक से मदद मांगें",
+            "kn": "ನಿಮ್ಮ ಶಿಕ್ಷಕರಿಗೆ ಸಹಾಯಕ್ಕಾಗಿ ಕೇಳಿ"
+          },
+          "next": "ask_teacher",
+          "xp": 18
+        }
+      ]
+    },
+    "talk_parents": {
+      "stage": 1,
+      "mood": "worried",
+      "characters": ["student", "parent"],
+      "text": {
+        "en": "You explain to your parents that you want to continue studying. Your mother says, 'School costs money. We need you to work.' But you remember your teacher mentioning something about a law that protects children's right to education.",
+        "hi": "आप अपने माता-पिता को समझाते हैं कि आप पढ़ाई जारी रखना चाहते हैं। आपकी माँ कहती है, 'स्कूल में पैसे लगते हैं। हमें तुम्हारे काम की ज़रूरत है।' लेकिन आपको याद है कि आपके शिक्षक ने एक कानून का उल्लेख किया था जो बच्चों की शिक्षा के अधिकार की रक्षा करता है।",
+        "kn": "ನೀವು ನಿಮ್ಮ ಪೋಷಕರಿಗೆ ಅಧ್ಯಯನ ಮುಂದುವರಿಸಲು ಬಯಸುತ್ತೀರಿ ಎಂದು ವಿವರಿಸುತ್ತೀರಿ. ನಿಮ್ಮ ತಾಯಿ ಹೇಳುತ್ತಾರೆ, 'ಶಾಲೆಗೆ ಹಣ ಬೇಕು. ನಿಮ್ಮ ಕೆಲಸ ನಮಗೆ ಬೇಕು.' ಆದರೆ ನಿಮ್ಮ ಶಿಕ್ಷಕರು ಮಕ್ಕಳ ಶಿಕ್ಷಣ ಹಕ್ಕನ್ನು ರಕ್ಷಿಸುವ ಕಾನೂನಿನ ಬಗ್ಗೆ ಉಲ್ಲೇಖಿಸಿದ್ದು ನಿಮಗೆ ನೆನಪಿದೆ."
+      },
+      "sceneObjects": ["home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Tell them about the Right to Education Act",
+            "hi": "उन्हें शिक्षा के अधिकार अधिनियम के बारे में बताएं",
+            "kn": "ಶಿಕ್ಷಣ ಹಕ್ಕು ಕಾಯಿದೆಯ ಬಗ್ಗೆ ಅವರಿಗೆ ತಿಳಿಸಿ"
+          },
+          "next": "explain_rte",
+          "xp": 20
+        },
+        {
+          "label": {
+            "en": "Accept their decision quietly",
+            "hi": "चुपचाप उनका निर्णय स्वीकार करें",
+            "kn": "ಅವರ ನಿರ್ಧಾರವನ್ನು ಶಾಂತವಾಗಿ ಒಪ್ಪಿಕೊಳ್ಳಿ"
+          },
+          "next": "accept_decision",
+          "xp": 5
+        },
+        {
+          "label": {
+            "en": "Suggest you can study AND help in the shop",
+            "hi": "सुझाव दें कि आप पढ़ाई और दुकान में मदद दोनों कर सकते हैं",
+            "kn": "ನೀವು ಅಧ್ಯಯನ ಮತ್ತು ಅಂಗಡಿಯಲ್ಲಿ ಸಹಾಯ ಮಾಡಬಹುದು ಎಂದು ಸೂಚಿಸಿ"
+          },
+          "next": "compromise",
+          "xp": 12
+        }
+      ]
+    },
+    "ask_teacher": {
+      "stage": 1,
+      "mood": "hopeful",
+      "characters": ["student", "teacher"],
+      "text": {
+        "en": "Your teacher listens carefully. She smiles and says, 'I'm glad you came to me. Every child in India has the right to free education until age 14. This is protected by the RTE Act 2009. Let me talk to your parents about this law.'",
+        "hi": "आपकी शिक्षिका ध्यान से सुनती हैं। वह मुस्कुराती हैं और कहती हैं, 'मुझे खुशी है कि तुम मेरे पास आए। भारत में हर बच्चे को 14 साल की उम्र तक मुफ्त शिक्षा का अधिकार है। यह RTE अधिनियम 2009 द्वारा संरक्षित है। मुझे अपने माता-पिता से इस कानून के बारे में बात करने दो।'",
+        "kn": "ನಿಮ್ಮ ಶಿಕ್ಷಕರು ಎಚ್ಚರಿಕೆಯಿಂದ ಕೇಳುತ್ತಾರೆ. ಅವರು ನಗುತ್ತಾ ಹೇಳುತ್ತಾರೆ, 'ನೀವು ನನ್ನ ಬಳಿಗೆ ಬಂದಿದ್ದಕ್ಕೆ ನನಗೆ ಸಂತೋಷವಾಗಿದೆ. ಭಾರತದ ಪ್ರತಿಯೊಂದು ಮಗುವಿಗೆ 14 ವರ್ಷ ವಯಸ್ಸಿನವರೆಗೆ ಉಚಿತ ಶಿಕ್ಷಣದ ಹಕ್ಕಿದೆ. ಇದು RTE ಕಾಯಿದೆ 2009 ರಿಂದ ರಕ್ಷಿಸಲ್ಪಟ್ಟಿದೆ. ಈ ಕಾನೂನಿನ ಬಗ್ಗೆ ನಿಮ್ಮ ಪೋಷಕರೊಂದಿಗೆ ಮಾತನಾಡಲು ನನಗೆ ಅನುಮತಿಸಿ.'"
+      },
+      "sceneObjects": ["classroom", "books"],
+      "choices": [
+        {
+          "label": {
+            "en": "Ask the teacher to visit your home",
+            "hi": "शिक्षक से अपने घर आने को कहें",
+            "kn": "ಶಿಕ್ಷಕರನ್ನು ನಿಮ್ಮ ಮನೆಗೆ ಭೇಟಿ ನೀಡಲು ಕೇಳಿ"
+          },
+          "next": "teacher_visit",
+          "xp": 18
+        },
+        {
+          "label": {
+            "en": "Learn more about the RTE Act first",
+            "hi": "पहले RTE अधिनियम के बारे में और जानें",
+            "kn": "ಮೊದಲು RTE ಕಾಯಿದೆಯ ಬಗ್ಗೆ ಇನ್ನಷ್ಟು ತಿಳಿದುಕೊಳ್ಳಿ"
+          },
+          "next": "learn_rte",
+          "xp": 15
+        },
+        {
+          "label": {
+            "en": "Feel too scared to involve others",
+            "hi": "दूसरों को शामिल करने से बहुत डर लगता है",
+            "kn": "ಇತರರನ್ನು ಒಳಗೊಳ್ಳಲು ತುಂಬಾ ಭಯವಾಗುತ್ತದೆ"
+          },
+          "next": "too_scared",
+          "xp": 5
+        }
+      ]
+    },
+    "obey_parents": {
+      "stage": 1,
+      "mood": "worried",
+      "characters": ["student", "parent"],
+      "text": {
+        "en": "You stop going to school and work in the shop every day. After a few weeks, you feel sad. One day, a friend from school visits and tells you that the teacher is asking about you. Your friend says the teacher mentioned something about children's rights.",
+        "hi": "आप स्कूल जाना बंद कर देते हैं और हर दिन दुकान में काम करते हैं। कुछ हफ्तों के बाद, आप उदास महसूस करते हैं। एक दिन, स्कूल का एक दोस्त आता है और बताता है कि शिक्षक आपके बारे में पूछ रहे हैं। आपका दोस्त कहता है कि शिक्षक ने बच्चों के अधिकारों के बारे में कुछ कहा था।",
+        "kn": "ನೀವು ಶಾಲೆಗೆ ಹೋಗುವುದನ್ನು ನಿಲ್ಲಿಸುತ್ತೀರಿ ಮತ್ತು ಪ್ರತಿದಿನ ಅಂಗಡಿಯಲ್ಲಿ ಕೆಲಸ ಮಾಡುತ್ತೀರಿ. ಕೆಲವು ವಾರಗಳ ನಂತರ, ನೀವು ದುಃಖಿತರಾಗುತ್ತೀರಿ. ಒಂದು ದಿನ, ಶಾಲೆಯ ಸ್ನೇಹಿತ ಭೇಟಿ ನೀಡಿ ಶಿಕ್ಷಕರು ನಿಮ್ಮ ಬಗ್ಗೆ ವಿಚಾರಿಸುತ್ತಿದ್ದಾರೆಂದು ಹೇಳುತ್ತಾರೆ. ನಿಮ್ಮ ಸ್ನೇಹಿತ ಶಿಕ್ಷಕರು ಮಕ್ಕಳ ಹಕ್ಕುಗಳ ಬಗ್ಗೆ ಏನೋ ಹೇಳಿದರು ಎಂದು ಹೇಳುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["home", "village"],
+      "choices": [
+        {
+          "label": {
+            "en": "Go back to school and talk to the teacher",
+            "hi": "स्कूल वापस जाएं और शिक्षक से बात करें",
+            "kn": "ಶಾಲೆಗೆ ಹಿಂತಿರುಗಿ ಮತ್ತು ಶಿಕ್ಷಕರೊಂದಿಗೆ ಮಾತನಾಡಿ"
+          },
+          "next": "return_to_school",
+          "xp": 15
+        },
+        {
+          "label": {
+            "en": "Continue working and forget about school",
+            "hi": "काम करना जारी रखें और स्कूल के बारे में भूल जाएं",
+            "kn": "ಕೆಲಸ ಮುಂದುವರಿಸಿ ಮತ್ತು ಶಾಲೆಯ ಬಗ್ಗೆ ಮರೆತುಬಿಡಿ"
+          },
+          "next": "give_up",
+          "xp": 3
+        },
+        {
+          "label": {
+            "en": "Ask your friend to tell you more",
+            "hi": "अपने दोस्त से और बताने को कहें",
+            "kn": "ನಿಮ್ಮ ಸ್ನೇಹಿತನಿಗೆ ಹೆಚ್ಚು ಹೇಳಲು ಕೇಳಿ"
+          },
+          "next": "friend_explains",
+          "xp": 10
+        }
+      ]
+    },
+    "explain_rte": {
+      "stage": 2,
+      "mood": "hopeful",
+      "characters": ["student", "parent"],
+      "text": {
+        "en": "You explain that under the Right to Education Act 2009, every child aged 6-14 has the right to free and compulsory education. Your parents listen carefully. Your father says, 'But we still need help in the shop. How will we manage?'",
+        "hi": "आप समझाते हैं कि शिक्षा के अधिकार अधिनियम 2009 के तहत, 6-14 वर्ष की आयु के प्रत्येक बच्चे को मुफ्त और अनिवार्य शिक्षा का अधिकार है। आपके माता-पिता ध्यान से सुनते हैं। आपके पिता कहते हैं, 'लेकिन हमें अभी भी दुकान में मदद की ज़रूरत है। हम कैसे प्रबंधन करेंगे?'",
+        "kn": "ಶಿಕ್ಷಣ ಹಕ್ಕು ಕಾಯಿದೆ 2009 ರ ಅಡಿಯಲ್ಲಿ, 6-14 ವರ್ಷ ವಯಸ್ಸಿನ ಪ್ರತಿಯೊಂದು ಮಗುವಿಗೆ ಉಚಿತ ಮತ್ತು ಕಡ್ಡಾಯ ಶಿಕ್ಷಣದ ಹಕ್ಕಿದೆ ಎಂದು ನೀವು ವಿವರಿಸುತ್ತೀರಿ. ನಿಮ್ಮ ಪೋಷಕರು ಎಚ್ಚರಿಕೆಯಿಂದ ಕೇಳುತ್ತಾರೆ. ನಿಮ್ಮ ತಂದೆ ಹೇಳುತ್ತಾರೆ, 'ಆದರೆ ನಮಗೆ ಇನ್ನೂ ಅಂಗಡಿಯಲ್ಲಿ ಸಹಾಯ ಬೇಕು. ನಾವು ಹೇಗೆ ನಿರ್ವಹಿಸುತ್ತೇವೆ?'"
+      },
+      "sceneObjects": ["home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Offer to help after school hours",
+            "hi": "स्कूल के बाद मदद करने की पेशकश करें",
+            "kn": "ಶಾಲೆಯ ನಂತರ ಸಹಾಯ ಮಾಡಲು ಪ್ರಸ್ತಾಪಿಸಿ"
+          },
+          "next": "balance_solution",
+          "xp": 20
+        },
+        {
+          "label": {
+            "en": "Suggest talking to the school principal about flexible timing",
+            "hi": "लचीले समय के बारे में स्कूल के प्रिंसिपल से बात करने का सुझाव दें",
+            "kn": "ಹೊಂದಿಕೊಳ್ಳುವ ಸಮಯದ ಬಗ್ಗೆ ಶಾಲಾ ಪ್ರಾಂಶುಪಾಲರೊಂದಿಗೆ ಮಾತನಾಡಲು ಸೂಚಿಸಿ"
+          },
+          "next": "principal_help",
+          "xp": 18
+        },
+        {
+          "label": {
+            "en": "Get upset and argue",
+            "hi": "परेशान हो जाएं और बहस करें",
+            "kn": "ಅಸಮಾಧಾನಗೊಂಡು ವಾದಿಸಿ"
+          },
+          "next": "argument",
+          "xp": 8
+        }
+      ]
+    },
+    "teacher_visit": {
+      "stage": 2,
+      "mood": "hopeful",
+      "characters": ["student", "parent", "teacher"],
+      "text": {
+        "en": "The teacher visits your home and explains the RTE Act to your parents. She says, 'Education is not just a privilege, it's a legal right. The government provides free education, books, and even mid-day meals. Your child deserves this opportunity.'",
+        "hi": "शिक्षिका आपके घर आती हैं और आपके माता-पिता को RTE अधिनियम समझाती हैं। वह कहती हैं, 'शिक्षा सिर्फ एक विशेषाधिकार नहीं है, यह एक कानूनी अधिकार है। सरकार मुफ्त शिक्षा, किताबें, और मध्याह्न भोजन भी प्रदान करती है। आपके बच्चे को यह अवसर मिलना चाहिए।'",
+        "kn": "ಶಿಕ್ಷಕರು ನಿಮ್ಮ ಮನೆಗೆ ಭೇಟಿ ನೀಡಿ ನಿಮ್ಮ ಪೋಷಕರಿಗೆ RTE ಕಾಯಿದೆಯನ್ನು ವಿವರಿಸುತ್ತಾರೆ. ಅವರು ಹೇಳುತ್ತಾರೆ, 'ಶಿಕ್ಷಣ ಕೇವಲ ಸವಲತ್ತಲ್ಲ, ಇದು ಕಾನೂನು ಹಕ್ಕು. ಸರ್ಕಾರ ಉಚಿತ ಶಿಕ್ಷಣ, ಪುಸ್ತಕಗಳು ಮತ್ತು ಮಧ್ಯಾಹ್ನ ಊಟವನ್ನು ಸಹ ಒದಗಿಸುತ್ತದೆ. ನಿಮ್ಮ ಮಗುವಿಗೆ ಈ ಅವಕಾಶ ಸಿಗಬೇಕು.'"
+      },
+      "sceneObjects": ["home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Your parents agree and you return to school",
+            "hi": "आपके माता-पिता सहमत हो जाते हैं और आप स्कूल वापस जाते हैं",
+            "kn": "ನಿಮ್ಮ ಪೋಷಕರು ಒಪ್ಪುತ್ತಾರೆ ಮತ್ತು ನೀವು ಶಾಲೆಗೆ ಮರಳುತ್ತೀರಿ"
+          },
+          "next": "parents_agree",
+          "xp": 25
+        },
+        {
+          "label": {
+            "en": "Your parents are still hesitant",
+            "hi": "आपके माता-पिता अभी भी हिचकिचा रहे हैं",
+            "kn": "ನಿಮ್ಮ ಪೋಷಕರು ಇನ್ನೂ ಹಿಂಜರಿಯುತ್ತಾರೆ"
+          },
+          "next": "still_hesitant",
+          "xp": 12
+        }
+      ]
+    },
+    "learn_rte": {
+      "stage": 2,
+      "mood": "hopeful",
+      "characters": ["student", "teacher"],
+      "text": {
+        "en": "Your teacher shows you a book about the RTE Act 2009. You learn that it guarantees free education, quality standards, no discrimination, and regular attendance monitoring. You feel empowered with this knowledge.",
+        "hi": "आपकी शिक्षिका आपको RTE अधिनियम 2009 के बारे में एक किताब दिखाती हैं। आप सीखते हैं कि यह मुफ्त शिक्षा, गुणवत्ता मानकों, कोई भेदभाव नहीं, और नियमित उपस्थिति निगरानी की गारंटी देता है। आप इस ज्ञान के साथ सशक्त महसूस करते हैं।",
+        "kn": "ನಿಮ್ಮ ಶಿಕ್ಷಕರು ನಿಮಗೆ RTE ಕಾಯಿದೆ 2009 ರ ಬಗ್ಗೆ ಪುಸ್ತಕವನ್ನು ತೋರಿಸುತ್ತಾರೆ. ಇದು ಉಚಿತ ಶಿಕ್ಷಣ, ಗುಣಮಟ್ಟದ ಮಾನದಂಡಗಳು, ಯಾವುದೇ ತಾರತಮ್ಯವಿಲ್ಲ, ಮತ್ತು ನಿಯಮಿತ ಹಾಜರಾತಿ ಮೇಲ್ವಿಚಾರಣೆಯನ್ನು ಖಾತರಿಪಡಿಸುತ್ತದೆ ಎಂದು ನೀವು ಕಲಿಯುತ್ತೀರಿ. ಈ ಜ್ಞಾನದೊಂದಿಗೆ ನೀವು ಸಬಲರಾಗುತ್ತೀರಿ."
+      },
+      "sceneObjects": ["classroom", "books"],
+      "choices": [
+        {
+          "label": {
+            "en": "Take this knowledge home to your parents",
+            "hi": "इस ज्ञान को अपने माता-पिता के पास घर ले जाएं",
+            "kn": "ಈ ಜ್ಞಾನವನ್ನು ನಿಮ್ಮ ಪೋಷಕರ ಬಳಿಗೆ ಮನೆಗೆ ತೆಗೆದುಕೊಂಡು ಹೋಗಿ"
+          },
+          "next": "share_knowledge",
+          "xp": 18
+        },
+        {
+          "label": {
+            "en": "Ask the teacher to help speak to your parents",
+            "hi": "शिक्षक से अपने माता-पिता से बात करने में मदद मांगें",
+            "kn": "ನಿಮ್ಮ ಪೋಷಕರೊಂದಿಗೆ ಮಾತನಾಡಲು ಶಿಕ್ಷಕರಿಗೆ ಸಹಾಯ ಮಾಡಲು ಕೇಳಿ"
+          },
+          "next": "teacher_visit",
+          "xp": 20
+        }
+      ]
+    },
+    "return_to_school": {
+      "stage": 2,
+      "mood": "hopeful",
+      "characters": ["student", "teacher"],
+      "text": {
+        "en": "You return to school. Your teacher is happy to see you and asks what happened. You explain your situation. She says she will help you and your family understand your rights.",
+        "hi": "आप स्कूल वापस जाते हैं। आपकी शिक्षिका आपको देखकर खुश होती हैं और पूछती हैं कि क्या हुआ। आप अपनी स्थिति समझाते हैं। वह कहती हैं कि वह आपको और आपके परिवार को आपके अधिकारों को समझने में मदद करेंगी।",
+        "kn": "ನೀವು ಶಾಲೆಗೆ ಮರಳುತ್ತೀರಿ. ನಿಮ್ಮ ಶಿಕ್ಷಕರು ನಿಮ್ಮನ್ನು ನೋಡಿ ಸಂತೋಷಪಡುತ್ತಾರೆ ಮತ್ತು ಏನಾಯಿತು ಎಂದು ಕೇಳುತ್ತಾರೆ. ನೀವು ನಿಮ್ಮ ಪರಿಸ್ಥಿತಿಯನ್ನು ವಿವರಿಸುತ್ತೀರಿ. ಅವರು ನಿಮಗೆ ಮತ್ತು ನಿಮ್ಮ ಕುಟುಂಬಕ್ಕೆ ನಿಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಸಹಾಯ ಮಾಡುತ್ತಾರೆ ಎಂದು ಹೇಳುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["classroom"],
+      "choices": [
+        {
+          "label": {
+            "en": "Ask her to visit your home",
+            "hi": "उनसे अपने घर आने को कहें",
+            "kn": "ಅವರನ್ನು ನಿಮ್ಮ ಮನೆಗೆ ಭೇಟಿ ನೀಡಲು ಕೇಳಿ"
+          },
+          "next": "teacher_visit",
+          "xp": 18
+        },
+        {
+          "label": {
+            "en": "Learn more about your rights first",
+            "hi": "पहले अपने अधिकारों के बारे में और जानें",
+            "kn": "ಮೊದಲು ನಿಮ್ಮ ಹಕ್ಕುಗಳ ಬಗ್ಗೆ ಇನ್ನಷ್ಟು ತಿಳಿದುಕೊಳ್ಳಿ"
+          },
+          "next": "learn_rte",
+          "xp": 15
+        }
+      ]
+    },
+    "friend_explains": {
+      "stage": 2,
+      "mood": "hopeful",
+      "characters": ["student", "friend"],
+      "text": {
+        "en": "Your friend tells you that the teacher mentioned the Right to Education Act. Every child has the right to go to school until age 14, and it's free! Your friend encourages you to talk to the teacher.",
+        "hi": "आपका दोस्त बताता है कि शिक्षक ने शिक्षा के अधिकार अधिनियम का उल्लेख किया। हर बच्चे को 14 साल की उम्र तक स्कूल जाने का अधिकार है, और यह मुफ्त है! आपका दोस्त आपको शिक्षक से बात करने के लिए प्रोत्साहित करता है।",
+        "kn": "ಶಿಕ್ಷಕರು ಶಿಕ್ಷಣ ಹಕ್ಕು ಕಾಯಿದೆಯನ್ನು ಉಲ್ಲೇಖಿಸಿದ್ದಾರೆ ಎಂದು ನಿಮ್ಮ ಸ್ನೇಹಿತ ಹೇಳುತ್ತಾರೆ. ಪ್ರತಿ ಮಗುವಿಗೆ 14 ವರ್ಷ ವಯಸ್ಸಿನವರೆಗೆ ಶಾಲೆಗೆ ಹೋಗುವ ಹಕ್ಕಿದೆ, ಮತ್ತು ಇದು ಉಚಿತವಾಗಿದೆ! ನಿಮ್ಮ ಸ್ನೇಹಿತ ಶಿಕ್ಷಕರೊಂದಿಗೆ ಮಾತನಾಡಲು ನಿಮ್ಮನ್ನು ಪ್ರೋತ್ಸಾಹಿಸುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["village"],
+      "choices": [
+        {
+          "label": {
+            "en": "Go back to school with your friend",
+            "hi": "अपने दोस्त के साथ स्कूल वापस जाएं",
+            "kn": "ನಿಮ್ಮ ಸ್ನೇಹಿತನೊಂದಿಗೆ ಶಾಲೆಗೆ ಹಿಂತಿರುಗಿ"
+          },
+          "next": "return_to_school",
+          "xp": 15
+        },
+        {
+          "label": {
+            "en": "Feel it's too late to go back",
+            "hi": "लगता है कि वापस जाने में बहुत देर हो गई",
+            "kn": "ಹಿಂತಿರುಗಲು ತುಂಬಾ ತಡವಾಗಿದೆ ಎಂದು ಅನಿಸುತ್ತದೆ"
+          },
+          "next": "too_late",
+          "xp": 5
+        }
+      ]
+    },
+    "balance_solution": {
+      "stage": 3,
+      "mood": "hopeful",
+      "characters": ["student", "parent"],
+      "text": {
+        "en": "You propose a solution: attend school during the day and help in the shop for 2 hours after school. Your parents agree to try this arrangement. They see your determination and start to understand the importance of education.",
+        "hi": "आप एक समाधान प्रस्तावित करते हैं: दिन में स्कूल जाएं और स्कूल के बाद 2 घंटे दुकान में मदद करें। आपके माता-पिता इस व्यवस्था को आजमाने के लिए सहमत होते हैं। वे आपका दृढ़ संकल्प देखते हैं और शिक्षा के महत्व को समझने लगते हैं।",
+        "kn": "ನೀವು ಒಂದು ಪರಿಹಾರವನ್ನು ಪ್ರಸ್ತಾಪಿಸುತ್ತೀರಿ: ಹಗಲು ಶಾಲೆಗೆ ಹಾಜರಾಗಿ ಮತ್ತು ಶಾಲೆಯ ನಂತರ 2 ಗಂಟೆಗಳ ಕಾಲ ಅಂಗಡಿಯಲ್ಲಿ ಸಹಾಯ ಮಾಡಿ. ನಿಮ್ಮ ಪೋಷಕರು ಈ ವ್ಯವಸ್ಥೆಯನ್ನು ಪ್ರಯತ್ನಿಸಲು ಒಪ್ಪುತ್ತಾರೆ. ಅವರು ನಿಮ್ಮ ನಿರ್ಧಾರವನ್ನು ನೋಡುತ್ತಾರೆ ಮತ್ತು ಶಿಕ್ಷಣದ ಪ್ರಾಮುಖ್ಯತೆಯನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಪ್ರಾರಂಭಿಸುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["home", "classroom"],
+      "choices": [
+        {
+          "label": {
+            "en": "Work hard to prove you can do both",
+            "hi": "कड़ी मेहनत करें और साबित करें कि आप दोनों कर सकते हैं",
+            "kn": "ನೀವು ಎರಡನ್ನೂ ಮಾಡಬಹುದು ಎಂದು ಸಾಬೀತುಪಡಿಸಲು ಕಠಿಣ ಪರಿಶ್ರಮ ಮಾಡಿ"
+          },
+          "next": "prove_yourself",
+          "xp": 25
+        },
+        {
+          "label": {
+            "en": "Find it too tiring and struggle",
+            "hi": "बहुत थका देने वाला लगता है और संघर्ष करते हैं",
+            "kn": "ತುಂಬಾ ದಣಿದಿರುವಂತೆ ಕಂಡುಬರುತ್ತದೆ ಮತ್ತು ಹೋರಾಟ"
+          },
+          "next": "struggling",
+          "xp": 10
+        }
+      ]
+    },
+    "principal_help": {
+      "stage": 3,
+      "mood": "hopeful",
+      "characters": ["student", "parent", "principal"],
+      "text": {
+        "en": "You and your parents meet the school principal. She explains that under RTE Act, schools must accommodate students from all backgrounds. She offers flexible timing and extra support. Your parents are impressed by her understanding.",
+        "hi": "आप और आपके माता-पिता स्कूल की प्रिंसिपल से मिलते हैं। वह समझाती हैं कि RTE अधिनियम के तहत, स्कूलों को सभी पृष्ठभूमि के छात्रों को समायोजित करना चाहिए। वह लचीले समय और अतिरिक्त सहायता की पेशकश करती हैं। आपके माता-पिता उनकी समझ से प्रभावित होते हैं।",
+        "kn": "ನೀವು ಮತ್ತು ನಿಮ್ಮ ಪೋಷಕರು ಶಾಲಾ ಪ್ರಾಂಶುಪಾಲರನ್ನು ಭೇಟಿಯಾಗುತ್ತೀರಿ. RTE ಕಾಯಿದೆಯ ಅಡಿಯಲ್ಲಿ, ಶಾಲೆಗಳು ಎಲ್ಲಾ ಹಿನ್ನೆಲೆಯ ವಿದ್ಯಾರ್ಥಿಗಳನ್ನು ಸ್ಥಾನ ಕಲ್ಪಿಸಬೇಕು ಎಂದು ಅವರು ವಿವರಿಸುತ್ತಾರೆ. ಅವರು ಹೊಂದಿಕೊಳ್ಳುವ ಸಮಯ ಮತ್ತು ಹೆಚ್ಚುವರಿ ಬೆಂಬಲವನ್ನು ನೀಡುತ್ತಾರೆ. ನಿಮ್ಮ ಪೋಷಕರು ಅವರ ತಿಳುವಳಿಕೆಯಿಂದ ಪ್ರಭಾವಿತರಾಗುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["office", "classroom"],
+      "choices": [
+        {
+          "label": {
+            "en": "Accept the arrangement and continue school",
+            "hi": "व्यवस्था स्वीकार करें और स्कूल जारी रखें",
+            "kn": "ವ್ಯವಸ್ಥೆಯನ್ನು ಸ್ವೀಕರಿಸಿ ಮತ್ತು ಶಾಲೆಯನ್ನು ಮುಂದುವರಿಸಿ"
+          },
+          "next": "flexible_success",
+          "xp": 25
+        }
+      ]
+    },
+    "parents_agree": {
+      "stage": 3,
+      "mood": "happy",
+      "characters": ["student", "parent", "teacher"],
+      "text": {
+        "en": "After hearing about the RTE Act and the benefits it provides, your parents agree. They realize that your education is important and protected by law. You return to school the next day, feeling hopeful about your future.",
+        "hi": "RTE अधिनियम और इसके लाभों के बारे में सुनने के बाद, आपके माता-पिता सहमत हो जाते हैं। उन्हें एहसास होता है कि आपकी शिक्षा महत्वपूर्ण है और कानून द्वारा संरक्षित है। आप अगले दिन स्कूल लौटते हैं, अपने भविष्य के बारे में आशावान महसूस करते हैं।",
+        "kn": "RTE ಕಾಯಿದೆ ಮತ್ತು ಅದು ಒದಗಿಸುವ ಪ್ರಯೋಜನಗಳ ಬಗ್ಗೆ ಕೇಳಿದ ನಂತರ, ನಿಮ್ಮ ಪೋಷಕರು ಒಪ್ಪುತ್ತಾರೆ. ನಿಮ್ಮ ಶಿಕ್ಷಣ ಮುಖ್ಯ ಮತ್ತು ಕಾನೂನಿನಿಂದ ರಕ್ಷಿಸಲ್ಪಟ್ಟಿದೆ ಎಂದು ಅವರು ಅರಿತುಕೊಳ್ಳುತ್ತಾರೆ. ನೀವು ಮರುದಿನ ಶಾಲೆಗೆ ಮರಳುತ್ತೀರಿ, ನಿಮ್ಮ ಭವಿಷ್ಯದ ಬಗ್ಗೆ ಭರವಸೆ ಹೊಂದಿರುತ್ತೀರಿ."
+      },
+      "sceneObjects": ["home", "classroom"],
+      "choices": [
+        {
+          "label": {
+            "en": "Study hard and make your parents proud",
+            "hi": "कड़ी मेहनत से पढ़ाई करें और अपने माता-पिता को गर्व करें",
+            "kn": "ಕಠಿಣ ಅಧ್ಯಯನ ಮಾಡಿ ಮತ್ತು ನಿಮ್ಮ ಪೋಷಕರನ್ನು ಹೆಮ್ಮೆಪಡಿಸಿ"
+          },
+          "next": "strong_ending",
+          "xp": 20
+        },
+        {
+          "label": {
+            "en": "Continue your education journey",
+            "hi": "अपनी शिक्षा यात्रा जारी रखें",
+            "kn": "ನಿಮ್ಮ ಶಿಕ್ಷಣ ಪ್ರಯಾಣವನ್ನು ಮುಂದುವರಿಸಿ"
+          },
+          "next": "medium_ending",
+          "xp": 15
+        }
+      ]
+    },
+    "prove_yourself": {
+      "stage": 3,
+      "mood": "happy",
+      "characters": ["student", "parent", "teacher"],
+      "text": {
+        "en": "You work hard, balancing school and helping in the shop. Your grades improve and your parents see the positive change in you. They become proud supporters of your education. The teacher commends your dedication.",
+        "hi": "आप कड़ी मेहनत करते हैं, स्कूल और दुकान में मदद करने में संतुलन बनाते हैं। आपके ग्रेड में सुधार होता है और आपके माता-पिता आपमें सकारात्मक बदलाव देखते हैं। वे आपकी शिक्षा के गर्व समर्थक बन जाते हैं। शिक्षक आपकी समर्पण की प्रशंसा करते हैं।",
+        "kn": "ನೀವು ಕಠಿಣ ಪರಿಶ್ರಮ ಮಾಡುತ್ತೀರಿ, ಶಾಲೆ ಮತ್ತು ಅಂಗಡಿಯಲ್ಲಿ ಸಹಾಯ ಮಾಡುವುದರಲ್ಲಿ ಸಮತೋಲನ ಸಾಧಿಸುತ್ತೀರಿ. ನಿಮ್ಮ ಅಂಕಗಳು ಸುಧಾರಿಸುತ್ತವೆ ಮತ್ತು ನಿಮ್ಮ ಪೋಷಕರು ನಿಮ್ಮಲ್ಲಿ ಸಕಾರಾತ್ಮಕ ಬದಲಾವಣೆಯನ್ನು ನೋಡುತ್ತಾರೆ. ಅವರು ನಿಮ್ಮ ಶಿಕ್ಷಣದ ಹೆಮ್ಮೆಯ ಬೆಂಬಲಿಗರಾಗುತ್ತಾರೆ. ಶಿಕ್ಷಕರು ನಿಮ್ಮ ಸಮರ್ಪಣೆಯನ್ನು ಪ್ರಶಂಸಿಸುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["classroom", "home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Continue excelling in both areas",
+            "hi": "दोनों क्षेत्रों में उत्कृष्टता जारी रखें",
+            "kn": "ಎರಡೂ ಕ್ಷೇತ್ರಗಳಲ್ಲಿ ಅತ್ಯುತ್ತಮವಾಗಿ ಮುಂದುವರಿಯಿರಿ"
+          },
+          "next": "strong_ending",
+          "xp": 20
+        }
+      ]
+    },
+    "flexible_success": {
+      "stage": 3,
+      "mood": "happy",
+      "characters": ["student", "parent", "principal", "teacher"],
+      "text": {
+        "en": "The flexible arrangement works perfectly. You attend school, your parents get help in the shop, and the school provides extra support when needed. This becomes a model for other families facing similar situations.",
+        "hi": "लचीली व्यवस्था पूरी तरह से काम करती है। आप स्कूल जाते हैं, आपके माता-पिता को दुकान में मदद मिलती है, और स्कूल जरूरत पड़ने पर अतिरिक्त सहायता प्रदान करता है। यह समान स्थितियों का सामना कर रहे अन्य परिवारों के लिए एक मॉडल बन जाता है।",
+        "kn": "ಹೊಂದಿಕೊಳ್ಳುವ ವ್ಯವಸ್ಥೆ ಪರಿಪೂರ್ಣವಾಗಿ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ. ನೀವು ಶಾಲೆಗೆ ಹಾಜರಾಗುತ್ತೀರಿ, ನಿಮ್ಮ ಪೋಷಕರಿಗೆ ಅಂಗಡಿಯಲ್ಲಿ ಸಹಾಯ ಸಿಗುತ್ತದೆ, ಮತ್ತು ಶಾಲೆಯು ಅಗತ್ಯವಿದ್ದಾಗ ಹೆಚ್ಚುವರಿ ಬೆಂಬಲವನ್ನು ಒದಗಿಸುತ್ತದೆ. ಇದು ಇದೇ ಪರಿಸ್ಥಿತಿಗಳನ್ನು ಎದುರಿಸುತ್ತಿರುವ ಇತರ ಕುಟುಂಬಗಳಿಗೆ ಮಾದರಿಯಾಗುತ್ತದೆ."
+      },
+      "sceneObjects": ["classroom", "office"],
+      "choices": [
+        {
+          "label": {
+            "en": "Become a role model for others",
+            "hi": "दूसरों के लिए एक रोल मॉडल बनें",
+            "kn": "ಇತರರಿಗೆ ಆದರ್ಶವಾಗಿರಿ"
+          },
+          "next": "strong_ending",
+          "xp": 25
+        }
+      ]
+    },
+    "still_hesitant": {
+      "stage": 3,
+      "mood": "worried",
+      "characters": ["student", "parent", "teacher"],
+      "text": {
+        "en": "Your parents are still worried about money and time. The teacher suggests connecting them with other families who successfully balanced work and school. She also mentions government schemes that can help.",
+        "hi": "आपके माता-पिता अभी भी पैसे और समय के बारे में चिंतित हैं। शिक्षक उन्हें उन अन्य परिवारों से जोड़ने का सुझाव देते हैं जिन्होंने सफलतापूर्वक काम और स्कूल में संतुलन बनाया। वह सरकारी योजनाओं का भी उल्लेख करती हैं जो मदद कर सकती हैं।",
+        "kn": "ನಿಮ್ಮ ಪೋಷಕರು ಇನ್ನೂ ಹಣ ಮತ್ತು ಸಮಯದ ಬಗ್ಗೆ ಚಿಂತಿತರಾಗಿದ್ದಾರೆ. ಶಿಕ್ಷಕರು ಅವರನ್ನು ಕೆಲಸ ಮತ್ತು ಶಾಲೆಯಲ್ಲಿ ಯಶಸ್ವಿಯಾಗಿ ಸಮತೋಲನ ಸಾಧಿಸಿದ ಇತರ ಕುಟುಂಬಗಳೊಂದಿಗೆ ಸಂಪರ್ಕಿಸಲು ಸೂಚಿಸುತ್ತಾರೆ. ಅವರು ಸಹಾಯ ಮಾಡುವ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳನ್ನು ಸಹ ಉಲ್ಲೇಖಿಸುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Meet other families and learn from their experience",
+            "hi": "अन्य परिवारों से मिलें और उनके अनुभव से सीखें",
+            "kn": "ಇತರ ಕುಟುಂಬಗಳನ್ನು ಭೇಟಿಯಾಗಿ ಅವರ ಅನುಭವದಿಂದ ಕಲಿಯಿರಿ"
+          },
+          "next": "community_support",
+          "xp": 18
+        },
+        {
+          "label": {
+            "en": "Give up and accept your parents' decision",
+            "hi": "हार मान लें और अपने माता-पिता के निर्णय को स्वीकार करें",
+            "kn": "ಬಿಟ್ಟುಕೊಡಿ ಮತ್ತು ನಿಮ್ಮ ಪೋಷಕರ ನಿರ್ಧಾರವನ್ನು ಒಪ್ಪಿಕೊಳ್ಳಿ"
+          },
+          "next": "weak_ending",
+          "xp": 5
+        }
+      ]
+    },
+    "struggling": {
+      "stage": 3,
+      "mood": "worried",
+      "characters": ["student", "parent", "teacher"],
+      "text": {
+        "en": "Balancing school and work is very hard. You feel exhausted. Your teacher notices you struggling and offers to help. She suggests talking to your parents about reducing work hours or finding alternative solutions.",
+        "hi": "स्कूल और काम में संतुलन बनाना बहुत कठिन है। आप थके हुए महसूस करते हैं। आपकी शिक्षिका ने आपको संघर्ष करते देखा और मदद की पेशकश की। वह काम के घंटे कम करने या वैकल्पिक समाधान खोजने के बारे में आपके माता-पिता से बात करने का सुझाव देती हैं।",
+        "kn": "ಶಾಲೆ ಮತ್ತು ಕೆಲಸದಲ್ಲಿ ಸಮತೋಲನ ಸಾಧಿಸುವುದು ತುಂಬಾ ಕಠಿಣ. ನೀವು ದಣಿದಿರುವಂತೆ ಅನಿಸುತ್ತದೆ. ನಿಮ್ಮ ಶಿಕ್ಷಕರು ನೀವು ಹೋರಾಡುತ್ತಿರುವುದನ್ನು ಗಮನಿಸುತ್ತಾರೆ ಮತ್ತು ಸಹಾಯ ಮಾಡಲು ಪ್ರಸ್ತಾಪಿಸುತ್ತಾರೆ. ಕೆಲಸದ ಸಮಯವನ್ನು ಕಡಿಮೆ ಮಾಡುವ ಅಥವಾ ಪರ್ಯಾಯ ಪರಿಹಾರಗಳನ್ನು ಹುಡುಕುವ ಬಗ್ಗೆ ನಿಮ್ಮ ಪೋಷಕರೊಂದಿಗೆ ಮಾತನಾಡಲು ಅವರು ಸೂಚಿಸುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["classroom", "home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Ask teacher to help find a better solution",
+            "hi": "शिक्षक से बेहतर समाधान खोजने में मदद मांगें",
+            "kn": "ಉತ್ತಮ ಪರಿಹಾರವನ್ನು ಹುಡುಕಲು ಶಿಕ್ಷಕರಿಗೆ ಸಹಾಯ ಮಾಡಲು ಕೇಳಿ"
+          },
+          "next": "principal_help",
+          "xp": 15
+        },
+        {
+          "label": {
+            "en": "Try to continue despite exhaustion",
+            "hi": "थकान के बावजूद जारी रखने का प्रयास करें",
+            "kn": "ದಣಿವಿನ ಹೊರತಾಗಿಯೂ ಮುಂದುವರಿಯಲು ಪ್ರಯತ್ನಿಸಿ"
+          },
+          "next": "medium_low_ending",
+          "xp": 10
+        }
+      ]
+    },
+    "community_support": {
+      "stage": 3,
+      "mood": "hopeful",
+      "characters": ["student", "parent", "friend"],
+      "text": {
+        "en": "You meet families who faced similar challenges. They share how they managed school and work. Your parents see that it's possible and feel more confident. The community support gives everyone hope.",
+        "hi": "आप उन परिवारों से मिलते हैं जिन्होंने समान चुनौतियों का सामना किया। वे साझा करते हैं कि उन्होंने स्कूल और काम का प्रबंधन कैसे किया। आपके माता-पिता देखते हैं कि यह संभव है और अधिक आश्वस्त महसूस करते हैं। सामुदायिक समर्थन सभी को आशा देता है।",
+        "kn": "ನೀವು ಇದೇ ರೀತಿಯ ಸವಾಲುಗಳನ್ನು ಎದುರಿಸಿದ ಕುಟುಂಬಗಳನ್ನು ಭೇಟಿಯಾಗುತ್ತೀರಿ. ಅವರು ಶಾಲೆ ಮತ್ತು ಕೆಲಸವನ್ನು ಹೇಗೆ ನಿರ್ವಹಿಸಿದರು ಎಂಬುದನ್ನು ಹಂಚಿಕೊಳ್ಳುತ್ತಾರೆ. ನಿಮ್ಮ ಪೋಷಕರು ಅದು ಸಾಧ್ಯವೆಂದು ನೋಡುತ್ತಾರೆ ಮತ್ತು ಹೆಚ್ಚು ಆತ್ಮವಿಶ್ವಾಸ ಹೊಂದುತ್ತಾರೆ. ಸಮುದಾಯ ಬೆಂಬಲ ಎಲ್ಲರಿಗೂ ಭರವಸೆ ನೀಡುತ್ತದೆ."
+      },
+      "sceneObjects": ["village"],
+      "choices": [
+        {
+          "label": {
+            "en": "Return to school with your parents' support",
+            "hi": "अपने माता-पिता के समर्थन के साथ स्कूल लौटें",
+            "kn": "ನಿಮ್ಮ ಪೋಷಕರ ಬೆಂಬಲದೊಂದಿಗೆ ಶಾಲೆಗೆ ಮರಳಿ"
+          },
+          "next": "medium_ending",
+          "xp": 20
+        }
+      ]
+    },
+    "share_knowledge": {
+      "stage": 3,
+      "mood": "hopeful",
+      "characters": ["student", "parent"],
+      "text": {
+        "en": "You confidently explain the RTE Act to your parents, telling them about free education, mid-day meals, and quality standards. They are impressed by your knowledge and begin to see education's value.",
+        "hi": "आप आत्मविश्वास के साथ अपने माता-पिता को RTE अधिनियम समझाते हैं, उन्हें मुफ्त शिक्षा, मध्याह्न भोजन, और गुणवत्ता मानकों के बारे में बताते हैं। वे आपके ज्ञान से प्रभावित होते हैं और शिक्षा का मूल्य देखने लगते हैं।",
+        "kn": "ನೀವು ಆತ್ಮವಿಶ್ವಾಸದಿಂದ ನಿಮ್ಮ ಪೋಷಕರಿಗೆ RTE ಕಾಯಿದೆಯನ್ನು ವಿವರಿಸುತ್ತೀರಿ, ಉಚಿತ ಶಿಕ್ಷಣ, ಮಧ್ಯಾಹ್ನ ಊಟ ಮತ್ತು ಗುಣಮಟ್ಟದ ಮಾನದಂಡಗಳ ಬಗ್ಗೆ ಹೇಳುತ್ತೀರಿ. ಅವರು ನಿಮ್ಮ ಜ್ಞಾನದಿಂದ ಪ್ರಭಾವಿತರಾಗುತ್ತಾರೆ ಮತ್ತು ಶಿಕ್ಷಣದ ಮೌಲ್ಯವನ್ನು ನೋಡಲು ಪ್ರಾರಂಭಿಸುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Continue to convince them with facts",
+            "hi": "तथ्यों के साथ उन्हें समझाना जारी रखें",
+            "kn": "ಸತ್ಯಗಳೊಂದಿಗೆ ಅವರನ್ನು ಮನವರಿಕೆ ಮಾಡುವುದನ್ನು ಮುಂದುವರಿಸಿ"
+          },
+          "next": "parents_agree",
+          "xp": 18
+        }
+      ]
+    },
+    "too_scared": {
+      "stage": 2,
+      "mood": "worried",
+      "characters": ["student"],
+      "text": {
+        "en": "You feel too scared to involve others or push further. Days pass and you miss school more and more. But one day, you realize you can't give up on your dreams.",
+        "hi": "आप दूसरों को शामिल करने या आगे बढ़ाने से बहुत डरते हैं। दिन बीतते हैं और आप स्कूल को और अधिक याद करते हैं। लेकिन एक दिन, आप महसूस करते हैं कि आप अपने सपनों को नहीं छोड़ सकते।",
+        "kn": "ಇತರರನ್ನು ಒಳಗೊಳ್ಳಲು ಅಥವಾ ಮುಂದೆ ತಳ್ಳಲು ನಿಮಗೆ ತುಂಬಾ ಭಯವಾಗುತ್ತದೆ. ದಿನಗಳು ಕಳೆಯುತ್ತವೆ ಮತ್ತು ನೀವು ಶಾಲೆಯನ್ನು ಹೆಚ್ಚು ಹೆಚ್ಚು ತಪ್ಪಿಸಿಕೊಳ್ಳುತ್ತೀರಿ. ಆದರೆ ಒಂದು ದಿನ, ನೀವು ನಿಮ್ಮ ಕನಸುಗಳನ್ನು ಬಿಟ್ಟುಕೊಡಲು ಸಾಧ್ಯವಿಲ್ಲ ಎಂದು ನೀವು ಅರಿತುಕೊಳ್ಳುತ್ತೀರಿ."
+      },
+      "sceneObjects": ["home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Find courage and go back to the teacher",
+            "hi": "साहस खोजें और शिक्षक के पास वापस जाएं",
+            "kn": "ಧೈರ್ಯ ಕಂಡುಕೊಳ್ಳಿ ಮತ್ತು ಶಿಕ್ಷಕರ ಬಳಿಗೆ ಹಿಂತಿರುಗಿ"
+          },
+          "next": "return_to_school",
+          "xp": 12
+        },
+        {
+          "label": {
+            "en": "Stay scared and do nothing",
+            "hi": "डरे रहें और कुछ न करें",
+            "kn": "ಭಯಪಡಿರಿ ಮತ್ತು ಏನೂ ಮಾಡಬೇಡಿ"
+          },
+          "next": "weak_ending",
+          "xp": 3
+        }
+      ]
+    },
+    "accept_decision": {
+      "stage": 2,
+      "mood": "worried",
+      "characters": ["student", "parent"],
+      "text": {
+        "en": "You quietly accept their decision and stop arguing. But you feel sad inside. One day, your friend tells you about a government helpline that helps children access education rights.",
+        "hi": "आप चुपचाप उनका निर्णय स्वीकार करते हैं और बहस करना बंद कर देते हैं। लेकिन आप अंदर से उदास महसूस करते हैं। एक दिन, आपका दोस्त आपको एक सरकारी हेल्पलाइन के बारे में बताता है जो बच्चों को शिक्षा के अधिकारों तक पहुंचने में मदद करती है।",
+        "kn": "ನೀವು ಶಾಂತವಾಗಿ ಅವರ ನಿರ್ಧಾರವನ್ನು ಒಪ್ಪಿಕೊಳ್ಳುತ್ತೀರಿ ಮತ್ತು ವಾದವನ್ನು ನಿಲ್ಲಿಸುತ್ತೀರಿ. ಆದರೆ ನೀವು ಒಳಗಿನಿಂದ ದುಃಖಿತರಾಗುತ್ತೀರಿ. ಒಂದು ದಿನ, ನಿಮ್ಮ ಸ್ನೇಹಿತ ಮಕ್ಕಳು ಶಿಕ್ಷಣ ಹಕ್ಕುಗಳನ್ನು ಪ್ರವೇಶಿಸಲು ಸಹಾಯ ಮಾಡುವ ಸರ್ಕಾರಿ ಸಹಾಯವಾಣಿ ಬಗ್ಗೆ ಹೇಳುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Call the helpline for guidance",
+            "hi": "मार्गदर्शन के लिए हेल्पलाइन पर कॉल करें",
+            "kn": "ಮಾರ್ಗದರ್ಶನಕ್ಕಾಗಿ ಸಹಾಯವಾಣಿಗೆ ಕರೆ ಮಾಡಿ"
+          },
+          "next": "helpline_support",
+          "xp": 12
+        },
+        {
+          "label": {
+            "en": "Feel it won't help and give up",
+            "hi": "लगता है कि यह मदद नहीं करेगा और हार मान लेते हैं",
+            "kn": "ಇದು ಸಹಾಯ ಮಾಡುವುದಿಲ್ಲ ಎಂದು ಅನಿಸುತ್ತದೆ ಮತ್ತು ಬಿಟ್ಟುಕೊಡಿ"
+          },
+          "next": "give_up",
+          "xp": 3
+        }
+      ]
+    },
+    "helpline_support": {
+      "stage": 3,
+      "mood": "hopeful",
+      "characters": ["student", "official"],
+      "text": {
+        "en": "You call the education helpline. A kind official explains your rights and offers to help. She contacts your school and arranges a meeting with your parents to explain the RTE Act.",
+        "hi": "आप शिक्षा हेल्पलाइन पर कॉल करते हैं। एक दयालु अधिकारी आपके अधिकारों को समझाती है और मदद की पेशकश करती है। वह आपके स्कूल से संपर्क करती है और RTE अधिनियम को समझाने के लिए आपके माता-पिता के साथ एक बैठक की व्यवस्था करती है।",
+        "kn": "ನೀವು ಶಿಕ್ಷಣ ಸಹಾಯವಾಣಿಗೆ ಕರೆ ಮಾಡುತ್ತೀರಿ. ದಯೆಯ ಅಧಿಕಾರಿ ನಿಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ವಿವರಿಸುತ್ತಾರೆ ಮತ್ತು ಸಹಾಯ ಮಾಡಲು ಪ್ರಸ್ತಾಪಿಸುತ್ತಾರೆ. ಅವರು ನಿಮ್ಮ ಶಾಲೆಯನ್ನು ಸಂಪರ್ಕಿಸುತ್ತಾರೆ ಮತ್ತು RTE ಕಾಯಿದೆಯನ್ನು ವಿವರಿಸಲು ನಿಮ್ಮ ಪೋಷಕರೊಂದಿಗೆ ಸಭೆಯನ್ನು ಏರ್ಪಡಿಸುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["office"],
+      "choices": [
+        {
+          "label": {
+            "en": "Attend the meeting with hope",
+            "hi": "उम्मीद के साथ बैठक में भाग लें",
+            "kn": "ಭರವಸೆಯೊಂದಿಗೆ ಸಭೆಗೆ ಹಾಜರಾಗಿ"
+          },
+          "next": "official_meeting",
+          "xp": 15
+        }
+      ]
+    },
+    "official_meeting": {
+      "stage": 3,
+      "mood": "hopeful",
+      "characters": ["student", "parent", "official", "teacher"],
+      "text": {
+        "en": "At the meeting, the official explains the legal protections for children's education. Your parents understand that denying education is against the law. They agree to let you return to school.",
+        "hi": "बैठक में, अधिकारी बच्चों की शिक्षा के लिए कानूनी सुरक्षा को समझाती है। आपके माता-पिता समझते हैं कि शिक्षा से इनकार करना कानून के खिलाफ है। वे आपको स्कूल वापस जाने देने के लिए सहमत होते हैं।",
+        "kn": "ಸಭೆಯಲ್ಲಿ, ಅಧಿಕಾರಿ ಮಕ್ಕಳ ಶಿಕ್ಷಣಕ್ಕಾಗಿ ಕಾನೂನು ರಕ್ಷಣೆಗಳನ್ನು ವಿವರಿಸುತ್ತಾರೆ. ಶಿಕ್ಷಣವನ್ನು ನಿರಾಕರಿಸುವುದು ಕಾನೂನಿಗೆ ವಿರುದ್ಧವಾಗಿದೆ ಎಂದು ನಿಮ್ಮ ಪೋಷಕರು ಅರ್ಥಮಾಡಿಕೊಳ್ಳುತ್ತಾರೆ. ಅವರು ನಿಮ್ಮನ್ನು ಶಾಲೆಗೆ ಹಿಂತಿರುಗಲು ಅನುಮತಿಸಲು ಒಪ್ಪುತ್ತಾರೆ."
+      },
+      "sceneObjects": ["office"],
+      "choices": [
+        {
+          "label": {
+            "en": "Return to school with gratitude",
+            "hi": "कृतज्ञता के साथ स्कूल लौटें",
+            "kn": "ಕೃತಜ್ಞತೆಯೊಂದಿಗೆ ಶಾಲೆಗೆ ಮರಳಿ"
+          },
+          "next": "medium_ending",
+          "xp": 18
+        }
+      ]
+    },
+    "argument": {
+      "stage": 2,
+      "mood": "worried",
+      "characters": ["student", "parent"],
+      "text": {
+        "en": "You get upset and argue with your parents. This makes things worse. Your parents become more stubborn. You realize that getting angry won't help solve the problem.",
+        "hi": "आप परेशान हो जाते हैं और अपने माता-पिता से बहस करते हैं। इससे चीजें और खराब हो जाती हैं। आपके माता-पिता और अधिक जिद्दी हो जाते हैं। आप महसूस करते हैं कि गुस्सा होने से समस्या का समाधान नहीं होगा।",
+        "kn": "ನೀವು ಅಸಮಾಧಾನಗೊಂಡು ನಿಮ್ಮ ಪೋಷಕರೊಂದಿಗೆ ವಾದಿಸುತ್ತೀರಿ. ಇದು ವಿಷಯಗಳನ್ನು ಇನ್ನಷ್ಟು ಹದಗೆಡಿಸುತ್ತದೆ. ನಿಮ್ಮ ಪೋಷಕರು ಹೆಚ್ಚು ಮೊಂಡುತನದವರಾಗುತ್ತಾರೆ. ಕೋಪಗೊಳ್ಳುವುದರಿಂದ ಸಮಸ್ಯೆ ಪರಿಹರಿಸಲು ಸಹಾಯ ಮಾಡುವುದಿಲ್ಲ ಎಂದು ನೀವು ಅರಿತುಕೊಳ್ಳುತ್ತೀರಿ."
+      },
+      "sceneObjects": ["home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Apologize and try a calmer approach",
+            "hi": "माफी मांगें और शांत तरीके से प्रयास करें",
+            "kn": "ಕ್ಷಮಿಸಿ ಮತ್ತು ಶಾಂತ ವಿಧಾನವನ್ನು ಪ್ರಯತ್ನಿಸಿ"
+          },
+          "next": "compromise",
+          "xp": 10
+        },
+        {
+          "label": {
+            "en": "Continue being angry and stubborn",
+            "hi": "गुस्से और जिद्दी रहना जारी रखें",
+            "kn": "ಕೋಪಗೊಂಡು ಮತ್ತು ಮೊಂಡುತನದವರಾಗಿ ಮುಂದುವರಿಯಿರಿ"
+          },
+          "next": "weak_ending",
+          "xp": 3
+        }
+      ]
+    },
+    "compromise": {
+      "stage": 2,
+      "mood": "neutral",
+      "characters": ["student", "parent"],
+      "text": {
+        "en": "You suggest working part-time while studying. Your parents consider this. It's not perfect, but it's a start. You decide to prove you can handle both responsibilities.",
+        "hi": "आप पढ़ाई करते हुए अंशकालिक काम करने का सुझाव देते हैं। आपके माता-पिता इस पर विचार करते हैं। यह परफेक्ट नहीं है, लेकिन यह एक शुरुआत है। आप साबित करने का फैसला करते हैं कि आप दोनों जिम्मेदारियों को संभाल सकते हैं।",
+        "kn": "ನೀವು ಅಧ್ಯಯನ ಮಾಡುವಾಗ ಅರೆಕಾಲಿಕ ಕೆಲಸ ಮಾಡಲು ಸೂಚಿಸುತ್ತೀರಿ. ನಿಮ್ಮ ಪೋಷಕರು ಇದನ್ನು ಪರಿಗಣಿಸುತ್ತಾರೆ. ಇದು ಪರಿಪೂರ್ಣವಲ್ಲ, ಆದರೆ ಇದು ಆರಂಭ. ನೀವು ಎರಡೂ ಜವಾಬ್ದಾರಿಗಳನ್ನು ನಿರ್ವಹಿಸಬಹುದು ಎಂದು ಸಾಬೀತುಪಡಿಸಲು ನಿರ್ಧರಿಸುತ್ತೀರಿ."
+      },
+      "sceneObjects": ["home"],
+      "choices": [
+        {
+          "label": {
+            "en": "Work hard to prove yourself",
+            "hi": "खुद को साबित करने के लिए कड़ी मेहनत करें",
+            "kn": "ನಿಮ್ಮನ್ನು ಸಾಬೀತುಪಡಿಸಲು ಕಠಿಣ ಪರಿಶ್ರಮ ಮಾಡಿ"
+          },
+          "next": "struggling",
+          "xp": 10
+        }
+      ]
+    },
+    "too_late": {
+      "stage": 2,
+      "mood": "worried",
+      "characters": ["student"],
+      "text": {
+        "en": "You feel it's too late. But your friend reminds you that the RTE Act says education is a right, not a privilege. It's never too late to claim your rights.",
+        "hi": "आपको लगता है कि बहुत देर हो गई। लेकिन आपका दोस्त आपको याद दिलाता है कि RTE अधिनियम कहता है कि शिक्षा एक अधिकार है, विशेषाधिकार नहीं। अपने अधिकारों का दावा करने में कभी देर नहीं होती।",
+        "kn": "ತುಂಬಾ ತಡವಾಗಿದೆ ಎಂದು ನಿಮಗೆ ಅನಿಸುತ್ತದೆ. ಆದರೆ ನಿಮ್ಮ ಸ್ನೇಹಿತ RTE ಕಾಯಿದೆ ಶಿಕ್ಷಣ ಹಕ್ಕು, ಸವಲತ್ತಲ್ಲ ಎಂದು ಹೇಳುತ್ತದೆ ಎಂದು ನಿಮಗೆ ನೆನಪಿಸುತ್ತಾರೆ. ನಿಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ಪ್ರತಿಪಾದಿಸಲು ಎಂದಿಗೂ ತಡವಾಗಿಲ್ಲ."
+      },
+      "sceneObjects": ["village"],
+      "choices": [
+        {
+          "label": {
+            "en": "Gather courage and try again",
+            "hi": "साहस जुटाएं और फिर से प्रयास करें",
+            "kn": "ಧೈರ್ಯ ಸಂಗ್ರಹಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ"
+          },
+          "next": "return_to_school",
+          "xp": 12
+        }
+      ]
+    },
+    "strong_ending": {
+      "stage": 4,
+      "end": true,
+      "outcome": "strong",
+      "mood": "happy",
+      "characters": ["student", "parent", "teacher"],
+      "badge": "Education Champion",
+      "badgeIcon": "🎓",
+      "bonusXp": 75,
+      "sceneObjects": ["classroom", "trophy"],
+      "text": {
+        "en": "You successfully balanced school and helping your family. Your grades are excellent, and you've become a role model in your community. You understand that education is not just a right but a powerful tool for change. You learned about the RTE Act 2009 and how it protects every child's right to free education until age 14. Your determination inspired other families to support their children's education. You are an Education Champion!",
+        "hi": "आपने सफलतापूर्वक स्कूल और अपने परिवार की मदद करने में संतुलन बनाया। आपके ग्रेड उत्कृष्ट हैं, और आप अपने समुदाय में एक रोल मॉडल बन गए हैं। आप समझते हैं कि शिक्षा केवल एक अधिकार नहीं है बल्कि परिवर्तन के लिए एक शक्तिशाली उपकरण है। आपने RTE अधिनियम 2009 के बारे में सीखा और यह कैसे हर बच्चे के 14 साल की उम्र तक मुफ्त शिक्षा के अधिकार की रक्षा करता है। आपके दृढ़ संकल्प ने अन्य परिवारों को अपने बच्चों की शिक्षा का समर्थन करने के लिए प्रेरित किया। आप एक शिक्षा चैंपियन हैं!",
+        "kn": "ನೀವು ಶಾಲೆ ಮತ್ತು ನಿಮ್ಮ ಕುಟುಂಬಕ್ಕೆ ಸಹಾಯ ಮಾಡುವುದರಲ್ಲಿ ಯಶಸ್ವಿಯಾಗಿ ಸಮತೋಲನ ಸಾಧಿಸಿದ್ದೀರಿ. ನಿಮ್ಮ ಅಂಕಗಳು ಅತ್ಯುತ್ತಮವಾಗಿವೆ, ಮತ್ತು ನೀವು ನಿಮ್ಮ ಸಮುದಾಯದಲ್ಲಿ ಆದರ್ಶವಾಗಿದ್ದೀರಿ. ಶಿಕ್ಷಣವು ಕೇವಲ ಹಕ್ಕಲ್ಲ ಆದರೆ ಬದಲಾವಣೆಗೆ ಒಂದು ಶಕ್ತಿಶಾಲಿ ಸಾಧನ ಎಂದು ನೀವು ಅರ್ಥಮಾಡಿಕೊಳ್ಳುತ್ತೀರಿ. ನೀವು RTE ಕಾಯಿದೆ 2009 ಮತ್ತು ಅದು ಪ್ರತಿಯೊಂದು ಮಗುವಿನ 14 ವರ್ಷ ವಯಸ್ಸಿನವರೆಗೆ ಉಚಿತ ಶಿಕ್ಷಣದ ಹಕ್ಕನ್ನು ಹೇಗೆ ರಕ್ಷಿಸುತ್ತದೆ ಎಂಬುದರ ಬಗ್ಗೆ ಕಲಿತಿದ್ದೀರಿ. ನಿಮ್ಮ ನಿರ್ಧಾರವು ಇತರ ಕುಟುಂಬಗಳನ್ನು ಅವರ ಮಕ್ಕಳ ಶಿಕ್ಷಣವನ್ನು ಬೆಂಬಲಿಸಲು ಪ್ರೇರೇಪಿಸಿತು. ನೀವು ಶಿಕ್ಷಣ ಚಾಂಪಿಯನ್!"
+      }
+    },
+    "medium_ending": {
+      "stage": 4,
+      "end": true,
+      "outcome": "medium",
+      "mood": "hopeful",
+      "characters": ["student", "teacher"],
+      "badge": "Rights Learner",
+      "badgeIcon": "📚",
+      "bonusXp": 50,
+      "sceneObjects": ["classroom", "books"],
+      "text": {
+        "en": "After some challenges, you returned to school and continued your education. You learned about the RTE Act 2009 and how it guarantees free education for all children aged 6-14. While the journey wasn't easy, you persevered. You understand your rights now and know that education is protected by law. You're back on track to build your future!",
+        "hi": "कुछ चुनौतियों के बाद, आप स्कूल लौट आए और अपनी शिक्षा जारी रखी। आपने RTE अधिनियम 2009 के बारे में सीखा और यह कैसे 6-14 वर्ष के सभी बच्चों के लिए मुफ्त शिक्षा की गारंटी देता है। जबकि यात्रा आसान नहीं थी, आपने दृढ़ता दिखाई। अब आप अपने अधिकारों को समझते हैं और जानते हैं कि शिक्षा कानून द्वारा संरक्षित है। आप अपने भविष्य का निर्माण करने के लिए वापस सही रास्ते पर हैं!",
+        "kn": "ಕೆಲವು ಸವಾಲುಗಳ ನಂತರ, ನೀವು ಶಾಲೆಗೆ ಮರಳಿದ್ದೀರಿ ಮತ್ತು ನಿಮ್ಮ ಶಿಕ್ಷಣವನ್ನು ಮುಂದುವರಿಸಿದ್ದೀರಿ. ನೀವು RTE ಕಾಯಿದೆ 2009 ಮತ್ತು ಅದು 6-14 ವರ್ಷ ವಯಸ್ಸಿನ ಎಲ್ಲಾ ಮಕ್ಕಳಿಗೆ ಉಚಿತ ಶಿಕ್ಷಣವನ್ನು ಹೇಗೆ ಖಾತರಿಪಡಿಸುತ್ತದೆ ಎಂಬುದರ ಬಗ್ಗೆ ಕಲಿತಿದ್ದೀರಿ. ಪ್ರಯಾಣ ಸುಲಭವಾಗಿರಲಿಲ್ಲ, ನೀವು ತಾಳ್ಮೆಯಿಂದಿದ್ದೀರಿ. ನೀವು ಈಗ ನಿಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳುತ್ತೀರಿ ಮತ್ತು ಶಿಕ್ಷಣವು ಕಾನೂನಿನಿಂದ ರಕ್ಷಿಸಲ್ಪಟ್ಟಿದೆ ಎಂದು ತಿಳಿದಿದ್ದೀರಿ. ನಿಮ್ಮ ಭವಿಷ್ಯವನ್ನು ನಿರ್ಮಿಸಲು ನೀವು ಮತ್ತೆ ಸರಿಯಾದ ಹಾದಿಯಲ್ಲಿದ್ದೀರಿ!"
+      }
+    },
+    "medium_low_ending": {
+      "stage": 4,
+      "end": true,
+      "outcome": "medium-low",
+      "mood": "neutral",
+      "characters": ["student"],
+      "badge": "Persistent Student",
+      "badgeIcon": "✏️",
+      "bonusXp": 30,
+      "sceneObjects": ["classroom"],
+      "text": {
+        "en": "You're continuing school, but it's very challenging. Balancing work and studies is exhausting. You know about the RTE Act 2009 now, which says every child has the right to free education. The journey is harder than you expected, but you haven't given up. Remember, you can always ask for help from teachers or education officials if things become too difficult.",
+        "hi": "आप स्कूल जारी रख रहे हैं, लेकिन यह बहुत चुनौतीपूर्ण है। काम और पढ़ाई में संतुलन बनाना थका देने वाला है। अब आप RTE अधिनियम 2009 के बारे में जानते हैं, जो कहता है कि हर बच्चे को मुफ्त शिक्षा का अधिकार है। यात्रा आपकी अपेक्षा से कठिन है, लेकिन आपने हार नहीं मानी। याद रखें, अगर चीजें बहुत मुश्किल हो जाती हैं तो आप हमेशा शिक्षकों या शिक्षा अधिकारियों से मदद मांग सकते हैं।",
+        "kn": "ನೀವು ಶಾಲೆಯನ್ನು ಮುಂದುವರಿಸುತ್ತಿದ್ದೀರಿ, ಆದರೆ ಇದು ತುಂಬಾ ಸವಾಲಿನದು. ಕೆಲಸ ಮತ್ತು ಅಧ್ಯಯನದಲ್ಲಿ ಸಮತೋಲನ ಸಾಧಿಸುವುದು ದಣಿದಿದೆ. ನೀವು ಈಗ RTE ಕಾಯಿದೆ 2009 ಬಗ್ಗೆ ತಿಳಿದಿದ್ದೀರಿ, ಇದು ಪ್ರತಿ ಮಗುವಿಗೆ ಉಚಿತ ಶಿಕ್ಷಣದ ಹಕ್ಕಿದೆ ಎಂದು ಹೇಳುತ್ತದೆ. ಪ್ರಯಾಣವು ನೀವು ನಿರೀಕ್ಷಿಸಿದ್ದಕ್ಕಿಂತ ಕಠಿಣವಾಗಿದೆ, ಆದರೆ ನೀವು ಬಿಟ್ಟುಕೊಟ್ಟಿಲ್ಲ. ನೆನಪಿಡಿ, ವಿಷಯಗಳು ತುಂಬಾ ಕಠಿಣವಾದರೆ ನೀವು ಯಾವಾಗಲೂ ಶಿಕ್ಷಕರು ಅಥವಾ ಶಿಕ್ಷಣ ಅಧಿಕಾರಿಗಳಿಂದ ಸಹಾಯವನ್ನು ಕೇಳಬಹುದು."
+      }
+    },
+    "weak_ending": {
+      "stage": 4,
+      "end": true,
+      "outcome": "weak",
+      "mood": "worried",
+      "characters": ["student"],
+      "badge": "Still Learning",
+      "badgeIcon": "🌱",
+      "bonusXp": 15,
+      "sceneObjects": ["home"],
+      "text": {
+        "en": "Unfortunately, you stopped going to school. You didn't fully understand your rights or how to get help. The RTE Act 2009 says every child aged 6-14 has the right to free education, but you didn't know how to use this law to help yourself. Remember: it's never too late to return to school. You can contact your teacher, school principal, or call an education helpline for support. Education is your right!",
+        "hi": "दुर्भाग्य से, आपने स्कूल जाना बंद कर दिया। आप अपने अधिकारों या मदद कैसे प्राप्त करें, इसे पूरी तरह से समझ नहीं पाए। RTE अधिनियम 2009 कहता है कि 6-14 वर्ष की आयु के हर बच्चे को मुफ्त शिक्षा का अधिकार है, लेकिन आप नहीं जानते थे कि अपनी मदद के लिए इस कानून का उपयोग कैसे करें। याद रखें: स्कूल लौटने में कभी देर नहीं होती। आप अपने शिक्षक, स्कूल प्रिंसिपल से संपर्क कर सकते हैं, या समर्थन के लिए शिक्षा हेल्पलाइन पर कॉल कर सकते हैं। शिक्षा आपका अधिकार है!",
+        "kn": "ದುರದೃಷ್ಟವಶಾತ್, ನೀವು ಶಾಲೆಗೆ ಹೋಗುವುದನ್ನು ನಿಲ್ಲಿಸಿದ್ದೀರಿ. ನಿಮ್ಮ ಹಕ್ಕುಗಳು ಅಥವಾ ಸಹಾಯವನ್ನು ಹೇಗೆ ಪಡೆಯುವುದು ಎಂಬುದನ್ನು ನೀವು ಸಂಪೂರ್ಣವಾಗಿ ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲಿಲ್ಲ. RTE ಕಾಯಿದೆ 2009 6-14 ವರ್ಷ ವಯಸ್ಸಿನ ಪ್ರತಿಯೊಂದು ಮಗುವಿಗೆ ಉಚಿತ ಶಿಕ್ಷಣದ ಹಕ್ಕಿದೆ ಎಂದು ಹೇಳುತ್ತದೆ, ಆದರೆ ನಿಮಗೆ ಸಹಾಯ ಮಾಡಲು ಈ ಕಾನೂನನ್ನು ಹೇಗೆ ಬಳಸಬೇಕೆಂದು ನಿಮಗೆ ತಿಳಿದಿರಲಿಲ್ಲ. ನೆನಪಿಡಿ: ಶಾಲೆಗೆ ಮರಳಲು ಎಂದಿಗೂ ತಡವಾಗಿಲ್ಲ. ನೀವು ನಿಮ್ಮ ಶಿಕ್ಷಕರು, ಶಾಲಾ ಪ್ರಾಂಶುಪಾಲರನ್ನು ಸಂಪರ್ಕಿಸಬಹುದು, ಅಥವಾ ಬೆಂಬಲಕ್ಕಾಗಿ ಶಿಕ್ಷಣ ಸಹಾಯವಾಣಿಗೆ ಕರೆ ಮಾಡಬಹುದು. ಶಿಕ್ಷಣವು ನಿಮ್ಮ ಹಕ್ಕು!"
+      }
+    },
+    "give_up": {
+      "stage": 4,
+      "end": true,
+      "outcome": "weak",
+      "mood": "worried",
+      "characters": ["student"],
+      "badge": "Needs Guidance",
+      "badgeIcon": "💭",
+      "bonusXp": 10,
+      "sceneObjects": ["home", "village"],
+      "text": {
+        "en": "You gave up on your education without trying all options. This is a difficult outcome. Every child in India has the right to free education until age 14 under the RTE Act 2009. There are people and organizations that can help: teachers, school principals, education officials, and helplines. It's never too late to ask for help and claim your rights. Your education matters!",
+        "hi": "आपने सभी विकल्पों को आजमाए बिना अपनी शिक्षा छोड़ दी। यह एक कठिन परिणाम है। भारत में हर बच्चे को RTE अधिनियम 2009 के तहत 14 साल की उम्र तक मुफ्त शिक्षा का अधिकार है। ऐसे लोग और संगठन हैं जो मदद कर सकते हैं: शिक्षक, स्कूल प्रिंसिपल, शिक्षा अधिकारी, और हेल्पलाइन। मदद मांगने और अपने अधिकारों का दावा करने में कभी देर नहीं होती। आपकी शिक्षा महत्वपूर्ण है!",
+        "kn": "ನೀವು ಎಲ್ಲಾ ಆಯ್ಕೆಗಳನ್ನು ಪ್ರಯತ್ನಿಸದೆ ನಿಮ್ಮ ಶಿಕ್ಷಣವನ್ನು ಬಿಟ್ಟುಕೊಟ್ಟಿದ್ದೀರಿ. ಇದು ಕಠಿಣ ಫಲಿತಾಂಶ. ಭಾರತದ ಪ್ರತಿಯೊಂದು ಮಗುವಿಗೆ RTE ಕಾಯಿದೆ 2009 ರ ಅಡಿಯಲ್ಲಿ 14 ವರ್ಷ ವಯಸ್ಸಿನವರೆಗೆ ಉಚಿತ ಶಿಕ್ಷಣದ ಹಕ್ಕಿದೆ. ಸಹಾಯ ಮಾಡುವ ಜನರು ಮತ್ತು ಸಂಸ್ಥೆಗಳಿವೆ: ಶಿಕ್ಷಕರು, ಶಾಲಾ ಪ್ರಾಂಶುಪಾಲರು, ಶಿಕ್ಷಣ ಅಧಿಕಾರಿಗಳು ಮತ್ತು ಸಹಾಯವಾಣಿಗಳು. ಸಹಾಯ ಕೇಳಲು ಮತ್ತು ನಿಮ್ಮ ಹಕ್ಕುಗಳನ್ನು ಪ್ರತಿಪಾದಿಸಲು ಎಂದಿಗೂ ತಡವಾಗಿಲ್ಲ. ನಿಮ್ಮ ಶಿಕ್ಷಣ ಮುಖ್ಯವಾಗಿದೆ!"
+      }
+    }
+  }
+}

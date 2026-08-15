@@ -1,0 +1,60 @@
+@import './styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  @apply bg-background text-text-primary font-body antialiased;
+  margin: 0;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Smooth entrance for scene props */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatParticle {
+  0% { transform: translateY(0px) rotate(0deg); opacity: 0.2; }
+  50% { transform: translateY(-40px) rotate(180deg); opacity: 0.8; }
+  100% { transform: translateY(-80px) rotate(360deg); opacity: 0; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes shakeSoft {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px) rotate(-2deg); }
+  75% { transform: translateX(4px) rotate(2deg); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-floatParticle {
+  animation: floatParticle 14s infinite ease-in-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #F5B942 0%, #FFE7A8 50%, #F5B942 100%);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmer 3.5s linear infinite;
+}
+
+.animate-shakeSoft {
+  animation: shakeSoft 0.4s ease-in-out;
+}
+
