@@ -97,6 +97,13 @@ export default function LandingPage() {
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const isReturningUser = Boolean(state.currentUser?.nickname);
 
+  // If user already has an active session on this browser, immediately forward to Rights Map
+  useEffect(() => {
+    if (state.currentUser?.nickname) {
+      navigate('/map', { replace: true });
+    }
+  }, [state.currentUser?.nickname, navigate]);
+
   const handleConfetti = (e) => {
     sound.win();
     const rect = e.currentTarget.getBoundingClientRect();
