@@ -24,7 +24,7 @@ import SmoothScroll from '../ui/SmoothScroll';
 import ParticleBackground from '../ui/ParticleBackground';
 import AnimatedButton from '../ui/AnimatedButton';
 
-const STORIES = [
+const JUNIOR_STORIES = [
   {
     id: 'right-to-education',
     icon: '🎒',
@@ -50,14 +50,14 @@ const STORIES = [
     color: 'from-cyan-500 to-blue-600',
     borderColor: 'border-cyan-400',
     title: {
-      en: 'Right to Healthcare',
-      hi: 'स्वास्थ्य का अधिकार',
-      kn: 'ಆರೋಗ್ಯದ ಹಕ್ಕು',
+      en: 'Right to Healthcare & Nutrition',
+      hi: 'स्वास्थ्य और पोषण का अधिकार',
+      kn: 'ಆರೋಗ್ಯ ಮತ್ತು ಪೌಷ್ಟಿಕಾಂಶದ ಹಕ್ಕು',
     },
     desc: {
-      en: 'Discover medical aid rights and immunization safeguards for every child.',
-      hi: 'हर बच्चे के लिए चिकित्सा सहायता और टीकाकरण सुरक्षा के अधिकारों को जानें।',
-      kn: 'ಪ್ರತಿಯೊಂದು ಮಗುವಿಗೂ ವೈದ್ಯಕೀಯ ಚಿಕಿತ್ಸೆ ಮತ್ತು ಲಸಿಕೆ ಹಕ್ಕುಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.',
+      en: 'Discover medical aid rights, mid-day meals, and immunization safeguards.',
+      hi: 'हर बच्चे के लिए चिकित्सा सहायता, मिड-डे मील और टीकाकरण सुरक्षा के अधिकारों को जानें।',
+      kn: 'ಪ್ರತಿಯೊಂದು ಮಗುವಿಗೂ ವೈದ್ಯಕೀಯ ಚಿಕಿತ್ಸೆ, ಮಧ್ಯಾಹ್ನದ ಊಟ ಮತ್ತು ಲಸಿಕೆ ಹಕ್ಕುಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.',
     },
     length: '22 Nodes • 5 Endings',
   },
@@ -73,7 +73,7 @@ const STORIES = [
       kn: 'ಬಾಲ ಕಾರ್ಮಿಕ ಪದ್ಧತಿಯಿಂದ ರಕ್ಷಣೆ',
     },
     desc: {
-      en: 'Investigate unfair factory work and protect children’s right to play and learn.',
+      en: 'Investigate unfair workshop work and protect children’s right to play and learn.',
       hi: 'कारखाने के काम की जांच करें और बच्चों के खेलने और सीखने के अधिकार की रक्षा करें।',
       kn: 'ಅಕ್ರಮ ಕಾರ್ಖಾನೆ ಕೆಲಸವನ್ನು ತಡೆದು ಮಕ್ಕಳ ಕಲಿಕೆ ಮತ್ತು ಆಟದ ಹಕ್ಕನ್ನು ರಕ್ಷಿಸಿ.',
     },
@@ -86,9 +86,9 @@ const STORIES = [
     color: 'from-rose-500 to-pink-600',
     borderColor: 'border-rose-400',
     title: {
-      en: 'Protection from Abuse',
-      hi: 'शोषण से सुरक्षा',
-      kn: 'ದೌರ್ಜನ್ಯದಿಂದ ರಕ್ಷಣೆ',
+      en: 'Protection from Abuse & Safety Boundaries',
+      hi: 'शोषण से सुरक्षा और सुरक्षित सीमाएं',
+      kn: 'ದೌರ್ಜನ್ಯದಿಂದ ರಕ್ಷಣೆ ಮತ್ತು ಸುರಕ್ಷಿತ ಗಡಿಗಳು',
     },
     desc: {
       en: 'Learn safe boundaries, trusted allies, and the 24/7 Childline 1098 lifeline.',
@@ -104,7 +104,7 @@ const STORIES = [
     color: 'from-purple-500 to-indigo-600',
     borderColor: 'border-purple-400',
     title: {
-      en: 'Protection from Child Marriage',
+      en: 'Protection from Early Marriage',
       hi: 'बाल विवाह से सुरक्षा',
       kn: 'ಬಾಲ್ಯ ವಿವಾಹದಿಂದ ರಕ್ಷಣೆ',
     },
@@ -117,11 +117,106 @@ const STORIES = [
   },
 ];
 
+const SENIOR_STORIES = [
+  {
+    id: 'right-to-education',
+    icon: '🎒',
+    actTag: 'Article 21-A & Sec. 13',
+    color: 'from-amber-500 to-yellow-600',
+    borderColor: 'border-amber-400',
+    title: {
+      en: "Aarav's Board Exam & Illegal Fees",
+      hi: 'आरव की बोर्ड परीक्षा और अनधिकृत शुल्क',
+      kn: 'ಆರವ್‌ನ ಬೋರ್ಡ್ ಪರೀಕ್ಷೆ ಮತ್ತು ಅಕ್ರಮ ಶುಲ್ಕ',
+    },
+    desc: {
+      en: 'Invoke Section 13 of the RTE Act to stop unauthorized fees and protect board exam hall tickets.',
+      hi: 'अनधिकृत शुल्कों को रोकने और बोर्ड परीक्षा हॉल टिकटों की रक्षा के लिए आरटीई की धारा 13 का उपयोग करें।',
+      kn: 'ಅಕ್ರಮ ಶುಲ್ಕ ತಡೆಯಲು ಮತ್ತು ಪರೀಕ್ಷಾ ಪ್ರವೇಶ ಪತ್ರ ರಕ್ಷಿಸಲು ಶಿಕ್ಷಣ ಹಕ್ಕಿನ ಕಲಂ 13 ರ ಬಳಕೆ.',
+    },
+    length: '18 Nodes • 5 Endings',
+  },
+  {
+    id: 'right-to-healthcare',
+    icon: '🏥',
+    actTag: 'Article 21 (Emergency Aid)',
+    color: 'from-cyan-500 to-blue-600',
+    borderColor: 'border-cyan-400',
+    title: {
+      en: 'Emergency Medical Treatment Rights',
+      hi: 'आपातकालीन चिकित्सा उपचार अधिकार',
+      kn: 'ತುರ್ತು ವೈದ್ಯಕೀಯ ಚಿಕಿತ್ಸೆಯ ಹಕ್ಕುಗಳು',
+    },
+    desc: {
+      en: 'Enforce Article 21 and the Supreme Court mandate for unconditional trauma care.',
+      hi: 'बिना शर्त आपातकालीन ट्रॉमा देखभाल के लिए अनुच्छेद 21 और सुप्रीम कोर्ट के आदेश को लागू करें।',
+      kn: 'ತುರ್ತು ಚಿಕಿತ್ಸೆಗಾಗಿ ಸುಪ್ರೀಂ ಕೋರ್ಟ್ ಆದೇಶ ಮತ್ತು ವಿಧಿ 21 ರ ಸಾಂವಿಧಾನಿಕ ಹಕ್ಕು.',
+    },
+    length: '18 Nodes • 5 Endings',
+  },
+  {
+    id: 'protection-from-child-labour',
+    icon: '🏭',
+    actTag: 'CLPRA Sec. 3A (Hazardous Bans)',
+    color: 'from-orange-500 to-red-600',
+    borderColor: 'border-orange-400',
+    title: {
+      en: 'Hazardous Labour & Adolescent Rights',
+      hi: 'खतरनाक श्रम और किशोर अधिकार',
+      kn: 'ಅಪಾಯಕಾರಿ ಕೆಲಸ ಮತ್ತು ಹದಿಹರೆಯದವರ ಹಕ್ಕುಗಳು',
+    },
+    desc: {
+      en: 'Rescue adolescent peers from toxic chemical workshops using Section 3A of CLPRA.',
+      hi: 'धारा 3A का उपयोग करके जहरीले रासायनिक कारखानों से किशोर साथियों को बचाएं।',
+      kn: 'ಕಲಂ 3ಎ ಅಡಿಯಲ್ಲಿ ವಿಷಕಾರಿ ಕಾರ್ಖಾನೆಗಳಿಂದ ಹದಿಹರೆಯದವರನ್ನು ರಕ್ಷಿಸಿ.',
+    },
+    length: '18 Nodes • 5 Endings',
+  },
+  {
+    id: 'protection-from-abuse',
+    icon: '🛡️',
+    actTag: 'POCSO Act & DPDP Act 2023',
+    color: 'from-rose-500 to-pink-600',
+    borderColor: 'border-rose-400',
+    title: {
+      en: 'Cyber Safety & The POCSO Shield',
+      hi: 'साइबर सुरक्षा और पॉक्सो सुरक्षा कवच',
+      kn: 'ಸೈಬರ್ ಸುರಕ್ಷತೆ ಮತ್ತು ಪೋಕ್ಸೋ ರಕ್ಷಾ ಕವಚ',
+    },
+    desc: {
+      en: 'Combat online harassment with strict Section 23 victim confidentiality and cyber reporting.',
+      hi: 'पॉक्सो की धारा 23 की पूर्ण गोपनीयता और साइबर रिपोर्टिंग के साथ ऑनलाइन उत्पीड़न से लड़ें।',
+      kn: 'ಪೋಕ್ಸೋ ಕಲಂ 23 ರ ಗೌಪ್ಯತೆಯೊಂದಿಗೆ ಆನ್‌ಲೈನ್ ಕಿರುಕುಳದ ವಿರುದ್ಧ ಹೋರಾಡಿ.',
+    },
+    length: '18 Nodes • 5 Endings',
+  },
+  {
+    id: 'protection-from-child-marriage',
+    icon: '📜',
+    actTag: 'PCMA Sec. 13 (Stay Orders)',
+    color: 'from-purple-500 to-indigo-600',
+    borderColor: 'border-purple-400',
+    title: {
+      en: "Ananya's College Dream & Injunctions",
+      hi: 'अनन्या के कॉलेज का सपना और स्थगनादेश',
+      kn: 'ಅನನ್ಯಾಳ ಕಾಲೇಜು ಕನಸು ಮತ್ತು ತಡೆಯಾಜ್ಞೆ',
+    },
+    desc: {
+      en: 'Obtain a Section 13 Judicial Magistrate injunction to protect higher education dreams.',
+      hi: 'उच्च शिक्षा के सपनों की रक्षा के लिए धारा 13 के तहत न्यायिक मजिस्ट्रेट का स्थगनादेश प्राप्त करें।',
+      kn: 'ಉನ್ನತ ಶಿಕ್ಷಣದ ಕನಸು ರಕ್ಷಿಸಲು ಕಲಂ 13 ರ ನ್ಯಾಯಾಲಯದ ತಡೆಯಾಜ್ಞೆ ಪಡೆಯಿರಿ.',
+    },
+    length: '18 Nodes • 5 Endings',
+  },
+];
+
 export default function RightsMap() {
   const navigate = useNavigate();
   const { state, dispatch } = useApp();
   const lang = state.language || 'en';
   const completed = new Set(state.completedStories || []);
+  const ageTier = state.currentUser?.ageTier || '8-11';
+  const STORIES = (ageTier === '12-16') ? SENIOR_STORIES : JUNIOR_STORIES;
 
   const [showAchievements, setShowAchievements] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);

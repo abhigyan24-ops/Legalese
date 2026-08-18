@@ -10,13 +10,21 @@ import { useParams, Navigate } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import StoryEngine from './StoryEngine';
 
-// Story module imports
-const storyModules = {
-  'right-to-education': () => import('../../content/stories/right-to-education'),
-  'right-to-healthcare': () => import('../../content/stories/right-to-healthcare'),
-  'protection-from-child-labour': () => import('../../content/stories/protection-from-child-labour'),
-  'protection-from-abuse': () => import('../../content/stories/protection-from-abuse'),
-  'protection-from-child-marriage': () => import('../../content/stories/protection-from-child-marriage'),
+// Junior & Senior story module loaders
+const juniorStoryModules = {
+  'right-to-education': () => import('../../content/stories/junior/right-to-education'),
+  'right-to-healthcare': () => import('../../content/stories/junior/right-to-healthcare'),
+  'protection-from-child-labour': () => import('../../content/stories/junior/protection-from-child-labour'),
+  'protection-from-abuse': () => import('../../content/stories/junior/protection-from-abuse'),
+  'protection-from-child-marriage': () => import('../../content/stories/junior/protection-from-child-marriage'),
+};
+
+const seniorStoryModules = {
+  'right-to-education': () => import('../../content/stories/senior/right-to-education'),
+  'right-to-healthcare': () => import('../../content/stories/senior/right-to-healthcare'),
+  'protection-from-child-labour': () => import('../../content/stories/senior/protection-from-child-labour'),
+  'protection-from-abuse': () => import('../../content/stories/senior/protection-from-abuse'),
+  'protection-from-child-marriage': () => import('../../content/stories/senior/protection-from-child-marriage'),
 };
 
 export default function StoryScreen() {
@@ -26,13 +34,16 @@ export default function StoryScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const ageTier = state.currentUser?.ageTier || '8-11';
+
   useEffect(() => {
     const loadStory = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const storyModule = storyModules[storyId];
+        const trackModules = (ageTier === '12-16') ? seniorStoryModules : juniorStoryModules;
+        const storyModule = trackModules[storyId] || juniorStoryModules[storyId];
         if (!storyModule) {
           setError(`Story "${storyId}" not found`);
           setLoading(false);
@@ -50,7 +61,7 @@ export default function StoryScreen() {
     };
 
     loadStory();
-  }, [storyId]);
+  }, [storyId, ageTier]);
 
   // Check if story is unlocked
   const storyIndex = [

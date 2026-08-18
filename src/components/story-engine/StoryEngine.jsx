@@ -62,6 +62,7 @@ export default function StoryEngine({ story, onComplete }) {
   // AI Storyline Legal Mentor State (Nyay 🤖)
   const [aiMentorHint, setAiMentorHint] = useState(null);
   const [isLoadingAiHint, setIsLoadingAiHint] = useState(false);
+  const [isAiMentorUsedOnNode, setIsAiMentorUsedOnNode] = useState(false);
 
   const typingTimerRef = useRef(null);
   const fullTextRef = useRef('');
@@ -166,6 +167,7 @@ export default function StoryEngine({ story, onComplete }) {
   // Reset AI Mentor Hint on scene change
   useEffect(() => {
     setAiMentorHint(null);
+    setIsAiMentorUsedOnNode(false);
   }, [currentNodeId]);
 
   // Request Nyay AI Legal Mentor Hint for current scene
@@ -173,6 +175,7 @@ export default function StoryEngine({ story, onComplete }) {
     e?.stopPropagation();
     sound.advance();
     setIsLoadingAiHint(true);
+    setIsAiMentorUsedOnNode(true);
     const storyTitle = typeof story?.title === 'object' ? story.title[lang] || story.title.en : story?.title || '';
     const nodeText = getNodeText(currentNode);
     const hint = await getStorylineMentorHintAI({
@@ -219,12 +222,14 @@ export default function StoryEngine({ story, onComplete }) {
     sound.click();
     handleSkipTyping();
 
-    const xpGained = choice.xp || 10;
+    const baseXP = choice.xp || 10;
+    const xpGained = isAiMentorUsedOnNode ? Math.max(5, Math.floor(baseXP / 2)) : baseXP;
     const choiceLabelText = getChoiceLabel(choice);
 
     // Show floating XP toast
     if (event?.clientX && event?.clientY) {
-      setXpToast({ amount: xpGained, x: event.clientX, y: event.clientY - 20 });
+      const toastLabel = isAiMentorUsedOnNode ? `+${xpGained} XP (Mentored)` : `+${xpGained} XP!`;
+      setXpToast({ text: toastLabel, x: event.clientX, y: event.clientY - 20 });
       setTimeout(() => setXpToast(null), 1200);
     }
 
@@ -467,6 +472,16 @@ export default function StoryEngine({ story, onComplete }) {
         </div>
       )}
 
+
+      {/* ── FLOATING XP TOAST ── */}
+      {xpToast && (
+        <div
+          style={{ top: xpToast.y, left: xpToast.x }}
+          className="fixed pointer-events-none z-50 transform -translate-x-1/2 -translate-y-full px-3 py-1.5 rounded-full bg-gradient-to-r from-[#FFB84D] to-[#FFE5B4] text-black font-extrabold text-xs shadow-2xl animate-bounce border border-yellow-300"
+        >
+          ✨ {xpToast.text || `+${xpToast.amount} XP!`}
+        </div>
+      )}
 
       {/* ── TOP HUD HEADER ── */}
       <header
