@@ -420,8 +420,8 @@ export default function RightsMap() {
                   sound.click();
                   setShowLogoutConfirm(true);
                 }}
-                className="flex items-center gap-1 px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-xs font-bold text-rose-300 hover:text-rose-200 transition-all shadow"
-                title="Log out of this device (keeps all your cloud data safe)"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 border border-rose-400/40 text-xs font-extrabold text-rose-200 transition-all shadow"
+                title="Log out of session"
               >
                 <span>🚪</span>
                 <span>Logout</span>
@@ -459,6 +459,55 @@ export default function RightsMap() {
               </div>
             </div>
           </header>
+
+          {/* ── INTERACTIVE AGE TIER TRACK SELECTOR ── */}
+          <div className="p-3.5 rounded-3xl bg-[#231C3D] border-2 border-[#312756] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xl">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">{ageTier === '12-16' ? '⭐' : '🌱'}</span>
+              <div>
+                <strong className="text-sm font-bold text-white block">
+                  {ageTier === '12-16' ? 'Senior Defender Track (Ages 12–16)' : 'Junior Explorer Track (Ages 8–11)'}
+                </strong>
+                <span className="text-xs text-white/60">
+                  {ageTier === '12-16'
+                    ? 'Exploring advanced statutory rights, board exam rules, cyber consent & court stay orders'
+                    : 'Exploring school rights, safe boundaries, playground equality & 1098 lifeline'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 bg-black/40 p-1 rounded-2xl border border-white/10 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => {
+                  sound.click();
+                  dispatch({ type: 'SET_AGE_TIER', payload: '8-11' });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all ${
+                  ageTier === '8-11'
+                    ? 'bg-[#FFB84D] text-black shadow-md'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                🌱 Junior (8–11)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sound.click();
+                  dispatch({ type: 'SET_AGE_TIER', payload: '12-16' });
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all ${
+                  ageTier === '12-16'
+                    ? 'bg-[#FFB84D] text-black shadow-md'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                ⭐ Senior (12–16)
+              </button>
+            </div>
+          </div>
 
           {/* ── SEASONAL EVENT BANNER ── */}
           {activeEvent ? (

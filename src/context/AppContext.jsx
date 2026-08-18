@@ -25,8 +25,30 @@ const loadPersisted = () => {
   } catch { return null; }
 };
 
-const savePersisted = (user) => {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(user)); } catch {}
+const savePersisted = (stateOrUser) => {
+  try {
+    const userToSave = stateOrUser?.currentUser || stateOrUser;
+    if (userToSave && userToSave.nickname) {
+      const payload = {
+        uid: userToSave.uid,
+        nickname: userToSave.nickname,
+        avatar: userToSave.avatar || 'boy-short-blue-medium',
+        ageTier: userToSave.ageTier || '8-11',
+        language: stateOrUser.language || userToSave.language || 'en',
+        xp: stateOrUser.xp ?? userToSave.xp ?? 0,
+        badges: stateOrUser.badges || userToSave.badges || [],
+        completedStories: stateOrUser.completedStories || userToSave.completedStories || [],
+        quizScores: stateOrUser.quizScores || userToSave.quizScores || {},
+        achievements: stateOrUser.achievements || userToSave.achievements || [],
+        languagesUsed: stateOrUser.languagesUsed || userToSave.languagesUsed || [],
+        settings: stateOrUser.settings || userToSave.settings || { dyslexiaMode: false },
+        googleLinked: Boolean(userToSave.googleLinked),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }
+  } catch (err) {
+    console.warn('Persist error:', err);
+  }
 };
 
 const loadInitialState = () => {
@@ -67,16 +89,30 @@ const loadInitialState = () => {
 
 function reducer(state, action) {
   switch (action.type) {
-    case 'SET_USER':
+    case 'SET_USER': {
       const newLang = action.payload?.language || state.language || 'en';
       if (typeof localStorage !== 'undefined') {
         try { localStorage.setItem(LANGUAGE_KEY, newLang); } catch {}
       }
-      return { 
+      const updatedState = { 
         ...state, 
         currentUser: action.payload,
         language: newLang,
       };
+      savePersisted(updatedState);
+      return updatedState;
+    }
+    case 'SET_AGE_TIER': {
+      const updatedUser = state.currentUser
+        ? { ...state.currentUser, ageTier: action.payload }
+        : { ageTier: action.payload, nickname: 'Explorer', uid: `defender-${Date.now()}` };
+      const updatedState = {
+        ...state,
+        currentUser: updatedUser,
+      };
+      savePersisted(updatedState);
+      return updatedState;
+    }
     case 'SET_PROFILE':
       return {
         ...state,
