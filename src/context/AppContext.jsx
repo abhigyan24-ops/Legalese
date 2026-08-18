@@ -29,18 +29,40 @@ const savePersisted = (user) => {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(user)); } catch {}
 };
 
-const initialState = {
-  currentUser: null,
-  xp: 0,
-  badges: [],
-  completedStories: [],
-  quizScores: {},
-  language: (typeof localStorage !== 'undefined' && localStorage.getItem(LANGUAGE_KEY)) || 'en',
-  achievements: [],
-  languagesUsed: [],
-  settings: {
-    dyslexiaMode: false,
-  },
+const loadInitialState = () => {
+  const persisted = loadPersisted();
+  if (persisted && persisted.nickname) {
+    return {
+      currentUser: {
+        uid: persisted.uid || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `defender-${Date.now()}`),
+        nickname: persisted.nickname,
+        avatar: persisted.avatar || 'boy-short-blue-medium',
+        ageTier: persisted.ageTier || '8-11',
+        googleLinked: Boolean(persisted.googleLinked),
+      },
+      xp: persisted.xp || 0,
+      badges: persisted.badges || [],
+      completedStories: persisted.completedStories || [],
+      quizScores: persisted.quizScores || {},
+      language: persisted.language || (typeof localStorage !== 'undefined' && localStorage.getItem(LANGUAGE_KEY)) || 'en',
+      achievements: persisted.achievements || [],
+      languagesUsed: persisted.languagesUsed || [],
+      settings: persisted.settings || { dyslexiaMode: false },
+    };
+  }
+  return {
+    currentUser: null,
+    xp: 0,
+    badges: [],
+    completedStories: [],
+    quizScores: {},
+    language: (typeof localStorage !== 'undefined' && localStorage.getItem(LANGUAGE_KEY)) || 'en',
+    achievements: [],
+    languagesUsed: [],
+    settings: {
+      dyslexiaMode: false,
+    },
+  };
 };
 
 function reducer(state, action) {
@@ -104,13 +126,13 @@ function reducer(state, action) {
 }
 
 export const AppProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, null, loadInitialState);
 
   // Hydrate persisted profile on first mount & ensure active cloud UID
   useEffect(() => {
     const hydrate = async () => {
       const persisted = loadPersisted();
-      if (persisted) {
+      if (persisted && persisted.nickname) {
         let activeUid = persisted.uid;
         if (isFirebaseConfigured && (!activeUid || activeUid.startsWith('guest-'))) {
           activeUid = await initAnonymousSession();
@@ -120,33 +142,15 @@ export const AppProvider = ({ children }) => {
           payload: {
             uid: activeUid,
             nickname: persisted.nickname,
-            avatar: persisted.avatar,
-            ageTier: persisted.ageTier,
+            avatar: persisted.avatar || 'boy-short-blue-medium',
+            ageTier: persisted.ageTier || '8-11',
+            googleLinked: Boolean(persisted.googleLinked),
           },
         });
-        dispatch({
-          type: 'SET_PROFILE',
-          payload: {
-            xp: persisted.xp,
-            badges: persisted.badges,
-            completedStories: persisted.completedStories,
-            quizScores: persisted.quizScores || {},
-          },
-        });
-        if (persisted.language) dispatch({ type: 'UPDATE_LANGUAGE', payload: persisted.language });
-        if (persisted.achievements?.length) {
-          persisted.achievements.forEach((id) => dispatch({ type: 'EARN_ACHIEVEMENT', payload: id }));
-        }
-        if (persisted.languagesUsed?.length) {
-          persisted.languagesUsed.forEach((l) => dispatch({ type: 'TRACK_LANGUAGE', payload: l }));
-        }
       }
     };
 
-    if (!state.currentUser) {
-      hydrate();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    hydrate();
   }, []);
 
   // Ensure currentUser UID stays synchronized with Firebase Auth session

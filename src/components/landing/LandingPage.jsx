@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useApp } from '../../context/AppContext';
 import confetti from 'canvas-confetti';
 import sound from '../../lib/sound';
 import SmoothScroll from '../ui/SmoothScroll';
@@ -89,7 +90,9 @@ const MINI_DEMO_CHOICES = [
 ];
 
 export default function LandingPage() {
+  const { state } = useApp();
   const [activeChoice, setActiveChoice] = useState(null);
+  const isReturningUser = Boolean(state.currentUser?.nickname);
 
   const handleConfetti = (e) => {
     sound.win();
@@ -154,9 +157,9 @@ export default function LandingPage() {
               📊 Impact
             </Link>
 
-            <Link to="/onboarding">
+            <Link to={isReturningUser ? "/map" : "/onboarding"}>
               <AnimatedButton variant="primary" size="sm" icon="🚀">
-                Play Rights Quest
+                {isReturningUser ? "Continue Quest →" : "Play Rights Quest"}
               </AnimatedButton>
             </Link>
           </div>
@@ -185,9 +188,9 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-wrap items-center gap-3.5 pt-2">
-              <Link to="/onboarding">
+              <Link to={isReturningUser ? "/map" : "/onboarding"}>
                 <AnimatedButton variant="primary" size="lg" icon="✨">
-                  Play Rights Quest
+                  {isReturningUser ? `Continue as ${state.currentUser.nickname} →` : "Play Rights Quest"}
                 </AnimatedButton>
               </Link>
 

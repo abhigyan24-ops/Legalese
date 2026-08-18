@@ -8,7 +8,7 @@
  * - Step 4: Language selection (English, Hindi, Kannada)
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
@@ -64,7 +64,14 @@ const LANG_OPTIONS = [
 
 export default function OnboardingScreen() {
   const navigate = useNavigate();
-  const { dispatch } = useApp();
+  const { state, dispatch } = useApp();
+
+  // If user already has a saved username & session, don't ask again — jump straight to Rights Trail
+  useEffect(() => {
+    if (state.currentUser?.nickname) {
+      navigate('/map', { replace: true });
+    }
+  }, [state.currentUser?.nickname, navigate]);
 
   const [step, setStep] = useState(1);
   const [avatarId, setAvatarId] = useState('boy-short-blue-medium');

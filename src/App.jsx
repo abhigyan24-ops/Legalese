@@ -19,12 +19,12 @@ import { Analytics } from '@vercel/analytics/react';
 
 function RootRedirect() {
   const { state } = useApp();
-  return state.currentUser ? <Navigate to="/map" replace /> : <Navigate to="/landing" replace />;
+  return state.currentUser?.nickname ? <Navigate to="/map" replace /> : <Navigate to="/landing" replace />;
 }
 
 function Protected({ children }) {
   const { state } = useApp();
-  return state.currentUser ? children : <Navigate to="/onboarding" replace />;
+  return state.currentUser?.nickname ? children : <Navigate to="/onboarding" replace />;
 }
 
 export default function App() {
