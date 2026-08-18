@@ -26,6 +26,7 @@ import {
 import { checkNewAchievements } from '../../lib/achievements';
 import { applyEventMultiplier, getActiveEvent } from '../../lib/seasonalEvents';
 import AchievementUnlock from '../achievements/AchievementUnlock';
+import ShareChallenge from '../share/ShareChallenge';
 import sound from '../../lib/sound';
 
 export default function StoryEngine({ story, onComplete }) {
@@ -961,6 +962,14 @@ export default function StoryEngine({ story, onComplete }) {
                 ))}
               </div>
             </div>
+
+            {/* ⚡ Friend Challenge Card */}
+            <ShareChallenge
+              storyId={story.id || 'right-to-education'}
+              storyTitle={typeof story.title === 'object' ? story.title[lang] || story.title.en : story.title || 'Rights Quest'}
+              score={state.xp || 150}
+              nickname={state.currentUser?.nickname || 'Hero Defender'}
+            />
 
             {/* Action Buttons */}
             <div className="flex items-center justify-center gap-4 pt-2">

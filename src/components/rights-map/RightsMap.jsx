@@ -11,9 +11,13 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import CharacterAvatar from '../story-engine/CharacterAvatar';
+import AchievementsModal from '../achievements/AchievementsModal';
+import GoogleSignIn from '../auth/GoogleSignIn';
+import { getActiveEvent } from '../../lib/seasonalEvents';
+import { getDifficultyLabel, getPerformanceSummary } from '../../lib/adaptiveDifficulty';
 import sound from '../../lib/sound';
 import SmoothScroll from '../ui/SmoothScroll';
 import ParticleBackground from '../ui/ParticleBackground';
@@ -118,6 +122,14 @@ export default function RightsMap() {
   const lang = state.language || 'en';
   const completed = new Set(state.completedStories || []);
 
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+
+  const activeEvent = getActiveEvent();
+  const diffInfo = getDifficultyLabel();
+  const perf = getPerformanceSummary();
+  const unlockedAchievementsCount = (state.achievements || []).length;
+
   const isStoryUnlocked = (idx) => {
     if (idx === 0) return true;
     if (idx === 1) return true;
@@ -165,6 +177,32 @@ export default function RightsMap() {
       <div className="min-h-screen bg-[#161226] text-[#FFF8F0] font-body relative overflow-hidden select-none py-6 px-4 sm:px-8">
         <ParticleBackground count={20} />
 
+        {/* ── ACHIEVEMENTS MODAL ── */}
+        <AchievementsModal
+          isOpen={showAchievements}
+          onClose={() => setShowAchievements(false)}
+        />
+
+        {/* ── GOOGLE SYNC MODAL ── */}
+        {showGoogleModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+            <div className="bg-[#161226] border-2 border-[#FFB84D]/40 rounded-3xl p-6 max-w-sm w-full shadow-2xl flex flex-col gap-4">
+              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                <h3 className="font-display font-extrabold text-lg text-white">
+                  ☁️ Cloud Sync Account
+                </h3>
+                <button
+                  onClick={() => setShowGoogleModal(false)}
+                  className="text-white/60 hover:text-white text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+              <GoogleSignIn onSuccess={() => setShowGoogleModal(false)} />
+            </div>
+          </div>
+        )}
+
         <div className="max-w-4xl mx-auto flex flex-col gap-6 relative z-10">
           {/* ── HEADER ── */}
           <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#312756]">
@@ -192,6 +230,19 @@ export default function RightsMap() {
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
+              {/* Trophies & Achievements Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  sound.click();
+                  setShowAchievements(true);
+                }}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-[#F5B942]/40 text-xs font-bold text-[#FFE7A8] transition-all shadow"
+              >
+                <span>🏅</span>
+                <span>Trophies ({unlockedAchievementsCount}/25)</span>
+              </button>
+
               <Link
                 to="/certificate"
                 onClick={() => sound.click()}
@@ -214,14 +265,18 @@ export default function RightsMap() {
                 <span>Leaderboard</span>
               </Link>
 
-              <Link
-                to="/resources"
-                onClick={() => sound.click()}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold transition-all shadow"
+              {/* Cloud Sync Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  sound.click();
+                  setShowGoogleModal(true);
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-white transition-all shadow"
+                title="Link Google account for cross-device sync"
               >
-                <span>📞</span>
-                <span>1098</span>
-              </Link>
+                <span>{state.currentUser?.googleLinked ? '☁️ Synced' : '🔗 Sync'}</span>
+              </button>
 
               {/* Language Switcher */}
               <div className="flex items-center bg-[#231C3D] border border-[#FFB84D]/40 rounded-xl p-0.5">
@@ -255,6 +310,58 @@ export default function RightsMap() {
               </div>
             </div>
           </header>
+
+          {/* ── SEASONAL EVENT BANNER ── */}
+          {activeEvent ? (
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className={`p-4 rounded-3xl bg-gradient-to-r ${activeEvent.bannerGradient} border-2 border-white/20 text-center font-extrabold text-sm flex items-center justify-between gap-3 shadow-xl ${activeEvent.textColor}`}
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="text-2xl">{activeEvent.emoji}</span>
+                <div className="text-left">
+                  <div className="text-xs uppercase tracking-wider font-extrabold opacity-80">
+                    Active National Event • {activeEvent.xpMultiplier}x XP Multiplier
+                  </div>
+                  <div className="text-base font-display font-black">{activeEvent.name}</div>
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-black/20 text-xs font-bold uppercase tracking-wider">
+                Active Now
+              </span>
+            </motion.div>
+          ) : (
+            <div className="p-3.5 rounded-2xl bg-[#231C3D] border border-[#312756] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🗓️</span>
+                <span className="text-white/70">Next National Quest:</span>
+                <span className="text-[#FFB84D] font-bold">Children's Day (Nov 14) &amp; Constitution Day (Nov 26) • Bonus XP</span>
+              </div>
+              <span className="self-start sm:self-auto px-2 py-0.5 rounded bg-white/5 text-[10px] font-mono text-[#FFB84D]">
+                Seasonal Mode Ready
+              </span>
+            </div>
+          )}
+
+          {/* ── ADAPTIVE DIFFICULTY & LEARNING METRICS ── */}
+          <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 rounded-2xl bg-[#1D1733] border border-[#312756] text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-base">{diffInfo.icon}</span>
+              <span className="text-white/60">Adaptive Learning Level:</span>
+              <span className={`font-extrabold font-mono px-2 py-0.5 rounded bg-white/5 ${diffInfo.color}`}>
+                {diffInfo.label}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-white/50">
+              <span>Quiz Accuracy: <strong className="text-white">{perf.quizAccuracy}%</strong></span>
+              <span>•</span>
+              <span>Stories: <strong className="text-[#FFB84D]">{perf.storiesCompleted}</strong></span>
+              <span>•</span>
+              <span>Avg Hearts Kept: <strong className="text-emerald-400">{Math.max(0, 3 - parseFloat(perf.avgHeartsLost || 0)).toFixed(1)}/3</strong></span>
+            </div>
+          </div>
+
 
           {/* ── 5-STORY COMPLETION BANNER ── */}
           {completed.size >= 5 && (
