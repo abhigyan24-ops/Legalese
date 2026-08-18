@@ -290,19 +290,11 @@ export default function CommunityWall() {
         {/* Right Navigation */}
         <div className="flex items-center gap-2">
           <Link
-            to="/advocate-login"
-            onClick={() => sound.click()}
-            className="px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/40 text-xs font-bold text-amber-300 transition-all shadow flex items-center gap-1"
-          >
-            <span>⚖️</span>
-            <span>Advocate Portal</span>
-          </Link>
-          <Link
             to="/leaderboard"
             onClick={() => sound.click()}
-            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-white transition-all shadow"
+            className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-white transition-all shadow"
           >
-            🏆 Board
+            🏆 Leaderboard
           </Link>
         </div>
       </header>
@@ -379,20 +371,11 @@ export default function CommunityWall() {
           <div className="flex flex-col gap-5 animate-fadeIn">
             {/* Ask Question Box */}
             <div className="bg-[#121124]/90 border-2 border-white/15 rounded-3xl p-5 flex flex-col gap-3 shadow-2xl">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">⚖️</span>
-                  <span className="font-display font-bold text-sm text-white">
-                    Ask a Verified Child Rights Legal Advocate
-                  </span>
-                </div>
-
-                <Link
-                  to="/advocate-login"
-                  className="text-[10px] px-2.5 py-1 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-amber-300 font-bold transition-all"
-                >
-                  ⚖️ Advocate Console
-                </Link>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">⚖️</span>
+                <span className="font-display font-bold text-sm text-white">
+                  Ask a Verified Child Rights Legal Advocate
+                </span>
               </div>
 
               <p className="text-xs text-white/60 leading-relaxed">
@@ -517,17 +500,9 @@ export default function CommunityWall() {
                       </div>
                     </div>
                   ) : (
-                    <div className="p-3.5 rounded-2xl bg-white/5 border border-amber-500/30 flex items-center justify-between gap-2 text-xs text-amber-200/80">
-                      <div className="flex items-center gap-2">
-                        <span className="animate-spin">⏳</span>
-                        <span>Saved in Database. Pending review &amp; answer by certified child rights counsel.</span>
-                      </div>
-                      <Link
-                        to="/advocate-login"
-                        className="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 font-bold text-[10px] whitespace-nowrap"
-                      >
-                        Advocate Review →
-                      </Link>
+                    <div className="p-3.5 rounded-2xl bg-white/5 border border-amber-500/30 flex items-center gap-2 text-xs text-amber-200/80">
+                      <span className="animate-spin">⏳</span>
+                      <span>Saved in Database. Pending review &amp; answer by certified child rights counsel.</span>
                     </div>
                   )}
                 </div>

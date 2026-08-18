@@ -10,7 +10,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getAllQuestions, answerQuestion } from '../../lib/storageEngine';
+import { listenAllQuestionsCloud, answerQuestionCloud } from '../../firebase/firebase';
 import sound from '../../lib/sound';
 
 const PASSKEY = 'RIGHTS_QUEST_LEGAL_2026';
@@ -46,13 +46,12 @@ export default function AdvocateDashboard() {
     if (sessionStorage.getItem('rq_advocate_authenticated') === 'true') {
       setIsAuthenticated(true);
     }
-    loadQuestions();
+    // Subscribe to live Realtime Database stream
+    const unsubscribe = listenAllQuestionsCloud((data) => {
+      setQuestions(data);
+    });
+    return () => unsubscribe();
   }, []);
-
-  const loadQuestions = () => {
-    const all = getAllQuestions();
-    setQuestions(all);
-  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -89,8 +88,7 @@ export default function AdvocateDashboard() {
       answeredAt: `Verified on ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`,
     };
 
-    await answerQuestion(activeQuestion.id, payload);
-    loadQuestions();
+    await answerQuestionCloud(activeQuestion.id, payload);
     setActiveQuestion(null);
     setAnswerText('');
     setSuccessToast('Official legal answer published live to the public Q&A feed!');

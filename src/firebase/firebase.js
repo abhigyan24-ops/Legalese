@@ -298,6 +298,55 @@ export const listenQuestionsCloud = (storyId, callback) => {
 };
 
 /**
+ * Listen to all Q&A Questions across all stories for Advocate Moderation
+ */
+export const listenAllQuestionsCloud = (callback) => {
+  if (!rtdb) return () => {};
+  try {
+    const qaRef = query(ref(rtdb, 'qa_questions'), limitToLast(100));
+    const listener = onValue(qaRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const val = snapshot.val();
+        const list = Object.keys(val).map((k) => ({ id: k, ...val[k] }));
+        list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        callback(list);
+      } else {
+        callback([]);
+      }
+    }, (err) => {
+      console.warn('All questions cloud listener notice:', err?.message);
+    });
+
+    return () => off(qaRef, 'value', listener);
+  } catch {
+    return () => {};
+  }
+};
+
+/**
+ * Answer & Approve a Q&A Question in Realtime Cloud (Advocate Action)
+ */
+export const answerQuestionCloud = async (questionId, answerData) => {
+  if (!rtdb || !questionId) return false;
+  try {
+    const qRef = ref(rtdb, `qa_questions/${questionId}`);
+    await update(qRef, {
+      status: 'answered',
+      answer: {
+        text: answerData.text,
+        answeredBy: answerData.answeredBy || 'Verified Legal Advocate',
+        answeredAt: answerData.answeredAt || `Verified on ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`,
+      },
+      approvedAt: new Date().toISOString(),
+    });
+    return true;
+  } catch (err) {
+    console.warn('Answer question cloud error:', err?.message);
+    return false;
+  }
+};
+
+/**
  * Post Leaderboard Cheer
  */
 export const postCheerCloud = async (cheerData) => {
