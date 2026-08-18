@@ -11,6 +11,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { listenAllQuestionsCloud, answerQuestionCloud } from '../../firebase/firebase';
+import { draftAdvocateAnswerAI } from '../../lib/groqAI';
 import sound from '../../lib/sound';
 
 const PASSKEY = 'RIGHTS_QUEST_LEGAL_2026';
@@ -38,6 +39,7 @@ export default function AdvocateDashboard() {
   const [activeQuestion, setActiveQuestion] = useState(null);
   const [advocateName, setAdvocateName] = useState('Adv. Smita Patel • High Court Legal Aid Panel');
   const [answerText, setAnswerText] = useState('');
+  const [isDraftingAI, setIsDraftingAI] = useState(false);
   const [statuteTag, setStatuteTag] = useState('');
   const [successToast, setSuccessToast] = useState('');
 
@@ -76,6 +78,20 @@ export default function AdvocateDashboard() {
     setActiveQuestion(q);
     setAnswerText(q.answer ? q.answer.text : '');
     setAdvocateName(q.answer ? q.answer.answeredBy : 'Adv. Smita Patel • High Court Legal Aid Panel');
+  };
+
+  const handleDraftWithAI = async () => {
+    if (!activeQuestion) return;
+    sound.advance();
+    setIsDraftingAI(true);
+    const qText = activeQuestion.question || activeQuestion.text || '';
+    const storyTopic = STORY_MAP[activeQuestion.storyId] || 'Child Rights in India';
+    const draft = await draftAdvocateAnswerAI(qText, storyTopic);
+    if (draft) {
+      setAnswerText(draft);
+      sound.win();
+    }
+    setIsDraftingAI(false);
   };
 
   const handlePublishAnswer = async () => {
@@ -381,7 +397,19 @@ export default function AdvocateDashboard() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-white/70">Statutory Legal Guidance for Child:</label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-white/70">Statutory Legal Guidance for Child:</label>
+                  <button
+                    type="button"
+                    onClick={handleDraftWithAI}
+                    disabled={isDraftingAI}
+                    className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-purple-500/20 hover:from-amber-500/30 hover:to-purple-500/30 border border-amber-400/40 text-[11px] font-extrabold text-amber-300 flex items-center gap-1.5 transition-all shadow"
+                    title="Generate a statutory draft based on Indian law using Groq AI"
+                  >
+                    <span>{isDraftingAI ? '⏳' : '✨'}</span>
+                    <span>{isDraftingAI ? 'Drafting with Groq AI...' : 'Generate with AI (Groq)'}</span>
+                  </button>
+                </div>
                 <textarea
                   value={answerText}
                   onChange={(e) => setAnswerText(e.target.value)}

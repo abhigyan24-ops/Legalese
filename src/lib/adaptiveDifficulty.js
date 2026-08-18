@@ -40,10 +40,10 @@ export function getPerformanceSummary(state = {}) {
 
   return {
     storiesCompleted: storiesCount,
-    quizAccuracy,
+    quizAccuracy: storiesCount > 0 ? quizAccuracy : 0,
     totalCorrect,
     totalQuestions,
-    avgHeartsLost: Math.max(0, (3 - (quizAccuracy >= 80 ? 3 : quizAccuracy >= 50 ? 2 : 1))).toFixed(1),
+    avgHeartsKept: storiesCount > 0 ? (quizAccuracy >= 80 ? '3.0' : quizAccuracy >= 50 ? '2.5' : '2.0') : '—',
     difficulty,
   };
 }

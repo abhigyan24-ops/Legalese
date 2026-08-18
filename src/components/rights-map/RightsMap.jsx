@@ -412,7 +412,7 @@ export default function RightsMap() {
               <span>•</span>
               <span>Stories: <strong className="text-[#FFB84D]">{perf.storiesCompleted}</strong></span>
               <span>•</span>
-              <span>Avg Hearts Kept: <strong className="text-emerald-400">{Math.max(0, 3 - parseFloat(perf.avgHeartsLost || 0)).toFixed(1)}/3</strong></span>
+              <span>Avg Hearts Kept: <strong className="text-emerald-400">{perf.avgHeartsKept}{perf.storiesCompleted > 0 ? '/3' : ''}</strong></span>
             </div>
           </div>
 
