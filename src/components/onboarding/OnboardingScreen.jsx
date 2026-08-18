@@ -128,25 +128,35 @@ export default function OnboardingScreen() {
         syncUserProfileCloud(profilePayload);
       }
 
+      // Synchronously write to localStorage before navigating
+      try {
+        localStorage.setItem('rights-quest-user', JSON.stringify(profilePayload));
+      } catch {}
+
       dispatch({
         type: 'SET_USER',
         payload: profilePayload,
       });
-      navigate('/map');
+      navigate('/map', { replace: true });
     } catch (err) {
       console.error('Onboarding session error:', err);
+      const fallbackPayload = {
+        uid: state.currentUser?.uid || `guest-${Date.now()}`,
+        avatar: avatarId,
+        nickname: finalNickname,
+        ageTier,
+        language,
+        googleLinked: Boolean(state.currentUser?.googleLinked),
+      };
+      try {
+        localStorage.setItem('rights-quest-user', JSON.stringify(fallbackPayload));
+      } catch {}
+
       dispatch({
         type: 'SET_USER',
-        payload: {
-          uid: state.currentUser?.uid || `guest-${Date.now()}`,
-          avatar: avatarId,
-          nickname: finalNickname,
-          ageTier,
-          language,
-          googleLinked: Boolean(state.currentUser?.googleLinked),
-        },
+        payload: fallbackPayload,
       });
-      navigate('/map');
+      navigate('/map', { replace: true });
     } finally {
       setIsSubmitting(false);
     }

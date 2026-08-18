@@ -176,19 +176,23 @@ export default function StoryEngine({ story, onComplete }) {
     sound.advance();
     setIsLoadingAiHint(true);
     setIsAiMentorUsedOnNode(true);
-    const storyTitle = typeof story?.title === 'object' ? story.title[lang] || story.title.en : story?.title || '';
-    const nodeText = getNodeText(currentNode);
-    const hint = await getStorylineMentorHintAI({
-      storyTitle,
-      nodeText,
-      protagonistName: state.currentUser?.nickname,
-      lang,
-    });
-    if (hint) {
-      setAiMentorHint(hint);
+    try {
+      const storyTitle = typeof story?.title === 'object' ? story.title.en || story.title[lang] : story?.title || '';
+      const nodeText = getNodeText(currentNode);
+      const hint = await getStorylineMentorHintAI({
+        storyTitle,
+        nodeText,
+        protagonistName: state.currentUser?.nickname,
+        lang,
+      });
+      setAiMentorHint(hint || 'Remember your fundamental rights under the Constitution of India! Always choose the path that stands up for fairness, safety, and learning.');
       sound.win();
+    } catch (err) {
+      console.warn('AI mentor error:', err);
+      setAiMentorHint('Under the Constitution of India, every child has the right to be protected, educated, and heard!');
+    } finally {
+      setIsLoadingAiHint(false);
     }
-    setIsLoadingAiHint(false);
   };
 
   // Click to fast-forward text
@@ -254,11 +258,12 @@ export default function StoryEngine({ story, onComplete }) {
     ]);
 
     // Next Node navigation
-    if (choice.next && story?.nodes?.[choice.next]) {
-      const nextNode = story.nodes[choice.next];
-      setCurrentNodeId(choice.next);
+    const targetNodeId = choice.next || choice.target;
+    if (targetNodeId && story?.nodes?.[targetNodeId]) {
+      const nextNode = story.nodes[targetNodeId];
+      setCurrentNodeId(targetNodeId);
 
-      if (nextNode.end) {
+      if (nextNode.end || nextNode.isEnding) {
         handleEndingReached(nextNode, xpGained);
       }
     }

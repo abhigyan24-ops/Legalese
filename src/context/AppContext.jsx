@@ -20,7 +20,7 @@ const LANGUAGE_KEY = 'rights-quest-language';
 
 const loadPersisted = () => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('rq_user_session') || localStorage.getItem('rq_profile_v2');
     return raw ? JSON.parse(raw) : null;
   } catch { return null; }
 };
