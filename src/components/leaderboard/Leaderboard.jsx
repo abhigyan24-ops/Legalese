@@ -23,19 +23,6 @@ import {
   postCheerCloud,
 } from '../../firebase/firebase';
 
-const SEED_EXPLORERS = [
-  { id: 'bot-1', nickname: 'AaravDefender', avatar: 'boy-spiky-blue-medium', xp: 480, badgeCount: 5, tier: 'Diamond' },
-  { id: 'bot-2', nickname: 'PriyaWarrior', avatar: 'girl-long-purple-dark', xp: 420, badgeCount: 4, tier: 'Platinum' },
-  { id: 'bot-3', nickname: 'VikramScholar', avatar: 'boy-curly-green-light', xp: 390, badgeCount: 4, tier: 'Gold' },
-  { id: 'bot-4', nickname: 'DiyaChampion', avatar: 'girl-ponytail-red-medium', xp: 340, badgeCount: 3, tier: 'Gold' },
-  { id: 'bot-5', nickname: 'KabirExplorer', avatar: 'boy-short-blue-medium', xp: 290, badgeCount: 3, tier: 'Silver' },
-  { id: 'bot-6', nickname: 'AnanyaStar', avatar: 'girl-short-teal-light', xp: 260, badgeCount: 2, tier: 'Silver' },
-  { id: 'bot-7', nickname: 'RohanRights', avatar: 'boy-spiky-orange-dark', xp: 220, badgeCount: 2, tier: 'Bronze' },
-  { id: 'bot-8', nickname: 'MeeraSeeker', avatar: 'girl-ponytail-yellow-medium', xp: 180, badgeCount: 2, tier: 'Bronze' },
-  { id: 'bot-9', nickname: 'AdityaVoice', avatar: 'boy-curly-red-medium', xp: 140, badgeCount: 1, tier: 'Bronze' },
-  { id: 'bot-10', nickname: 'NehaHope', avatar: 'girl-long-pink-light', xp: 110, badgeCount: 1, tier: 'Rookie' },
-];
-
 const SAFE_QUICK_CHATS = [
   { id: 'c1', text: '🎉 Great job everyone!', icon: '🎉' },
   { id: 'c2', text: '⚖️ Defend your rights, change the world!', icon: '⚖️' },
@@ -47,19 +34,12 @@ const SAFE_QUICK_CHATS = [
   { id: 'c8', text: '❤️ Every child deserves care and respect!', icon: '❤️' },
 ];
 
-const SEED_CHEERS = [
-  { id: 'seed-1', nickname: 'AaravDefender', avatar: 'boy-spiky-blue-medium', message: '🎓 Education is our fundamental right!', time: '2m ago' },
-  { id: 'seed-2', nickname: 'PriyaWarrior', avatar: 'girl-long-purple-dark', message: '⚖️ Defend your rights, change the world!', time: '5m ago' },
-  { id: 'seed-3', nickname: 'VikramScholar', avatar: 'boy-curly-green-light', message: '🎉 Great job everyone!', time: '12m ago' },
-  { id: 'seed-4', nickname: 'DiyaChampion', avatar: 'girl-ponytail-red-medium', message: '🛡️ Stay safe, call 1098 if needed!', time: '25m ago' },
-];
-
 export default function Leaderboard() {
   const navigate = useNavigate();
   const { state } = useApp();
   const [activeTab, setActiveTab] = useState('rankings'); // 'rankings' | 'cheers'
   const [filter, setFilter] = useState('all'); // 'all', 'weekly', 'defenders'
-  const [cheersList, setCheersList] = useState(SEED_CHEERS);
+  const [cheersList, setCheersList] = useState([]);
   const [justSent, setJustSent] = useState(false);
 
   const userXp = state.xp || 0;
@@ -82,18 +62,22 @@ export default function Leaderboard() {
   // Real-time listener for community rankings from Realtime Cloud
   useEffect(() => {
     const unsub = listenLeaderboardCloud((list) => {
-      if (list && list.length > 0) {
-        setCloudRankings(list);
-      }
+      setCloudRankings(list || []);
       setLastFetched(new Date());
     });
     return () => unsub();
   }, []);
 
-  const baseList = cloudRankings.length > 0 ? cloudRankings : SEED_EXPLORERS;
-  const combinedList = [...baseList.filter((e) => e.id !== currentUserEntry.id), currentUserEntry].sort(
-    (a, b) => b.xp - a.xp
-  );
+  // Filter rankings based on category
+  const filteredCloud = cloudRankings.filter((p) => {
+    if (filter === 'defenders') return (p.badgeCount || 0) >= 2;
+    return true;
+  });
+
+  const combinedList = [
+    ...filteredCloud.filter((e) => e.id !== currentUserEntry.id),
+    ...(state.currentUser ? [currentUserEntry] : []),
+  ].sort((a, b) => (b.xp || 0) - (a.xp || 0));
 
   const getRankBadge = (rank) => {
     if (rank === 0) return { icon: '🥇', color: 'text-amber-300 border-amber-400 bg-amber-400/10' };
@@ -108,9 +92,7 @@ export default function Leaderboard() {
   // Real-time listener for community cheers from Realtime Cloud
   useEffect(() => {
     const unsub = listenCheersCloud((liveCheers) => {
-      if (liveCheers && liveCheers.length > 0) {
-        setCheersList([...liveCheers, ...SEED_CHEERS]);
-      }
+      setCheersList(liveCheers || []);
       setLastFetched(new Date());
     });
     return () => unsub();
@@ -267,50 +249,69 @@ export default function Leaderboard() {
 
             {/* List */}
             <div className="space-y-2.5">
-              {combinedList.map((player, idx) => {
-                const badge = getRankBadge(idx);
-                return (
-                  <motion.div
-                    key={player.id}
-                    layout
-                    transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                    className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border transition-colors ${
-                      player.isCurrent
-                        ? 'bg-gradient-to-r from-amber-500/25 via-[#25493A] to-amber-500/20 border-[#F5B942] shadow-[0_0_20px_rgba(245,185,66,0.25)] ring-1 ring-[#F5B942]/60'
-                        : 'bg-white/5 hover:bg-white/10 border-white/10'
-                    }`}
+              {combinedList.length === 0 ? (
+                <div className="text-center py-12 px-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center">
+                  <div className="text-4xl mb-2">🏆</div>
+                  <h3 className="text-base font-bold text-white">No Ranked Defenders Yet</h3>
+                  <p className="text-xs text-white/50 mt-1 max-w-sm">
+                    Complete stories on the Rights Trail to earn your first XP and lead the scoreboard!
+                  </p>
+                  <button
+                    onClick={() => {
+                      sound.click();
+                      navigate('/map');
+                    }}
+                    className="mt-4 px-4 py-2 rounded-xl bg-[#F5B942] text-black font-extrabold text-xs shadow hover:brightness-110 active:scale-95 transition-all"
                   >
-                    <div className="flex items-center gap-3 sm:gap-4">
-                      <div
-                        className={`w-9 h-9 rounded-xl border flex items-center justify-center font-extrabold text-sm sm:text-base ${badge.color}`}
-                      >
-                        {badge.icon}
+                    🗺️ Go to Rights Trail →
+                  </button>
+                </div>
+              ) : (
+                combinedList.map((player, idx) => {
+                  const badge = getRankBadge(idx);
+                  return (
+                    <motion.div
+                      key={player.id}
+                      layout
+                      transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                      className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border transition-colors ${
+                        player.isCurrent
+                          ? 'bg-gradient-to-r from-amber-500/25 via-[#25493A] to-amber-500/20 border-[#F5B942] shadow-[0_0_20px_rgba(245,185,66,0.25)] ring-1 ring-[#F5B942]/60'
+                          : 'bg-white/5 hover:bg-white/10 border-white/10'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <div
+                          className={`w-9 h-9 rounded-xl border flex items-center justify-center font-extrabold text-sm sm:text-base ${badge.color}`}
+                        >
+                          {badge.icon}
+                        </div>
+
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-sm sm:text-base text-white">{player.nickname}</span>
+                            {player.isCurrent && (
+                              <span className="px-2 py-0.5 rounded-full bg-[#F5B942] text-black font-extrabold text-[9px] shadow-sm">
+                                YOU
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-white/50 flex items-center gap-2 mt-0.5">
+                            <span>{player.tier}</span>
+                            <span>•</span>
+                            <span>{player.badgeCount} badges</span>
+                          </div>
+                        </div>
                       </div>
 
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm sm:text-base text-white">{player.nickname}</span>
-                          {player.isCurrent && (
-                            <span className="px-2 py-0.5 rounded-full bg-[#F5B942] text-black font-extrabold text-[9px] shadow-sm">
-                              YOU
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs text-white/50 flex items-center gap-2 mt-0.5">
-                          <span>{player.tier}</span>
-                          <span>•</span>
-                          <span>{player.badgeCount} badges</span>
-                        </div>
+                      <div className="text-right">
+                        <div className="text-base sm:text-lg font-extrabold text-[#F5B942]">⚡ {player.xp}</div>
+                        <div className="text-[10px] text-white/40 uppercase tracking-wide">XP Earned</div>
                       </div>
-                    </div>
-
-                    <div className="text-right">
-                      <div className="text-base sm:text-lg font-extrabold text-[#F5B942]">⚡ {player.xp}</div>
-                      <div className="text-[10px] text-white/40 uppercase tracking-wide">XP Earned</div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })
+              )}
             </div>
           </div>
         )}
@@ -362,25 +363,31 @@ export default function Leaderboard() {
               </div>
 
               <div className="space-y-2.5">
-                {cheersList.map((c, idx) => (
-                  <div
-                    key={c.id || idx}
-                    className="flex items-start gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10 shadow-sm"
-                  >
-                    <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-lg flex-shrink-0">
-                      🌟
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-display font-bold text-xs text-[#F5B942] truncate">
-                          {c.nickname}
-                        </span>
-                        <span className="text-[10px] text-white/40">{c.time}</span>
-                      </div>
-                      <p className="text-sm text-white/90 mt-0.5 leading-snug">{c.message}</p>
-                    </div>
+                {cheersList.length === 0 ? (
+                  <div className="text-center py-8 px-4 rounded-xl bg-white/5 border border-white/10 text-white/50 text-xs">
+                    💬 No cheers sent yet. Be the first young defender to click a cheer bubble above!
                   </div>
-                ))}
+                ) : (
+                  cheersList.map((c, idx) => (
+                    <div
+                      key={c.id || idx}
+                      className="flex items-start gap-3 p-3.5 rounded-xl bg-white/5 border border-white/10 shadow-sm"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-lg flex-shrink-0">
+                        🌟
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-display font-bold text-xs text-[#F5B942] truncate">
+                            {c.nickname}
+                          </span>
+                          <span className="text-[10px] text-white/40">{c.time || 'Just now'}</span>
+                        </div>
+                        <p className="text-sm text-white/90 mt-0.5 leading-snug">{c.message}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
