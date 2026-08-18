@@ -392,3 +392,101 @@ export const listenCheersCloud = (callback) => {
     return () => {};
   }
 };
+
+/**
+ * Listen to 100% Real Aggregate Learning & Impact Metrics from Realtime Database
+ */
+export const listenRealtimeImpactMetrics = (callback) => {
+  if (!rtdb) return () => {};
+  try {
+    const usersRef = ref(rtdb, 'users');
+
+    const listener = onValue(usersRef, (snapshot) => {
+      const users = snapshot.exists() ? snapshot.val() : {};
+      const userList = Object.values(users);
+      const totalUsers = userList.length;
+
+      let totalXP = 0;
+      let totalCompletions = 0;
+      let totalQuizCorrect = 0;
+      let totalQuizQuestions = 0;
+      let totalAchievementsEarned = 0;
+
+      const storyStats = {
+        'right-to-education': { completions: 0, quizCorrect: 0, quizTotal: 0 },
+        'right-to-healthcare': { completions: 0, quizCorrect: 0, quizTotal: 0 },
+        'protection-from-child-labour': { completions: 0, quizCorrect: 0, quizTotal: 0 },
+        'protection-from-abuse': { completions: 0, quizCorrect: 0, quizTotal: 0 },
+        'protection-from-child-marriage': { completions: 0, quizCorrect: 0, quizTotal: 0 },
+      };
+
+      const langCounts = { en: 0, hi: 0, kn: 0 };
+      const ageCounts = { '8-11': 0, '12-16': 0 };
+
+      userList.forEach((u) => {
+        totalXP += Number(u.xp || 0);
+
+        // Language
+        const l = u.language || 'en';
+        langCounts[l] = (langCounts[l] || 0) + 1;
+
+        // Age Tier
+        const a = u.ageTier || '8-11';
+        ageCounts[a] = (ageCounts[a] || 0) + 1;
+
+        // Completed Stories
+        const completed = Array.isArray(u.completedStories) ? u.completedStories : [];
+        totalCompletions += completed.length;
+        completed.forEach((sId) => {
+          if (storyStats[sId]) {
+            storyStats[sId].completions += 1;
+          }
+        });
+
+        // Quiz Scores
+        const scores = u.quizScores || {};
+        Object.entries(scores).forEach(([sId, score]) => {
+          if (score && typeof score === 'object') {
+            const c = Number(score.correct ?? score.score ?? 0);
+            const t = Number(score.total ?? 3);
+            totalQuizCorrect += c;
+            totalQuizQuestions += t;
+            if (storyStats[sId]) {
+              storyStats[sId].quizCorrect += c;
+              storyStats[sId].quizTotal += t;
+            }
+          }
+        });
+
+        // Achievements
+        if (Array.isArray(u.achievements)) {
+          totalAchievementsEarned += u.achievements.length;
+        }
+      });
+
+      const overallQuizAccuracy = totalQuizQuestions > 0
+        ? Math.round((totalQuizCorrect / totalQuizQuestions) * 100)
+        : null;
+
+      callback({
+        totalUsers,
+        totalXP,
+        totalCompletions,
+        totalQuizQuestions,
+        totalQuizCorrect,
+        overallQuizAccuracy,
+        totalAchievementsEarned,
+        storyStats,
+        langCounts,
+        ageCounts,
+      });
+    }, (err) => {
+      console.warn('Realtime impact listener error:', err?.message);
+    });
+
+    return () => off(usersRef, 'value', listener);
+  } catch (err) {
+    console.warn('Realtime impact metrics init error:', err?.message);
+    return () => {};
+  }
+};
