@@ -7,9 +7,10 @@
  */
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
+import GoogleSignIn from '../auth/GoogleSignIn';
 import confetti from 'canvas-confetti';
 import sound from '../../lib/sound';
 import SmoothScroll from '../ui/SmoothScroll';
@@ -90,8 +91,10 @@ const MINI_DEMO_CHOICES = [
 ];
 
 export default function LandingPage() {
+  const navigate = useNavigate();
   const { state } = useApp();
   const [activeChoice, setActiveChoice] = useState(null);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const isReturningUser = Boolean(state.currentUser?.nickname);
 
   const handleConfetti = (e) => {
@@ -125,6 +128,29 @@ export default function LandingPage() {
         {/* Soft Golden Fireflies Ambience */}
         <ParticleBackground count={26} />
 
+        {/* ── GOOGLE SYNC MODAL ── */}
+        {showGoogleModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+            <div className="bg-[#161226] border-2 border-[#FFB84D]/40 rounded-3xl p-6 max-w-sm w-full shadow-2xl flex flex-col gap-4">
+              <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                <h3 className="font-display font-extrabold text-lg text-white">
+                  ☁️ Restore Saved Progress
+                </h3>
+                <button
+                  onClick={() => setShowGoogleModal(false)}
+                  className="text-white/60 hover:text-white text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+              <GoogleSignIn onSuccess={() => {
+                setShowGoogleModal(false);
+                navigate('/map');
+              }} />
+            </div>
+          </div>
+        )}
+
         {/* ── TOP NAVIGATION ── */}
         <header className="sticky top-0 z-40 bg-[#161226]/85 backdrop-blur-md border-b border-[#312756] px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-lg">
           <div className="flex items-center gap-3">
@@ -141,7 +167,20 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-5">
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Quick Google Sync Button */}
+            <button
+              type="button"
+              onClick={() => {
+                sound.click();
+                setShowGoogleModal(true);
+              }}
+              className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-white transition-all shadow hidden sm:flex items-center gap-1.5"
+            >
+              <span>☁️</span>
+              <span>Sync Account</span>
+            </button>
+
             <Link
               to="/teachers"
               onClick={() => sound.click()}

@@ -15,6 +15,7 @@ import { useApp } from '../../context/AppContext';
 import { initAnonymousSession, syncUserProfileCloud } from '../../firebase/firebase';
 import { ProtagonistSprite } from '../story-engine/CharacterAvatar';
 import { generateNickname } from './NicknameGenerator';
+import GoogleSignIn from '../auth/GoogleSignIn';
 import sound from '../../lib/sound';
 import AnimatedButton from '../ui/AnimatedButton';
 import ParticleBackground from '../ui/ParticleBackground';
@@ -185,7 +186,7 @@ export default function OnboardingScreen() {
         {/* ── CARD CONTAINER ── */}
         <div className="bg-[#231C3D] border-2 border-[#312756] rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-md relative overflow-hidden">
           <AnimatePresence mode="wait">
-            {/* STEP 1: AVATAR PICKER */}
+            {/* STEP 1: AVATAR PICKER & CLOUD RESTORE */}
             {step === 1 && (
               <motion.div
                 key="step-1"
@@ -193,13 +194,33 @@ export default function OnboardingScreen() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                className="flex flex-col gap-5 text-center"
+                className="flex flex-col gap-4 text-center"
               >
+                {/* Quick Cloud Restore for Returning Players on New Devices */}
+                <div className="p-3.5 rounded-2xl bg-white/[0.04] border border-[#FFB84D]/30 flex flex-col gap-2 text-left">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-[#FFB84D] font-extrabold flex items-center gap-1">
+                      <span>⚡</span>
+                      <span>Already have an account?</span>
+                    </span>
+                    <span className="text-white/40 text-[11px]">Sync across devices</span>
+                  </div>
+                  <GoogleSignIn onSuccess={() => navigate('/map', { replace: true })} />
+                </div>
+
+                <div className="flex items-center gap-3 my-0.5">
+                  <div className="h-[1px] flex-1 bg-white/10" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/40">
+                    or create new character
+                  </span>
+                  <div className="h-[1px] flex-1 bg-white/10" />
+                </div>
+
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-extrabold font-display text-white">
+                  <h2 className="text-xl font-extrabold font-display text-white">
                     Choose Your Hero Avatar
                   </h2>
-                  <p className="text-xs text-[#9FBBAB] mt-1">
+                  <p className="text-xs text-[#9FBBAB] mt-0.5">
                     Pick a character to embark on the Constitutional Trail
                   </p>
                 </div>

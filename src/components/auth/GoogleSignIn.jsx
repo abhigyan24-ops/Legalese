@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { signInWithGoogle } from '../../firebase/firebase';
+import { signInWithGoogle, fetchUserProfileCloud, deleteUserCloud, syncUserProfileCloud } from '../../firebase/firebase';
 import { useApp } from '../../context/AppContext';
 
 export default function GoogleSignIn({ onSuccess }) {
@@ -23,24 +23,78 @@ export default function GoogleSignIn({ onSuccess }) {
     setError('');
     try {
       const gUser = await signInWithGoogle();
-      if (!gUser) {
-        setError('Google sign-in was cancelled or failed. Try again.');
+      if (!gUser || gUser.error) {
+        const errCode = gUser?.error || '';
+        if (errCode.includes('operation-not-allowed') || errCode.includes('configuration-not-found')) {
+          setError('Google Sign-in is not yet enabled in Firebase Console (Authentication → Sign-in method → Enable Google).');
+        } else if (errCode.includes('unauthorized-domain')) {
+          setError('Current domain is not authorized in Firebase Console (Authentication → Settings → Authorized domains).');
+        } else if (errCode.includes('popup-closed-by-user')) {
+          setError('Sign-in popup was closed before completing.');
+        } else if (errCode.includes('popup-blocked')) {
+          setError('Popup was blocked by your browser. Please allow popups for this site.');
+        } else {
+          setError(errCode || 'Google sign-in was cancelled or failed. Try again.');
+        }
         return;
       }
-      // Merge Google UID into existing profile
-      dispatch({
-        type: 'SET_USER',
-        payload: {
-          ...state.currentUser,
+
+      const oldUid = state.currentUser?.uid;
+
+      // 1. Check if an existing profile already exists in Firebase Realtime Database
+      const cloudData = await fetchUserProfileCloud(gUser.uid);
+
+      if (cloudData && cloudData.nickname) {
+        // User has an existing saved profile on another device — restore all progress!
+        dispatch({
+          type: 'RESTORE_CLOUD_USER',
+          payload: {
+            ...cloudData,
+            uid: gUser.uid,
+            googleName: gUser.displayName,
+            googlePhoto: gUser.photoURL,
+          },
+        });
+
+        // If an unused local anonymous session was previously created on this device, delete it from cloud
+        if (oldUid && oldUid !== gUser.uid && (!state.currentUser?.nickname || state.currentUser.nickname === 'Explorer')) {
+          await deleteUserCloud(oldUid);
+        }
+      } else {
+        // First time syncing this Google account — attach Google credentials to local profile
+        const updatedPayload = {
           uid: gUser.uid,
-          googleLinked: true,
+          nickname: state.currentUser?.nickname || gUser.displayName?.split(' ')[0] || 'Defender',
+          avatar: state.currentUser?.avatar || 'boy-short-blue-medium',
+          ageTier: state.currentUser?.ageTier || '8-11',
+          language: state.language || 'en',
+          xp: state.xp || 0,
+          badges: state.badges || [],
+          completedStories: state.completedStories || [],
+          quizScores: state.quizScores || {},
+          achievements: state.achievements || [],
+          languagesUsed: state.languagesUsed || [],
           googleName: gUser.displayName,
           googlePhoto: gUser.photoURL,
-        },
-      });
+        };
+
+        dispatch({
+          type: 'RESTORE_CLOUD_USER',
+          payload: updatedPayload,
+        });
+
+        // Sync to cloud
+        await syncUserProfileCloud(updatedPayload);
+
+        // Delete old unused anonymous UID
+        if (oldUid && oldUid !== gUser.uid) {
+          await deleteUserCloud(oldUid);
+        }
+      }
+
       setDone(true);
       onSuccess?.();
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);

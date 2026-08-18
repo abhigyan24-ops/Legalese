@@ -115,6 +115,32 @@ function reducer(state, action) {
       if (existing.includes(action.payload)) return state;
       return { ...state, achievements: [...existing, action.payload] };
     }
+    case 'RESTORE_CLOUD_USER': {
+      const p = action.payload || {};
+      const newLang = p.language || state.language || 'en';
+      if (typeof localStorage !== 'undefined') {
+        try { localStorage.setItem(LANGUAGE_KEY, newLang); } catch {}
+      }
+      return {
+        ...state,
+        currentUser: {
+          uid: p.uid,
+          nickname: p.nickname || 'Explorer',
+          avatar: p.avatar || 'boy-short-blue-medium',
+          ageTier: p.ageTier || '8-11',
+          googleLinked: true,
+          googleName: p.googleName,
+          googlePhoto: p.googlePhoto,
+        },
+        xp: p.xp || 0,
+        badges: p.badges || [],
+        completedStories: p.completedStories || [],
+        quizScores: p.quizScores || {},
+        language: newLang,
+        achievements: p.achievements || [],
+        languagesUsed: p.languagesUsed || [],
+      };
+    }
     case 'TOGGLE_DYSLEXIA':
       return {
         ...state,

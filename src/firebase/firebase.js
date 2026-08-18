@@ -80,7 +80,7 @@ export const initAnonymousSession = async () => {
  * Returns { uid, displayName, email, photoURL } or null on failure
  */
 export const signInWithGoogle = async () => {
-  if (!isFirebaseConfigured || !auth) return null;
+  if (!isFirebaseConfigured || !auth) return { error: 'Firebase is not configured.' };
   try {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
@@ -92,8 +92,39 @@ export const signInWithGoogle = async () => {
       photoURL: result.user.photoURL,
     };
   } catch (err) {
-    console.warn('Google sign-in notice:', err?.message);
+    console.warn('Google sign-in notice:', err?.code, err?.message);
+    return { error: err?.code || err?.message || 'sign-in-failed' };
+  }
+};
+
+/**
+ * Fetch User Profile from Realtime Cloud
+ */
+export const fetchUserProfileCloud = async (uid) => {
+  if (!rtdb || !uid) return null;
+  try {
+    const userRef = ref(rtdb, `users/${uid}`);
+    const snap = await get(userRef);
+    if (snap.exists()) {
+      return snap.val();
+    }
     return null;
+  } catch (err) {
+    console.warn('Fetch user profile cloud error:', err?.message);
+    return null;
+  }
+};
+
+/**
+ * Delete User and Leaderboard entries from Realtime Cloud (used to clean up abandoned anonymous accounts on sync)
+ */
+export const deleteUserCloud = async (uid) => {
+  if (!rtdb || !uid) return;
+  try {
+    await set(ref(rtdb, `users/${uid}`), null);
+    await set(ref(rtdb, `leaderboard/${uid}`), null);
+  } catch (err) {
+    console.warn('Delete cloud user error:', err?.message);
   }
 };
 
