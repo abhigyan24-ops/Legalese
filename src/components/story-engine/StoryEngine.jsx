@@ -5,7 +5,7 @@
  * real research "Did You Know?" callouts, and anonymized aggregate stats writes.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { isFirebaseConfigured, syncUserProfileCloud } from '../../firebase/firebase';
@@ -87,6 +87,12 @@ export default function StoryEngine({ story, onComplete }) {
   }, [lang]);
 
   const currentNode = story?.nodes?.[currentNodeId];
+
+  // Shuffle choices once per node so option order is random (prevents XP-order pattern)
+  const shuffledChoices = useMemo(() => {
+    if (!currentNode?.choices) return [];
+    return [...currentNode.choices].sort(() => Math.random() - 0.5);
+  }, [currentNodeId]); // only re-shuffle when the node changes
 
   // Helper to extract localized text
   const getNodeText = (node) => {
@@ -582,7 +588,7 @@ export default function StoryEngine({ story, onComplete }) {
             {/* Decision Choices with Spring Hover & Tactile Tap */}
             {!isTyping && currentNode.choices && (
               <div role="group" aria-label="Story decision choices" className="grid grid-cols-1 sm:grid-cols-3 gap-3 animate-fadeIn">
-                {currentNode.choices.map((choice, cIdx) => (
+                {shuffledChoices.map((choice, cIdx) => (
                   <motion.button
                     key={cIdx}
                     whileHover={{ scale: 1.03, y: -2 }}
@@ -595,9 +601,7 @@ export default function StoryEngine({ story, onComplete }) {
                     }`}
                   >
                     <span>{getChoiceLabel(choice)}</span>
-                    <span className="text-[#F5B942] group-hover:text-black font-mono font-bold text-xs">
-                      +{choice.xp || 10}XP
-                    </span>
+                    <span className="text-[#F5B942] group-hover:text-black opacity-0 group-hover:opacity-100 transition-opacity text-base">→</span>
                   </motion.button>
                 ))}
               </div>

@@ -68,7 +68,7 @@ export default function OnboardingScreen() {
 
   const [step, setStep] = useState(1);
   const [avatarId, setAvatarId] = useState('boy-short-blue-medium');
-  const [nickname, setNickname] = useState(() => generateNickname());
+  const [nickname, setNickname] = useState('');
   const [ageTier, setAgeTier] = useState('8-11');
   const [language, setLanguage] = useState('en');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -273,10 +273,11 @@ export default function OnboardingScreen() {
                     <input
                       type="text"
                       value={nickname}
-                      onChange={(e) => setNickname(e.target.value)}
+                      onChange={(e) => setNickname(e.target.value.replace(/[^a-zA-Z0-9]/g, ''))}
                       maxLength={18}
-                      placeholder="e.g. BraveTiger42"
-                      className="w-full bg-[#132A20] border-2 border-[#3A6650] focus:border-[#F5B942] rounded-2xl px-4 py-3.5 text-base font-extrabold font-display text-[#FFE7A8] outline-none shadow-inner text-center"
+                      placeholder="Type your name or tap 🎲"
+                      autoFocus
+                      className="w-full bg-[#132A20] border-2 border-[#3A6650] focus:border-[#F5B942] rounded-2xl px-4 pr-14 py-3.5 text-base font-extrabold font-display text-[#FFE7A8] outline-none shadow-inner text-center placeholder:text-white/30 placeholder:font-normal"
                     />
 
                     <motion.button
@@ -284,22 +285,34 @@ export default function OnboardingScreen() {
                       onClick={handleShuffleNickname}
                       animate={isSpinning ? { rotate: 360 } : { rotate: 0 }}
                       transition={{ duration: 0.35, ease: 'easeInOut' }}
-                      title="Shuffle new random nickname"
-                      className="absolute right-3 p-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#F5B942] transition-colors"
+                      title="Generate a random safe nickname"
+                      className="absolute right-3 p-2 rounded-xl bg-[#F5B942]/20 hover:bg-[#F5B942]/40 text-[#F5B942] transition-colors text-lg"
                     >
                       🎲
                     </motion.button>
                   </div>
-                  <span className="text-[11px] text-[#9FBBAB]">
-                    Tap 🎲 to generate a fun, safe random name!
-                  </span>
+
+                  <div className="flex items-center justify-between px-1">
+                    <span className="text-[11px] text-[#9FBBAB]">
+                      {nickname.length === 0 ? 'No spaces or special chars — only letters & numbers' : 'Looking good, Defender! 🛡️'}
+                    </span>
+                    <span className={`text-[11px] font-mono font-bold ${
+                      nickname.length > 14 ? 'text-amber-400' : 'text-white/40'
+                    }`}>{nickname.length}/18</span>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3 pt-2">
                   <AnimatedButton variant="secondary" size="md" onClick={handlePrevStep} className="flex-1">
                     ← Back
                   </AnimatedButton>
-                  <AnimatedButton variant="primary" size="md" onClick={handleNextStep} className="flex-1">
+                  <AnimatedButton
+                    variant="primary"
+                    size="md"
+                    onClick={handleNextStep}
+                    className="flex-1"
+                    disabled={nickname.trim().length < 2}
+                  >
                     Next: Age Group →
                   </AnimatedButton>
                 </div>

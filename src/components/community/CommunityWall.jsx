@@ -85,25 +85,26 @@ export default function CommunityWall() {
 
   // Real-time listener for community reflections from Realtime Cloud
   useEffect(() => {
+    setPosts([]); // clear on topic change to avoid stale data
     const unsub = listenCommunityReflectionsCloud(currentStoryId, (cloudPosts) => {
-      if (cloudPosts && cloudPosts.length > 0) {
-        setPosts(cloudPosts);
-      }
+      setPosts(cloudPosts || []);
     });
     return () => unsub();
   }, [currentStoryId]);
 
-  // Real-time listener for Q&A questions from Realtime Cloud
+  // Real-time listener for Q&A questions from Realtime Cloud (single source of truth)
   useEffect(() => {
+    setQaList([]); // clear on topic change to avoid stale data flicker
     const unsub = listenQuestionsCloud(currentStoryId, (cloudQa) => {
-      const localList = getAllQuestions(currentStoryId);
-      const merged = [...cloudQa];
-      for (const loc of localList) {
-        if (!merged.some((m) => m.id === loc.id || m.question === loc.question)) {
-          merged.push(loc);
-        }
+      if (cloudQa && cloudQa.length > 0) {
+        // Cloud is the source of truth — sort newest first
+        const sorted = [...cloudQa].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setQaList(sorted);
+      } else {
+        // Fallback to local storage when cloud is empty / offline
+        const localList = getAllQuestions(currentStoryId);
+        setQaList(localList);
       }
-      setQaList(merged);
     });
     return () => unsub();
   }, [currentStoryId]);
