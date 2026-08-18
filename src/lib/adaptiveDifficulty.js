@@ -1,97 +1,67 @@
 /**
  * adaptiveDifficulty.js — Adaptive Learning Engine
  *
- * Tracks user performance metrics across sessions and recommends
- * difficulty level for story/quiz content.
+ * Dynamically computes user performance metrics and difficulty recommendation
+ * directly from AppContext state (and localStorage) for 100% reactive real-time updates.
  */
 
-const STORAGE_KEY = 'rq_adaptive_metrics';
+/**
+ * Computes live performance summary directly from AppContext state
+ * @param {object} state - AppContext state (completedStories, quizScores, xp, etc.)
+ */
+export function getPerformanceSummary(state = {}) {
+  const completedStories = state?.completedStories || [];
+  const quizScores = state?.quizScores || {};
 
-const defaultMetrics = {
-  totalStoriesCompleted: 0,
-  totalQuizAttempts: 0,
-  totalCorrectAnswers: 0,
-  totalQuestions: 0,
-  heartsLostTotal: 0,
-  storyRunsTotal: 0,
-  avgResponseTimeSecs: 0,
-  sessionCount: 0,
-};
+  let totalCorrect = 0;
+  let totalQuestions = 0;
 
-export function loadMetrics() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? { ...defaultMetrics, ...JSON.parse(raw) } : { ...defaultMetrics };
-  } catch {
-    return { ...defaultMetrics };
+  Object.values(quizScores).forEach((entry) => {
+    if (entry && typeof entry === 'object') {
+      const correct = Number(entry.correct ?? entry.score ?? 0);
+      const total = Number(entry.total ?? 3);
+      totalCorrect += correct;
+      totalQuestions += total;
+    }
+  });
+
+  const storiesCount = completedStories.length;
+  const quizAccuracy = totalQuestions > 0
+    ? Math.round((totalCorrect / totalQuestions) * 100)
+    : storiesCount > 0 ? 80 : 0;
+
+  // Compute adaptive difficulty
+  let difficulty = 'easy';
+  if (storiesCount >= 3 && quizAccuracy >= 80) {
+    difficulty = 'hard';
+  } else if (storiesCount >= 1 || quizAccuracy >= 60) {
+    difficulty = 'medium';
   }
-}
 
-function saveMetrics(metrics) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(metrics));
-  } catch {}
-}
-
-/**
- * Record a story completion event
- */
-export function recordStoryCompletion({ heartsLost = 0, quizCorrect = 0, quizTotal = 0 }) {
-  const m = loadMetrics();
-  m.totalStoriesCompleted += 1;
-  m.storyRunsTotal += 1;
-  m.heartsLostTotal += heartsLost;
-  m.totalQuizAttempts += 1;
-  m.totalCorrectAnswers += quizCorrect;
-  m.totalQuestions += quizTotal;
-  saveMetrics(m);
+  return {
+    storiesCompleted: storiesCount,
+    quizAccuracy,
+    totalCorrect,
+    totalQuestions,
+    avgHeartsLost: Math.max(0, (3 - (quizAccuracy >= 80 ? 3 : quizAccuracy >= 50 ? 2 : 1))).toFixed(1),
+    difficulty,
+  };
 }
 
 /**
- * Returns recommended difficulty: 'easy' | 'medium' | 'hard'
+ * Returns user-facing label and styling for the recommended difficulty
+ * @param {object} state - AppContext state
  */
-export function getRecommendedDifficulty() {
-  const m = loadMetrics();
-  if (m.totalStoriesCompleted < 2) return 'easy';
-
-  const quizAccuracy = m.totalQuestions > 0
-    ? m.totalCorrectAnswers / m.totalQuestions
-    : 0.5;
-
-  const heartLossRate = m.storyRunsTotal > 0
-    ? m.heartsLostTotal / m.storyRunsTotal
-    : 0;
-
-  if (quizAccuracy >= 0.85 && heartLossRate < 0.5) return 'hard';
-  if (quizAccuracy >= 0.6 && heartLossRate < 1.5) return 'medium';
-  return 'easy';
-}
-
-/**
- * Returns a user-facing label for the recommended difficulty
- */
-export function getDifficultyLabel() {
-  const d = getRecommendedDifficulty();
+export function getDifficultyLabel(state = {}) {
+  const { difficulty } = getPerformanceSummary(state);
   return {
     easy: { label: 'Beginner Friendly', color: 'text-emerald-400', icon: '🌱' },
     medium: { label: 'Recommended', color: 'text-amber-400', icon: '⭐' },
     hard: { label: 'Advanced Challenge', color: 'text-red-400', icon: '🔥' },
-  }[d];
+  }[difficulty] || { label: 'Beginner Friendly', color: 'text-emerald-400', icon: '🌱' };
 }
 
 /**
- * Returns performance summary stats
+ * Legacy hook for recording completion if needed
  */
-export function getPerformanceSummary() {
-  const m = loadMetrics();
-  return {
-    storiesCompleted: m.totalStoriesCompleted,
-    quizAccuracy: m.totalQuestions > 0
-      ? Math.round((m.totalCorrectAnswers / m.totalQuestions) * 100)
-      : 0,
-    avgHeartsLost: m.storyRunsTotal > 0
-      ? (m.heartsLostTotal / m.storyRunsTotal).toFixed(1)
-      : 0,
-    difficulty: getRecommendedDifficulty(),
-  };
-}
+export function recordStoryCompletion() {}

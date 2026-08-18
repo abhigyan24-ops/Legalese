@@ -126,8 +126,8 @@ export default function RightsMap() {
   const [showGoogleModal, setShowGoogleModal] = useState(false);
 
   const activeEvent = getActiveEvent();
-  const diffInfo = getDifficultyLabel();
-  const perf = getPerformanceSummary();
+  const diffInfo = getDifficultyLabel(state);
+  const perf = getPerformanceSummary(state);
   const unlockedAchievementsCount = (state.achievements || []).length;
 
   const isStoryUnlocked = (idx) => {
