@@ -16,6 +16,7 @@ import { initAnonymousSession, syncUserProfileCloud } from '../../firebase/fireb
 import { ProtagonistSprite } from '../story-engine/CharacterAvatar';
 import { generateNickname } from './NicknameGenerator';
 import GoogleSignIn from '../auth/GoogleSignIn';
+import { saveUserProfile, getOrCreateUniqueSessionId } from '../../lib/sessionManager';
 import sound from '../../lib/sound';
 import AnimatedButton from '../ui/AnimatedButton';
 import ParticleBackground from '../ui/ParticleBackground';
@@ -109,8 +110,10 @@ export default function OnboardingScreen() {
       const isGoogle = Boolean(state.currentUser?.googleLinked);
       const uid = state.currentUser?.uid || await initAnonymousSession();
 
+      const sessionId = getOrCreateUniqueSessionId();
       const profilePayload = {
-        uid,
+        uid: uid || sessionId,
+        sessionId,
         avatar: avatarId,
         nickname: finalNickname,
         ageTier,
@@ -129,9 +132,7 @@ export default function OnboardingScreen() {
       }
 
       // Synchronously write to localStorage before navigating
-      try {
-        localStorage.setItem('rights-quest-user', JSON.stringify(profilePayload));
-      } catch {}
+      saveUserProfile(profilePayload);
 
       dispatch({
         type: 'SET_USER',
@@ -140,17 +141,17 @@ export default function OnboardingScreen() {
       navigate('/map', { replace: true });
     } catch (err) {
       console.error('Onboarding session error:', err);
+      const sessionId = getOrCreateUniqueSessionId();
       const fallbackPayload = {
-        uid: state.currentUser?.uid || `guest-${Date.now()}`,
+        uid: state.currentUser?.uid || sessionId,
+        sessionId,
         avatar: avatarId,
         nickname: finalNickname,
         ageTier,
         language,
         googleLinked: Boolean(state.currentUser?.googleLinked),
       };
-      try {
-        localStorage.setItem('rights-quest-user', JSON.stringify(fallbackPayload));
-      } catch {}
+      saveUserProfile(fallbackPayload);
 
       dispatch({
         type: 'SET_USER',

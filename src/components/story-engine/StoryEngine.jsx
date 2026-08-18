@@ -25,7 +25,6 @@ import {
 } from '../../lib/narration';
 import { checkNewAchievements } from '../../lib/achievements';
 import { applyEventMultiplier, getActiveEvent } from '../../lib/seasonalEvents';
-import { getStorylineMentorHintAI } from '../../lib/groqAI';
 import AchievementUnlock from '../achievements/AchievementUnlock';
 import ShareChallenge from '../share/ShareChallenge';
 import sound from '../../lib/sound';
@@ -58,11 +57,6 @@ export default function StoryEngine({ story, onComplete }) {
   // Post-Story Quiz State
   const [quizAnswers, setQuizAnswers] = useState({}); // { [qIndex]: selectedOptionIndex }
   const [quizSubmitted, setQuizSubmitted] = useState(false);
-
-  // AI Storyline Legal Mentor State (Nyay 🤖)
-  const [aiMentorHint, setAiMentorHint] = useState(null);
-  const [isLoadingAiHint, setIsLoadingAiHint] = useState(false);
-  const [isAiMentorUsedOnNode, setIsAiMentorUsedOnNode] = useState(false);
 
   const typingTimerRef = useRef(null);
   const fullTextRef = useRef('');
@@ -164,37 +158,6 @@ export default function StoryEngine({ story, onComplete }) {
     };
   }, [currentNodeId, lang, narrationEnabled, reducedMotion, voiceAvailable]);
 
-  // Reset AI Mentor Hint on scene change
-  useEffect(() => {
-    setAiMentorHint(null);
-    setIsAiMentorUsedOnNode(false);
-  }, [currentNodeId]);
-
-  // Request Nyay AI Legal Mentor Hint for current scene
-  const handleAskAiMentor = async (e) => {
-    e?.stopPropagation();
-    sound.advance();
-    setIsLoadingAiHint(true);
-    setIsAiMentorUsedOnNode(true);
-    try {
-      const storyTitle = typeof story?.title === 'object' ? story.title.en || story.title[lang] : story?.title || '';
-      const nodeText = getNodeText(currentNode);
-      const hint = await getStorylineMentorHintAI({
-        storyTitle,
-        nodeText,
-        protagonistName: state.currentUser?.nickname,
-        lang,
-      });
-      setAiMentorHint(hint || 'Remember your fundamental rights under the Constitution of India! Always choose the path that stands up for fairness, safety, and learning.');
-      sound.win();
-    } catch (err) {
-      console.warn('AI mentor error:', err);
-      setAiMentorHint('Under the Constitution of India, every child has the right to be protected, educated, and heard!');
-    } finally {
-      setIsLoadingAiHint(false);
-    }
-  };
-
   // Click to fast-forward text
   const handleSkipTyping = () => {
     if (isTyping) {
@@ -221,19 +184,20 @@ export default function StoryEngine({ story, onComplete }) {
     setSoundEnabled(!isMuted);
   };
 
-  // Handle choice selection
+  // Handle choice selection with full direct XP points
   const handleChoice = (choice, event) => {
     sound.click();
     handleSkipTyping();
 
-    const baseXP = choice.xp || 10;
-    const xpGained = isAiMentorUsedOnNode ? Math.max(5, Math.floor(baseXP / 2)) : baseXP;
+    const xpGained = choice.xp || 10;
     const choiceLabelText = getChoiceLabel(choice);
+
+    // Dispatch XP reward directly to global profile
+    dispatch({ type: 'ADD_XP', payload: xpGained });
 
     // Show floating XP toast
     if (event?.clientX && event?.clientY) {
-      const toastLabel = isAiMentorUsedOnNode ? `+${xpGained} XP (Mentored)` : `+${xpGained} XP!`;
-      setXpToast({ text: toastLabel, x: event.clientX, y: event.clientY - 20 });
+      setXpToast({ text: `+${xpGained} XP!`, x: event.clientX, y: event.clientY - 20 });
       setTimeout(() => setXpToast(null), 1200);
     }
 
@@ -675,52 +639,6 @@ export default function StoryEngine({ story, onComplete }) {
                 )}
               </motion.div>
             </AnimatePresence>
-
-            {/* 🤖 AI Legal Mentor Assistant (Nyay) */}
-            {!isTyping && currentNode.choices && (
-              <div className="flex flex-col gap-2">
-                {aiMentorHint ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-3.5 rounded-2xl bg-purple-900/40 border border-purple-400/50 text-xs text-purple-100 flex items-start justify-between gap-3 shadow-lg backdrop-blur-md"
-                  >
-                    <div className="flex items-start gap-2.5">
-                      <span className="text-xl">🤖</span>
-                      <div>
-                        <strong className="text-purple-300 block text-[11px] font-mono uppercase tracking-wider">
-                          Nyay • AI Constitutional Mentor
-                        </strong>
-                        <span className="leading-relaxed mt-0.5 block">{aiMentorHint}</span>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setAiMentorHint(null);
-                      }}
-                      className="text-white/40 hover:text-white text-xs p-1"
-                    >
-                      ✕
-                    </button>
-                  </motion.div>
-                ) : (
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={handleAskAiMentor}
-                      disabled={isLoadingAiHint}
-                      className="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/35 border border-purple-400/40 text-[11px] font-extrabold text-purple-200 flex items-center gap-1.5 transition-all shadow hover:scale-105 active:scale-95"
-                      title="Get a child-safe constitutional hint from Nyay AI"
-                    >
-                      <span>{isLoadingAiHint ? '⏳' : '🤖'}</span>
-                      <span>{isLoadingAiHint ? 'Nyay AI is thinking...' : 'Ask AI Legal Mentor (Nyay)'}</span>
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Decision Choices with Spring Hover & Tactile Tap */}
             {!isTyping && currentNode.choices && (

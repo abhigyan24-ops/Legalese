@@ -1,81 +1,55 @@
 /**
  * AppContext.jsx — Unified Global State & Dual-Persistence Engine
  *
- * Guarantees 100% data persistence across browser closes, reloads, and offline sessions.
+ * Guarantees 100% data persistence using a permanent Unique Browser Session ID.
  * Automatically saves all XP, badges, completed stories, and profile state.
  */
 
 import { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
-import { isFirebaseConfigured, initAnonymousSession, auth, syncUserProfileCloud } from '../firebase/firebase';
+import {
+  getOrCreateUniqueSessionId,
+  getSavedUserProfile,
+  saveUserProfile,
+  clearUserProfileSession,
+} from '../lib/sessionManager';
+import { isFirebaseConfigured, auth, syncUserProfileCloud } from '../firebase/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
 export const AppContext = createContext();
 export const useApp = () => useContext(AppContext);
 
-const STORAGE_KEY = 'rights-quest-user';
 const LANGUAGE_KEY = 'rights-quest-language';
 
-const loadPersisted = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('rq_user_session') || localStorage.getItem('rq_profile_v2');
-    return raw ? JSON.parse(raw) : null;
-  } catch { return null; }
-};
-
-const savePersisted = (stateObj) => {
-  try {
-    if (!stateObj) return;
-    const user = stateObj.currentUser;
-    if (user && user.nickname) {
-      const payload = {
-        uid: user.uid,
-        nickname: user.nickname,
-        avatar: user.avatar || 'boy-short-blue-medium',
-        ageTier: user.ageTier || '8-11',
-        language: stateObj.language || user.language || 'en',
-        xp: stateObj.xp ?? 0,
-        badges: stateObj.badges || [],
-        completedStories: stateObj.completedStories || [],
-        quizScores: stateObj.quizScores || {},
-        achievements: stateObj.achievements || [],
-        languagesUsed: stateObj.languagesUsed || [],
-        settings: stateObj.settings || { dyslexiaMode: false },
-        googleLinked: Boolean(user.googleLinked),
-        googleName: user.googleName,
-        googlePhoto: user.googlePhoto,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    }
-  } catch (err) {
-    console.warn('Persist error:', err);
-  }
-};
-
 const loadInitialState = () => {
-  const persisted = loadPersisted();
-  if (persisted && persisted.nickname) {
+  const sessionId = getOrCreateUniqueSessionId();
+  const saved = getSavedUserProfile();
+
+  if (saved && saved.nickname) {
     return {
       currentUser: {
-        uid: persisted.uid || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `defender-${Date.now()}`),
-        nickname: persisted.nickname,
-        avatar: persisted.avatar || 'boy-short-blue-medium',
-        ageTier: persisted.ageTier || '8-11',
-        googleLinked: Boolean(persisted.googleLinked),
-        googleName: persisted.googleName,
-        googlePhoto: persisted.googlePhoto,
+        uid: saved.uid || sessionId,
+        sessionId: saved.sessionId || sessionId,
+        nickname: saved.nickname,
+        avatar: saved.avatar || 'boy-short-blue-medium',
+        ageTier: saved.ageTier || '8-11',
+        googleLinked: Boolean(saved.googleLinked),
+        googleName: saved.googleName,
+        googlePhoto: saved.googlePhoto,
       },
-      xp: persisted.xp || 0,
-      badges: persisted.badges || [],
-      completedStories: persisted.completedStories || [],
-      quizScores: persisted.quizScores || {},
-      language: persisted.language || (typeof localStorage !== 'undefined' && localStorage.getItem(LANGUAGE_KEY)) || 'en',
-      achievements: persisted.achievements || [],
-      languagesUsed: persisted.languagesUsed || [],
-      settings: persisted.settings || { dyslexiaMode: false },
+      xp: Number(saved.xp || 0),
+      badges: saved.badges || [],
+      completedStories: saved.completedStories || [],
+      quizScores: saved.quizScores || {},
+      language: saved.language || (typeof localStorage !== 'undefined' && localStorage.getItem(LANGUAGE_KEY)) || 'en',
+      achievements: saved.achievements || [],
+      languagesUsed: saved.languagesUsed || [],
+      settings: saved.settings || { dyslexiaMode: false },
     };
   }
+
   return {
     currentUser: null,
+    sessionId,
     xp: 0,
     badges: [],
     completedStories: [],
@@ -94,21 +68,27 @@ function reducer(state, action) {
 
   switch (action.type) {
     case 'SET_USER': {
+      const sessionId = state.currentUser?.sessionId || getOrCreateUniqueSessionId();
       const newLang = action.payload?.language || state.language || 'en';
       if (typeof localStorage !== 'undefined') {
         try { localStorage.setItem(LANGUAGE_KEY, newLang); } catch {}
       }
       nextState = { 
         ...state, 
-        currentUser: action.payload,
+        currentUser: {
+          ...action.payload,
+          sessionId,
+          uid: action.payload?.uid || sessionId,
+        },
         language: newLang,
       };
       break;
     }
     case 'SET_AGE_TIER': {
+      const sessionId = state.currentUser?.sessionId || getOrCreateUniqueSessionId();
       const updatedUser = state.currentUser
         ? { ...state.currentUser, ageTier: action.payload }
-        : { ageTier: action.payload, nickname: 'Explorer', uid: `defender-${Date.now()}` };
+        : { ageTier: action.payload, nickname: 'Explorer', uid: sessionId, sessionId };
       nextState = {
         ...state,
         currentUser: updatedUser,
@@ -166,6 +146,7 @@ function reducer(state, action) {
     }
     case 'RESTORE_CLOUD_USER': {
       const p = action.payload || {};
+      const sessionId = state.currentUser?.sessionId || getOrCreateUniqueSessionId();
       const newLang = p.language || state.language || 'en';
       if (typeof localStorage !== 'undefined') {
         try { localStorage.setItem(LANGUAGE_KEY, newLang); } catch {}
@@ -173,7 +154,8 @@ function reducer(state, action) {
       nextState = {
         ...state,
         currentUser: {
-          uid: p.uid,
+          uid: p.uid || sessionId,
+          sessionId,
           nickname: p.nickname || 'Explorer',
           avatar: p.avatar || 'boy-short-blue-medium',
           ageTier: p.ageTier || '8-11',
@@ -181,7 +163,7 @@ function reducer(state, action) {
           googleName: p.googleName,
           googlePhoto: p.googlePhoto,
         },
-        xp: p.xp || 0,
+        xp: Number(p.xp || 0),
         badges: p.badges || [],
         completedStories: p.completedStories || [],
         quizScores: p.quizScores || {},
@@ -192,13 +174,10 @@ function reducer(state, action) {
       break;
     }
     case 'LOGOUT': {
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem('rq_user_session');
-        localStorage.removeItem('rq_profile_v2');
-      } catch {}
+      clearUserProfileSession();
       return {
         currentUser: null,
+        sessionId: getOrCreateUniqueSessionId(),
         xp: 0,
         badges: [],
         completedStories: [],
@@ -223,14 +202,14 @@ function reducer(state, action) {
       return state;
   }
 
-  savePersisted(nextState);
+  saveUserProfile(nextState);
   return nextState;
 }
 
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, null, loadInitialState);
 
-  // Synchronize Cloud Auth UID if connected anonymously
+  // Synchronize Cloud Auth UID if connected
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) return;
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -249,16 +228,12 @@ export const AppProvider = ({ children }) => {
     return () => unsub();
   }, [state.currentUser]);
 
-  // Persist language preference
-  useEffect(() => {
-    try { localStorage.setItem(LANGUAGE_KEY, state.language); } catch {}
-  }, [state.language]);
-
   // Real-time Cloud Profile & Leaderboard Sync
   useEffect(() => {
     if (state.currentUser?.uid && state.currentUser?.nickname) {
       syncUserProfileCloud({
         uid: state.currentUser.uid,
+        sessionId: state.currentUser.sessionId || getOrCreateUniqueSessionId(),
         nickname: state.currentUser.nickname,
         avatar: state.currentUser.avatar || 'boy-short-blue-medium',
         ageTier: state.currentUser.ageTier || '8-11',
