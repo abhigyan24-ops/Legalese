@@ -1,13 +1,12 @@
 /**
  * offlineQueue.js — Offline Write Queue & Auto-Sync Engine
  * 
- * Intercepts Firestore write attempts during offline or patchy network states,
+ * Intercepts cloud write attempts during offline or patchy network states,
  * buffers them persistently in localStorage, and automatically flushes and replays
- * them to Cloud Firestore when connection returns.
+ * them to Firebase Realtime Cloud when connection returns.
  */
 
-import { doc, updateDoc, increment, arrayUnion, setDoc } from 'firebase/firestore';
-import { db, isFirebaseConfigured } from '../firebase/firebase';
+import { isFirebaseConfigured, syncUserProfileCloud } from '../firebase/firebase';
 
 const QUEUE_KEY = 'rq_offline_write_queue_v1';
 
@@ -42,47 +41,28 @@ export const clearOfflineQueue = () => {
 };
 
 export const flushOfflineQueue = async () => {
-  if (typeof window === 'undefined' || !navigator.onLine || !isFirebaseConfigured || !db) {
+  if (typeof window === 'undefined' || !navigator.onLine || !isFirebaseConfigured) {
     return false;
   }
 
   const queue = getOfflineQueue();
   if (queue.length === 0) return true;
 
-  console.log(`Flushing ${queue.length} offline writes to Firestore...`);
+  console.log(`Flushing ${queue.length} offline writes to Realtime Cloud...`);
 
   const remaining = [];
 
   for (const task of queue) {
     try {
       if (task.type === 'STORY_COMPLETION') {
-        const { uid, bonusXp, badge, storyId, newTotalXp, nickname, avatar, badgeCount } = task.payload;
-        
-        // 1. Update user profile
-        const userRef = doc(db, 'users', uid);
-        await updateDoc(userRef, {
-          xp: increment(bonusXp),
-          badges: arrayUnion(badge),
-          completedStories: arrayUnion(storyId),
-        });
-
-        // 2. Update leaderboard
-        const leaderboardRef = doc(db, 'leaderboard', uid);
-        await setDoc(
-          leaderboardRef,
-          {
-            nickname,
-            avatar,
-            xp: newTotalXp,
-            badgeCount,
-          },
-          { merge: true }
-        );
-      } else if (task.type === 'QUIZ_SCORE') {
-        const { uid, storyId, quizScore } = task.payload;
-        const userRef = doc(db, 'users', uid);
-        await updateDoc(userRef, {
-          [`quizScores.${storyId}`]: quizScore,
+        const { uid, badge, storyId, newTotalXp, nickname, avatar, badgeCount } = task.payload;
+        await syncUserProfileCloud({
+          uid,
+          nickname,
+          avatar,
+          xp: newTotalXp,
+          badges: [badge],
+          completedStories: [storyId],
         });
       }
     } catch (err) {

@@ -8,8 +8,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { doc, updateDoc, increment, arrayUnion, setDoc } from 'firebase/firestore';
-import { db, isFirebaseConfigured } from '../../firebase/firebase';
+import { isFirebaseConfigured, syncUserProfileCloud } from '../../firebase/firebase';
 import { enqueueOfflineWrite } from '../../lib/offlineQueue';
 import { useApp } from '../../context/AppContext';
 import CharacterAvatar from './CharacterAvatar';
@@ -258,38 +257,16 @@ export default function StoryEngine({ story, onComplete }) {
         badgeCount,
       };
 
-      if (navigator.onLine && isFirebaseConfigured && db) {
+      if (navigator.onLine && isFirebaseConfigured) {
         try {
-          const userRef = doc(db, 'users', uid);
-          await updateDoc(userRef, {
-            xp: increment(bonusXp),
-            badges: arrayUnion(badge),
-            completedStories: arrayUnion(storyId),
+          syncUserProfileCloud({
+            uid,
+            nickname: state.currentUser.nickname,
+            avatar: state.currentUser.avatar,
+            xp: newTotalXp,
+            badges: [...(state.badges || []), badge],
+            completedStories: [...(state.completedStories || []), storyId],
           });
-
-          const leaderboardRef = doc(db, 'leaderboard', uid);
-          await setDoc(
-            leaderboardRef,
-            {
-              nickname: state.currentUser.nickname,
-              avatar: state.currentUser.avatar,
-              xp: newTotalXp,
-              badgeCount,
-            },
-            { merge: true }
-          );
-
-          // Anonymized aggregate stats increment (Zero-PII counters)
-          const statsRef = doc(db, 'stats', storyId);
-          await setDoc(
-            statsRef,
-            {
-              completions: increment(1),
-              [`outcomeCounts.${outcome}`]: increment(1),
-              [`languageSplit.${lang}`]: increment(1),
-            },
-            { merge: true }
-          );
         } catch {
           // Buffering to offline queue
           enqueueOfflineWrite({

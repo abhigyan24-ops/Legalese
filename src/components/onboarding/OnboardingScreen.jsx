@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
-import { initAnonymousSession } from '../../firebase/firebase';
+import { initAnonymousSession, syncUserProfileCloud } from '../../firebase/firebase';
 import { ProtagonistSprite } from '../story-engine/CharacterAvatar';
 import { generateNickname } from './NicknameGenerator';
 import sound from '../../lib/sound';
@@ -98,6 +98,21 @@ export default function OnboardingScreen() {
 
     try {
       const uid = await initAnonymousSession();
+
+      // Write initial user profile document to Realtime Cloud asynchronously
+      if (uid) {
+        syncUserProfileCloud({
+          uid,
+          avatar: avatarId,
+          nickname: finalNickname,
+          ageTier,
+          language,
+          xp: 0,
+          badges: [],
+          completedStories: [],
+        });
+      }
+
       dispatch({
         type: 'SET_USER',
         payload: {
@@ -122,6 +137,8 @@ export default function OnboardingScreen() {
         },
       });
       navigate('/map');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

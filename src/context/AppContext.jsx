@@ -8,6 +8,8 @@
  */
 
 import { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
+import { isFirebaseConfigured, initAnonymousSession, auth, syncUserProfileCloud } from '../firebase/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export const AppContext = createContext();
 export const useApp = () => useContext(AppContext);
@@ -85,15 +87,19 @@ function reducer(state, action) {
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  // Hydrate persisted profile on first mount
+  // Hydrate persisted profile on first mount & ensure active cloud UID
   useEffect(() => {
-    if (!state.currentUser) {
+    const hydrate = async () => {
       const persisted = loadPersisted();
       if (persisted) {
+        let activeUid = persisted.uid;
+        if (isFirebaseConfigured && (!activeUid || activeUid.startsWith('guest-'))) {
+          activeUid = await initAnonymousSession();
+        }
         dispatch({
           type: 'SET_USER',
           payload: {
-            uid: persisted.uid,
+            uid: activeUid,
             nickname: persisted.nickname,
             avatar: persisted.avatar,
             ageTier: persisted.ageTier,
@@ -110,9 +116,32 @@ export const AppProvider = ({ children }) => {
         });
         if (persisted.language) dispatch({ type: 'UPDATE_LANGUAGE', payload: persisted.language });
       }
+    };
+
+    if (!state.currentUser) {
+      hydrate();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Ensure currentUser UID stays synchronized with Firebase Auth session
+  useEffect(() => {
+    if (!isFirebaseConfigured || !auth) return;
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user && user.uid) {
+        if (state.currentUser && state.currentUser.uid !== user.uid) {
+          dispatch({
+            type: 'SET_USER',
+            payload: {
+              ...state.currentUser,
+              uid: user.uid,
+            },
+          });
+        }
+      }
+    });
+    return () => unsub();
+  }, [state.currentUser]);
 
   // Persist user data whenever it changes
   useEffect(() => {
@@ -143,6 +172,29 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     try { localStorage.setItem(LANGUAGE_KEY, state.language); } catch {}
   }, [state.language]);
+
+  // Real-time Cloud Profile & Leaderboard Sync
+  useEffect(() => {
+    if (state.currentUser?.uid) {
+      syncUserProfileCloud({
+        uid: state.currentUser.uid,
+        nickname: state.currentUser.nickname || 'Explorer',
+        avatar: state.currentUser.avatar || 'boy-short-blue-medium',
+        ageTier: state.currentUser.ageTier || '8-11',
+        language: state.language || 'en',
+        xp: state.xp || 0,
+        badges: state.badges || [],
+        completedStories: state.completedStories || [],
+      });
+    }
+  }, [
+    state.currentUser,
+    state.currentUser?.uid,
+    state.xp,
+    state.badges,
+    state.completedStories,
+    state.language,
+  ]);
 
   const isStoryUnlocked = (storyIndex) => {
     if (storyIndex < 3) return true; // stories 1-3 always unlocked

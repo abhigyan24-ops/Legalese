@@ -18,15 +18,10 @@ import { useApp } from '../../context/AppContext';
 import CharacterAvatar from '../story-engine/CharacterAvatar';
 import sound from '../../lib/sound';
 import {
-  collection,
-  query,
-  orderBy,
-  limit,
-  onSnapshot,
-  addDoc,
-  serverTimestamp,
-} from 'firebase/firestore';
-import { db } from '../../firebase/firebase';
+  listenLeaderboardCloud,
+  listenCheersCloud,
+  postCheerCloud,
+} from '../../firebase/firebase';
 
 const SEED_EXPLORERS = [
   { id: 'bot-1', nickname: 'AaravDefender', avatar: 'boy-spiky-blue-medium', xp: 480, badgeCount: 5, tier: 'Diamond' },
@@ -82,7 +77,21 @@ export default function Leaderboard() {
     tier: userXp >= 400 ? 'Diamond' : userXp >= 300 ? 'Gold' : userXp >= 150 ? 'Silver' : 'Bronze',
   };
 
-  const combinedList = [...SEED_EXPLORERS.filter((e) => e.id !== currentUserEntry.id), currentUserEntry].sort(
+  const [cloudRankings, setCloudRankings] = useState([]);
+
+  // Real-time listener for community rankings from Realtime Cloud
+  useEffect(() => {
+    const unsub = listenLeaderboardCloud((list) => {
+      if (list && list.length > 0) {
+        setCloudRankings(list);
+      }
+      setLastFetched(new Date());
+    });
+    return () => unsub();
+  }, []);
+
+  const baseList = cloudRankings.length > 0 ? cloudRankings : SEED_EXPLORERS;
+  const combinedList = [...baseList.filter((e) => e.id !== currentUserEntry.id), currentUserEntry].sort(
     (a, b) => b.xp - a.xp
   );
 
@@ -96,29 +105,15 @@ export default function Leaderboard() {
   const [lastFetched, setLastFetched] = useState(new Date());
   const [isFromCache, setIsFromCache] = useState(false);
 
-  // Real-time listener for community cheers
+  // Real-time listener for community cheers from Realtime Cloud
   useEffect(() => {
-    if (!db) return;
-    try {
-      const q = query(collection(db, 'leaderboard_cheers'), orderBy('createdAt', 'desc'), limit(20));
-      const unsub = onSnapshot(q, (snap) => {
-        setIsFromCache(Boolean(snap.metadata?.fromCache));
-        setLastFetched(new Date());
-        if (!snap.empty) {
-          const live = snap.docs.map((d) => ({
-            id: d.id,
-            nickname: d.data().nickname || 'Explorer',
-            avatar: d.data().avatar || 'boy-short-blue-medium',
-            message: d.data().message || '',
-            time: 'Just now',
-          }));
-          setCheersList([...live, ...SEED_CHEERS]);
-        }
-      });
-      return () => unsub();
-    } catch {
-      // offline fallback
-    }
+    const unsub = listenCheersCloud((liveCheers) => {
+      if (liveCheers && liveCheers.length > 0) {
+        setCheersList([...liveCheers, ...SEED_CHEERS]);
+      }
+      setLastFetched(new Date());
+    });
+    return () => unsub();
   }, []);
 
   const handleSendQuickChat = async (msg) => {
@@ -135,18 +130,11 @@ export default function Leaderboard() {
     setJustSent(true);
     setTimeout(() => setJustSent(false), 2000);
 
-    if (db) {
-      try {
-        await addDoc(collection(db, 'leaderboard_cheers'), {
-          nickname: userNickname,
-          avatar: userAvatar,
-          message: msg,
-          createdAt: serverTimestamp(),
-        });
-      } catch {
-        // offline resilient
-      }
-    }
+    postCheerCloud({
+      nickname: userNickname,
+      avatar: userAvatar,
+      message: msg,
+    });
   };
 
   return (

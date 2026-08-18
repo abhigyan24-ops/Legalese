@@ -6,7 +6,7 @@
  * are never lost even without an active internet connection or live Firebase API key.
  */
 
-import { db, isFirebaseConfigured } from '../firebase/firebase';
+import { db, isFirebaseConfigured, auth } from '../firebase/firebase';
 import {
   collection,
   addDoc,
@@ -170,6 +170,7 @@ export const saveQuestion = async (questionData) => {
     try {
       await addDoc(collection(db, 'qa_questions'), {
         ...newQuestion,
+        authorId: auth.currentUser?.uid || newQuestion.authorId || 'anonymous',
         createdAt: serverTimestamp(),
       });
     } catch (err) {

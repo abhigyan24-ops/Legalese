@@ -1,3 +1,4 @@
+
 /**
  * Hero3DCanvas.jsx — Clean, Crisp Constitutional Monument Artwork Showcase
  * 

@@ -10,18 +10,11 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useApp } from '../../context/AppContext';
 import {
-  collection,
-  query,
-  orderBy,
-  limit,
-  onSnapshot,
-  addDoc,
-  serverTimestamp,
-  updateDoc,
-  doc,
-  increment,
-} from 'firebase/firestore';
-import { db } from '../../firebase/firebase';
+  listenCommunityReflectionsCloud,
+  postCommunityReflectionCloud,
+  listenQuestionsCloud,
+  postQuestionCloud,
+} from '../../firebase/firebase';
 import { getAllQuestions, saveQuestion, markHelpful } from '../../lib/storageEngine';
 import sound from '../../lib/sound';
 import SmoothScroll from '../ui/SmoothScroll';
@@ -90,56 +83,29 @@ export default function CommunityWall() {
     setQaList(list);
   };
 
-  // Real-time Firestore listener for reflections
+  // Real-time listener for community reflections from Realtime Cloud
   useEffect(() => {
-    if (!db) return;
-    try {
-      const q = query(
-        collection(db, 'community_posts'),
-        orderBy('createdAt', 'desc'),
-        limit(50)
-      );
-      const unsub = onSnapshot(q, (snap) => {
-        const all = snap.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
-          .filter((p) => p.storyId === currentStoryId);
-        setPosts(all.reverse());
-      });
-      return () => unsub();
-    } catch {
-      // offline fallback
-    }
+    const unsub = listenCommunityReflectionsCloud(currentStoryId, (cloudPosts) => {
+      if (cloudPosts && cloudPosts.length > 0) {
+        setPosts(cloudPosts);
+      }
+    });
+    return () => unsub();
   }, [currentStoryId]);
 
-  // Real-time Firestore listener for Q&A questions
+  // Real-time listener for Q&A questions from Realtime Cloud
   useEffect(() => {
-    if (!db) return;
-    try {
-      const q = query(
-        collection(db, 'qa_questions'),
-        orderBy('createdAt', 'desc'),
-        limit(50)
-      );
-      const unsub = onSnapshot(q, (snap) => {
-        if (!snap.empty) {
-          const remoteQa = snap.docs
-            .map((d) => ({ id: d.id, ...d.data() }))
-            .filter((qDoc) => qDoc.storyId === currentStoryId);
-          const localList = getAllQuestions(currentStoryId);
-          // Merge remote with local ensuring no dropped questions
-          const merged = [...remoteQa];
-          for (const loc of localList) {
-            if (!merged.some((m) => m.id === loc.id || m.question === loc.question)) {
-              merged.push(loc);
-            }
-          }
-          setQaList(merged);
+    const unsub = listenQuestionsCloud(currentStoryId, (cloudQa) => {
+      const localList = getAllQuestions(currentStoryId);
+      const merged = [...cloudQa];
+      for (const loc of localList) {
+        if (!merged.some((m) => m.id === loc.id || m.question === loc.question)) {
+          merged.push(loc);
         }
-      });
-      return () => unsub();
-    } catch {
-      // offline
-    }
+      }
+      setQaList(merged);
+    });
+    return () => unsub();
   }, [currentStoryId]);
 
   const handlePost = async () => {
@@ -151,16 +117,18 @@ export default function CommunityWall() {
     setPosting(true);
     setError('');
     try {
-      await addDoc(collection(db, 'community_posts'), {
+      const activeUid = state.currentUser?.uid || 'anonymous';
+      const newPost = await postCommunityReflectionCloud({
         storyId: currentStoryId,
         text: draft.trim(),
-        authorId: state.currentUser?.uid || 'anonymous',
+        authorId: activeUid,
         nickname: state.currentUser?.nickname || 'Explorer',
         avatar: state.currentUser?.avatar || 'boy-short-blue-medium',
-        createdAt: serverTimestamp(),
-        cheers: {},
-        reportCount: 0,
       });
+
+      if (newPost) {
+        setPosts((prev) => [newPost, ...prev.filter((p) => p.id !== newPost.id)]);
+      }
       setDraft('');
     } catch {
       setPosts((prev) => [

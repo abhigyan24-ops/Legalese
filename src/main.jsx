@@ -1,3 +1,4 @@
+
 /**
  * main.jsx — Application entry point.
  * Mounts React root with AppContext provider + Router-aware App + Offline Service Worker.
