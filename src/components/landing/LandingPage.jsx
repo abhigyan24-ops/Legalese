@@ -143,9 +143,13 @@ export default function LandingPage() {
                   ✕
                 </button>
               </div>
-              <GoogleSignIn onSuccess={() => {
+              <GoogleSignIn onSuccess={(res) => {
                 setShowGoogleModal(false);
-                navigate('/map');
+                if (res?.isNewUser) {
+                  navigate('/onboarding');
+                } else {
+                  navigate('/map');
+                }
               }} />
             </div>
           </div>

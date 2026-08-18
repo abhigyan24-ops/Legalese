@@ -105,31 +105,32 @@ export default function OnboardingScreen() {
     const finalNickname = nickname.trim() || generateNickname();
 
     try {
-      const uid = await initAnonymousSession();
+      // Reuse Google UID if already authenticated via Google, otherwise create anonymous session
+      const isGoogle = Boolean(state.currentUser?.googleLinked);
+      const uid = state.currentUser?.uid || await initAnonymousSession();
 
-      // Write initial user profile document to Realtime Cloud asynchronously
+      const profilePayload = {
+        uid,
+        avatar: avatarId,
+        nickname: finalNickname,
+        ageTier,
+        language,
+        xp: state.xp || 0,
+        badges: state.badges || [],
+        completedStories: state.completedStories || [],
+        googleLinked: isGoogle,
+        googleName: state.currentUser?.googleName,
+        googlePhoto: state.currentUser?.googlePhoto,
+      };
+
+      // Write user profile document to Realtime Cloud asynchronously
       if (uid) {
-        syncUserProfileCloud({
-          uid,
-          avatar: avatarId,
-          nickname: finalNickname,
-          ageTier,
-          language,
-          xp: 0,
-          badges: [],
-          completedStories: [],
-        });
+        syncUserProfileCloud(profilePayload);
       }
 
       dispatch({
         type: 'SET_USER',
-        payload: {
-          uid,
-          avatar: avatarId,
-          nickname: finalNickname,
-          ageTier,
-          language,
-        },
+        payload: profilePayload,
       });
       navigate('/map');
     } catch (err) {
@@ -137,11 +138,12 @@ export default function OnboardingScreen() {
       dispatch({
         type: 'SET_USER',
         payload: {
-          uid: `guest-${Date.now()}`,
+          uid: state.currentUser?.uid || `guest-${Date.now()}`,
           avatar: avatarId,
           nickname: finalNickname,
           ageTier,
           language,
+          googleLinked: Boolean(state.currentUser?.googleLinked),
         },
       });
       navigate('/map');
@@ -205,7 +207,11 @@ export default function OnboardingScreen() {
                     </span>
                     <span className="text-white/40 text-[11px]">Sync across devices</span>
                   </div>
-                  <GoogleSignIn onSuccess={() => navigate('/map', { replace: true })} />
+                  <GoogleSignIn onSuccess={(res) => {
+                    if (!res?.isNewUser) {
+                      navigate('/map', { replace: true });
+                    }
+                  }} />
                 </div>
 
                 <div className="flex items-center gap-3 my-0.5">

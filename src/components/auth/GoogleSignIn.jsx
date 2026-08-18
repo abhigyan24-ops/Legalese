@@ -45,55 +45,50 @@ export default function GoogleSignIn({ onSuccess }) {
       const cloudData = await fetchUserProfileCloud(gUser.uid);
 
       if (cloudData && cloudData.nickname) {
-        // User has an existing saved profile on another device — restore all progress!
+        // User has an existing saved profile — restore all progress and go directly to /map!
         dispatch({
           type: 'RESTORE_CLOUD_USER',
           payload: {
             ...cloudData,
             uid: gUser.uid,
+            googleLinked: true,
             googleName: gUser.displayName,
             googlePhoto: gUser.photoURL,
           },
         });
 
-        // If an unused local anonymous session was previously created on this device, delete it from cloud
+        // Clean up temporary anonymous user if any
         if (oldUid && oldUid !== gUser.uid && (!state.currentUser?.nickname || state.currentUser.nickname === 'Explorer')) {
           await deleteUserCloud(oldUid);
         }
-      } else {
-        // First time syncing this Google account — attach Google credentials to local profile
-        const updatedPayload = {
-          uid: gUser.uid,
-          nickname: state.currentUser?.nickname || gUser.displayName?.split(' ')[0] || 'Defender',
-          avatar: state.currentUser?.avatar || 'boy-short-blue-medium',
-          ageTier: state.currentUser?.ageTier || '8-11',
-          language: state.language || 'en',
-          xp: state.xp || 0,
-          badges: state.badges || [],
-          completedStories: state.completedStories || [],
-          quizScores: state.quizScores || {},
-          achievements: state.achievements || [],
-          languagesUsed: state.languagesUsed || [],
-          googleName: gUser.displayName,
-          googlePhoto: gUser.photoURL,
-        };
 
+        setDone(true);
+        onSuccess?.({ isNewUser: false });
+      } else {
+        // Brand new Google account without a profile yet:
+        // Set Google credentials but DO NOT assume name/avatar/age — send to onboarding to customize!
         dispatch({
-          type: 'RESTORE_CLOUD_USER',
-          payload: updatedPayload,
+          type: 'SET_USER',
+          payload: {
+            uid: gUser.uid,
+            nickname: '', // Prompt them to pick nickname
+            avatar: 'boy-short-blue-medium',
+            ageTier: '8-11',
+            language: state.language || 'en',
+            googleLinked: true,
+            googleName: gUser.displayName,
+            googlePhoto: gUser.photoURL,
+          },
         });
 
-        // Sync to cloud
-        await syncUserProfileCloud(updatedPayload);
-
-        // Delete old unused anonymous UID
+        // Clean up old anonymous UID if any
         if (oldUid && oldUid !== gUser.uid) {
           await deleteUserCloud(oldUid);
         }
-      }
 
-      setDone(true);
-      onSuccess?.();
+        setDone(true);
+        onSuccess?.({ isNewUser: true });
+      }
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
