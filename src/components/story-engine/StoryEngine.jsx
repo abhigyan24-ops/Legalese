@@ -23,6 +23,9 @@ import {
   hasVoiceFor,
   isNarrationSupported,
 } from '../../lib/narration';
+import { checkNewAchievements } from '../../lib/achievements';
+import { applyEventMultiplier, getActiveEvent } from '../../lib/seasonalEvents';
+import AchievementUnlock from '../achievements/AchievementUnlock';
 import sound from '../../lib/sound';
 
 export default function StoryEngine({ story, onComplete }) {
@@ -40,6 +43,8 @@ export default function StoryEngine({ story, onComplete }) {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [xpToast, setXpToast] = useState(null);
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [pendingAchievement, setPendingAchievement] = useState(null);
+  const activeEvent = getActiveEvent();
 
   // Accessibility Panel State
   const [showA11yModal, setShowA11yModal] = useState(false);
@@ -242,12 +247,28 @@ export default function StoryEngine({ story, onComplete }) {
       sound.advance();
     }
 
-    // Dispatch global actions
-    dispatch({ type: 'ADD_XP', payload: bonusXp });
+    // Dispatch global actions — apply seasonal XP multiplier
+    const eventBonusXp = applyEventMultiplier(bonusXp);
+    dispatch({ type: 'ADD_XP', payload: eventBonusXp });
     dispatch({ type: 'ADD_BADGE', payload: badge });
     dispatch({ type: 'MARK_STORY_COMPLETE', payload: storyId });
 
-    const newTotalXp = (state.xp || 0) + finalXp + bonusXp;
+    // Check for newly unlocked achievements
+    const updatedState = {
+      ...state,
+      xp: (state.xp || 0) + finalXp + eventBonusXp,
+      badges: [...(state.badges || []), badge],
+      completedStories: [...(state.completedStories || []), storyId],
+      strongOutcomes: outcome === 'strong' ? (state.strongOutcomes || 0) + 1 : (state.strongOutcomes || 0),
+    };
+    const newAchievements = checkNewAchievements(updatedState, state.achievements || []);
+    if (newAchievements.length > 0) {
+      newAchievements.forEach((a) => dispatch({ type: 'EARN_ACHIEVEMENT', payload: a.id }));
+      // Show first one — queue rest
+      setPendingAchievement(newAchievements[0]);
+    }
+
+    const newTotalXp = (state.xp || 0) + finalXp + applyEventMultiplier(bonusXp);
     const badgeCount = (state.badges?.length || 0) + 1;
     const uid = state.currentUser?.uid;
 
@@ -385,6 +406,24 @@ export default function StoryEngine({ story, onComplete }) {
         highContrast ? 'bg-black text-white' : 'bg-[#0a0a1a] text-[#f0eef6]'
       }`}
     >
+      {/* ── ACHIEVEMENT UNLOCK MODAL ── */}
+      {pendingAchievement && (
+        <AchievementUnlock
+          achievement={pendingAchievement}
+          onDismiss={() => setPendingAchievement(null)}
+        />
+      )}
+
+      {/* ── SEASONAL EVENT BANNER ── */}
+      {activeEvent && (
+        <div className={`absolute z-40 left-0 right-0 bg-gradient-to-r ${activeEvent.bannerGradient} px-4 py-2 text-center text-xs font-extrabold shadow-lg flex items-center justify-center gap-2 ${activeEvent.textColor} ${!isOnline ? 'top-7' : 'top-0'}`}
+          style={{ top: !isOnline ? '28px' : '0' }}>
+          <span className="text-base">{activeEvent.emoji}</span>
+          <span>{activeEvent.name} — {activeEvent.xpMultiplier}x XP Active!</span>
+          <span className="text-base">{activeEvent.emoji}</span>
+        </div>
+      )}
+
       {/* ── OFFLINE STATUS BANNER ── */}
       {!isOnline && (
         <div
@@ -396,6 +435,7 @@ export default function StoryEngine({ story, onComplete }) {
           <span>You are playing offline — progress is saved locally and will auto-sync when you reconnect.</span>
         </div>
       )}
+
 
       {/* ── TOP HUD HEADER ── */}
       <header
@@ -648,6 +688,26 @@ export default function StoryEngine({ story, onComplete }) {
                 }`}
               >
                 {highContrast ? 'ON' : 'OFF'}
+              </button>
+            </div>
+
+            {/* Dyslexia-Friendly Mode Toggle */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+              <div>
+                <div className="text-sm font-bold text-white">Dyslexia-Friendly Mode</div>
+                <div className="text-xs text-white/50">OpenDyslexic font, wider spacing</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  sound.click();
+                  dispatch({ type: 'TOGGLE_DYSLEXIA' });
+                }}
+                className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all ${
+                  state.settings?.dyslexiaMode ? 'bg-[#F5B942] text-black font-extrabold' : 'bg-white/10 text-white/60'
+                }`}
+              >
+                {state.settings?.dyslexiaMode ? 'ON' : 'OFF'}
               </button>
             </div>
 

@@ -14,6 +14,14 @@ html, body {
   min-height: 100vh;
 }
 
+/* ── Dyslexia Mode ── */
+.dyslexia-mode, .dyslexia-mode * {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Arial', sans-serif !important;
+  letter-spacing: 0.12em !important;
+  word-spacing: 0.16em !important;
+  line-height: 1.9 !important;
+}
+
 /* Smooth entrance for scene props */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -37,6 +45,11 @@ html, body {
   75% { transform: translateX(4px) rotate(2deg); }
 }
 
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(245,185,66,0.3); }
+  50% { box-shadow: 0 0 25px rgba(245,185,66,0.7); }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.4s ease-out forwards;
 }
@@ -58,3 +71,6 @@ html, body {
   animation: shakeSoft 0.4s ease-in-out;
 }
 
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}

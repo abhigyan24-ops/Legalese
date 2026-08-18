@@ -16,6 +16,7 @@ import {
   postQuestionCloud,
 } from '../../firebase/firebase';
 import { getAllQuestions, saveQuestion, markHelpful } from '../../lib/storageEngine';
+import { generateLegalAnswer, moderateContent } from '../../lib/groqAI';
 import sound from '../../lib/sound';
 import SmoothScroll from '../ui/SmoothScroll';
 import AnimatedButton from '../ui/AnimatedButton';
@@ -118,6 +119,14 @@ export default function CommunityWall() {
     setPosting(true);
     setError('');
     try {
+      // AI Safety Moderation
+      const modResult = await moderateContent(draft.trim());
+      if (!modResult.safe) {
+        setError('Your message was flagged by our safety system. Please review and try again.');
+        setPosting(false);
+        return;
+      }
+
       const activeUid = state.currentUser?.uid || 'anonymous';
       const newPost = await postCommunityReflectionCloud({
         storyId: currentStoryId,
@@ -182,7 +191,7 @@ export default function CommunityWall() {
     loadQuestions();
   };
 
-  // Submit Q&A Question (100% Guaranteed Persistent)
+  // Submit Q&A Question with AI moderation + AI auto-answer
   const handleSubmitQuestion = async () => {
     if (!canSubmitQa || qaSubmitting) return;
     if (containsBlocked(qaQuestionText)) {
@@ -193,6 +202,14 @@ export default function CommunityWall() {
     setError('');
 
     try {
+      // AI Safety Moderation first
+      const modResult = await moderateContent(qaQuestionText.trim());
+      if (!modResult.safe) {
+        setError('Your question was flagged by our safety system. Please rephrase and try again.');
+        setQaSubmitting(false);
+        return;
+      }
+
       sound.advance();
       await saveQuestion({
         storyId: currentStoryId,
@@ -201,9 +218,35 @@ export default function CommunityWall() {
         authorId: state.currentUser?.uid || 'anonymous',
       });
 
-      loadQuestions();
+      // Post to cloud and trigger AI answer
+      const cloudQ = await postQuestionCloud({
+        storyId: currentStoryId,
+        question: qaQuestionText.trim(),
+        author: state.currentUser?.nickname || 'Young Explorer',
+        authorId: state.currentUser?.uid || 'anonymous',
+      });
+
+      // Generate AI Legal Answer in background
+      if (cloudQ?.id) {
+        generateLegalAnswer(qaQuestionText.trim(), currentStoryId, state.language || 'en')
+          .then(async (aiAnswer) => {
+            if (aiAnswer) {
+              // Save AI answer back to the question
+              const { ref: rtdbRef, update: rtdbUpdate } = await import('firebase/database');
+              const { rtdb } = await import('../../firebase/firebase');
+              if (rtdb) {
+                await rtdbUpdate(rtdbRef(rtdb, `qa_questions/${cloudQ.id}`), {
+                  aiAnswer,
+                  aiAnsweredAt: new Date().toISOString(),
+                });
+              }
+            }
+          })
+          .catch(() => {});
+      }
+
       setQaQuestionText('');
-      setQaToast('Question saved & submitted! It is now permanently in the database and visible below awaiting legal counsel review.');
+      setQaToast('Question submitted! 🤖 Nyay AI is preparing an answer...');
       setTimeout(() => setQaToast(''), 5000);
     } catch (err) {
       console.error('Save question error:', err);

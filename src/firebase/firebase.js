@@ -11,7 +11,7 @@
  */
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getAuth, signInAnonymously, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import {
   getDatabase,
   ref,
@@ -72,6 +72,28 @@ export const initAnonymousSession = async () => {
     return (typeof crypto !== 'undefined' && crypto.randomUUID) 
       ? crypto.randomUUID() 
       : `guest-${Date.now()}`;
+  }
+};
+
+/**
+ * Sign in with Google (optional — for cross-device persistence)
+ * Returns { uid, displayName, email, photoURL } or null on failure
+ */
+export const signInWithGoogle = async () => {
+  if (!isFirebaseConfigured || !auth) return null;
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    const result = await signInWithPopup(auth, provider);
+    return {
+      uid: result.user.uid,
+      displayName: result.user.displayName,
+      email: result.user.email,
+      photoURL: result.user.photoURL,
+    };
+  } catch (err) {
+    console.warn('Google sign-in notice:', err?.message);
+    return null;
   }
 };
 

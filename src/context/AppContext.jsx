@@ -1,10 +1,11 @@
 /**
  * AppContext.jsx
- * 
- * Global state: currentUser, xp, badges, completedStories, quizScores, language.
- * Backing store is localStorage so the app is fully playable offline
- * (Firebase writes are best-effort with offline queue sync).
- * Actions: SET_USER, SET_PROFILE, ADD_XP, ADD_BADGE, MARK_STORY_COMPLETE, RECORD_QUIZ_SCORE, UPDATE_LANGUAGE.
+ *
+ * Global state: currentUser, xp, badges, completedStories, quizScores, language,
+ * achievements, settings (dyslexiaMode), languagesUsed.
+ * Actions: SET_USER, SET_PROFILE, ADD_XP, ADD_BADGE, MARK_STORY_COMPLETE,
+ *          RECORD_QUIZ_SCORE, UPDATE_LANGUAGE, EARN_ACHIEVEMENT,
+ *          TOGGLE_DYSLEXIA, TRACK_LANGUAGE.
  */
 
 import { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
@@ -35,6 +36,11 @@ const initialState = {
   completedStories: [],
   quizScores: {},
   language: (typeof localStorage !== 'undefined' && localStorage.getItem(LANGUAGE_KEY)) || 'en',
+  achievements: [],
+  languagesUsed: [],
+  settings: {
+    dyslexiaMode: false,
+  },
 };
 
 function reducer(state, action) {
@@ -74,11 +80,24 @@ function reducer(state, action) {
           [action.payload.storyId]: action.payload.score,
         },
       };
-    case 'UPDATE_LANGUAGE':
+    case 'UPDATE_LANGUAGE': {
       if (typeof localStorage !== 'undefined') {
         try { localStorage.setItem(LANGUAGE_KEY, action.payload); } catch {}
       }
-      return { ...state, language: action.payload };
+      // Track languages used for the Polyglot achievement
+      const langs = [...new Set([...(state.languagesUsed || []), action.payload])];
+      return { ...state, language: action.payload, languagesUsed: langs };
+    }
+    case 'EARN_ACHIEVEMENT': {
+      const existing = state.achievements || [];
+      if (existing.includes(action.payload)) return state;
+      return { ...state, achievements: [...existing, action.payload] };
+    }
+    case 'TOGGLE_DYSLEXIA':
+      return {
+        ...state,
+        settings: { ...(state.settings || {}), dyslexiaMode: !state.settings?.dyslexiaMode },
+      };
     default:
       return state;
   }
@@ -115,6 +134,12 @@ export const AppProvider = ({ children }) => {
           },
         });
         if (persisted.language) dispatch({ type: 'UPDATE_LANGUAGE', payload: persisted.language });
+        if (persisted.achievements?.length) {
+          persisted.achievements.forEach((id) => dispatch({ type: 'EARN_ACHIEVEMENT', payload: id }));
+        }
+        if (persisted.languagesUsed?.length) {
+          persisted.languagesUsed.forEach((l) => dispatch({ type: 'TRACK_LANGUAGE', payload: l }));
+        }
       }
     };
 
@@ -156,6 +181,9 @@ export const AppProvider = ({ children }) => {
         badges: state.badges,
         completedStories: state.completedStories,
         quizScores: state.quizScores,
+        achievements: state.achievements || [],
+        languagesUsed: state.languagesUsed || [],
+        settings: state.settings || {},
       });
     }
   }, [
@@ -166,6 +194,8 @@ export const AppProvider = ({ children }) => {
     state.completedStories,
     state.quizScores,
     state.language,
+    state.achievements,
+    state.settings,
   ]);
 
   // Persist language preference

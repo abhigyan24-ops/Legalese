@@ -1,7 +1,5 @@
 /**
  * App.jsx — Root router.
- * Routes: / → Landing Page or Map
- *         /landing, /onboarding, /map, /story/:storyId, /leaderboard, /community/:storyId, /qa, /resources, /certificate, /advocate-login, /teachers, /impact
  */
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -17,6 +15,7 @@ import AdvocateDashboard from './components/advocate/AdvocateDashboard';
 import CompletionCertificate from './components/certificate/CompletionCertificate';
 import TeacherToolkit from './components/teachers/TeacherToolkit';
 import ImpactDashboard from './components/impact/ImpactDashboard';
+import { Analytics } from '@vercel/analytics/react';
 
 function RootRedirect() {
   const { state } = useApp();
@@ -29,27 +28,34 @@ function Protected({ children }) {
 }
 
 export default function App() {
+  const { state } = useApp();
+  const isDyslexia = state.settings?.dyslexiaMode;
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<RootRedirect />} />
-        <Route path="/landing" element={<LandingPage />} />
-        <Route path="/showcase" element={<LandingPage />} />
-        <Route path="/onboarding" element={<OnboardingScreen />} />
-        <Route path="/map" element={<Protected><RightsMap /></Protected>} />
-        <Route path="/story/:storyId" element={<Protected><StoryScreen /></Protected>} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
-        <Route path="/community/:storyId" element={<CommunityWall />} />
-        <Route path="/qa" element={<CommunityWall />} />
-        <Route path="/resources" element={<ResourceDirectory />} />
-        <Route path="/certificate" element={<Protected><CompletionCertificate /></Protected>} />
-        <Route path="/advocate-login" element={<AdvocateDashboard />} />
-        <Route path="/advocate-portal" element={<AdvocateDashboard />} />
-        <Route path="/teachers" element={<TeacherToolkit />} />
-        <Route path="/impact" element={<ImpactDashboard />} />
-        <Route path="/stats" element={<ImpactDashboard />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <div className={isDyslexia ? 'dyslexia-mode' : ''}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/showcase" element={<LandingPage />} />
+          <Route path="/onboarding" element={<OnboardingScreen />} />
+          <Route path="/map" element={<Protected><RightsMap /></Protected>} />
+          <Route path="/story/:storyId" element={<Protected><StoryScreen /></Protected>} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/community/:storyId" element={<CommunityWall />} />
+          <Route path="/qa" element={<CommunityWall />} />
+          <Route path="/resources" element={<ResourceDirectory />} />
+          <Route path="/certificate" element={<Protected><CompletionCertificate /></Protected>} />
+          <Route path="/advocate-login" element={<AdvocateDashboard />} />
+          <Route path="/advocate-portal" element={<AdvocateDashboard />} />
+          <Route path="/teachers" element={<TeacherToolkit />} />
+          <Route path="/impact" element={<ImpactDashboard />} />
+          <Route path="/stats" element={<ImpactDashboard />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+      <Analytics />
+    </div>
   );
 }
+
