@@ -11,7 +11,7 @@
  */
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, signInAnonymously, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, signInAnonymously, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import {
   getDatabase,
   ref,
@@ -94,6 +94,18 @@ export const signInWithGoogle = async () => {
   } catch (err) {
     console.warn('Google sign-in notice:', err?.code, err?.message);
     return { error: err?.code || err?.message || 'sign-in-failed' };
+  }
+};
+
+/**
+ * Sign out of current Firebase Auth session (preserves cloud DB profile intact)
+ */
+export const signOutUser = async () => {
+  if (!auth) return;
+  try {
+    await signOut(auth);
+  } catch (err) {
+    console.warn('Sign out notice:', err?.message);
   }
 };
 

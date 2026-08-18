@@ -141,6 +141,22 @@ function reducer(state, action) {
         languagesUsed: p.languagesUsed || [],
       };
     }
+    case 'LOGOUT': {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch {}
+      return {
+        currentUser: null,
+        xp: 0,
+        badges: [],
+        completedStories: [],
+        quizScores: {},
+        language: state.language || 'en',
+        achievements: [],
+        languagesUsed: [],
+        settings: state.settings || { dyslexiaMode: false },
+      };
+    }
     case 'TOGGLE_DYSLEXIA':
       return {
         ...state,

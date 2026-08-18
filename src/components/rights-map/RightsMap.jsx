@@ -16,6 +16,7 @@ import { useApp } from '../../context/AppContext';
 import CharacterAvatar from '../story-engine/CharacterAvatar';
 import AchievementsModal from '../achievements/AchievementsModal';
 import GoogleSignIn from '../auth/GoogleSignIn';
+import { signOutUser } from '../../firebase/firebase';
 import { getActiveEvent } from '../../lib/seasonalEvents';
 import { getDifficultyLabel, getPerformanceSummary } from '../../lib/adaptiveDifficulty';
 import sound from '../../lib/sound';
@@ -124,6 +125,7 @@ export default function RightsMap() {
 
   const [showAchievements, setShowAchievements] = useState(false);
   const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const activeEvent = getActiveEvent();
   const diffInfo = getDifficultyLabel(state);
@@ -203,6 +205,44 @@ export default function RightsMap() {
           </div>
         )}
 
+        {/* ── LOGOUT CONFIRM MODAL ── */}
+        {showLogoutConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+            <div className="bg-[#161226] border-2 border-rose-500/40 rounded-3xl p-6 max-w-sm w-full shadow-2xl flex flex-col gap-4 text-center">
+              <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/40 text-2xl flex items-center justify-center mx-auto">
+                🚪
+              </div>
+              <div>
+                <h3 className="font-display font-extrabold text-lg text-white">
+                  Log out of this device?
+                </h3>
+                <p className="text-xs text-white/70 mt-1 leading-relaxed">
+                  Your unique session and XP remain safely preserved in the database. You can log back in anytime using your synced account!
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowLogoutConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-white/10 text-white/70 text-xs font-bold hover:bg-white/20 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    sound.click();
+                    await signOutUser();
+                    dispatch({ type: 'LOGOUT' });
+                    navigate('/landing', { replace: true });
+                  }}
+                  className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold shadow-lg transition-all"
+                >
+                  Yes, Log Out
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="max-w-4xl mx-auto flex flex-col gap-6 relative z-10">
           {/* ── HEADER ── */}
           <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#312756]">
@@ -276,6 +316,20 @@ export default function RightsMap() {
                 title="Link Google account for cross-device sync"
               >
                 <span>{state.currentUser?.googleLinked ? '☁️ Synced' : '🔗 Sync'}</span>
+              </button>
+
+              {/* Logout Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  sound.click();
+                  setShowLogoutConfirm(true);
+                }}
+                className="flex items-center gap-1 px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-xs font-bold text-rose-300 hover:text-rose-200 transition-all shadow"
+                title="Log out of this device (keeps all your cloud data safe)"
+              >
+                <span>🚪</span>
+                <span>Logout</span>
               </button>
 
               {/* Language Switcher */}
