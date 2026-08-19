@@ -6,7 +6,7 @@
  * Typography: Baloo 2 (Display), Plus Jakarta Sans / Inter (Body)
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../../context/AppContext';

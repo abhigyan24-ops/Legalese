@@ -45,17 +45,36 @@ const firebaseConfig = {
   databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || 'https://legalese-787ec-default-rtdb.firebaseio.com',
 };
 
-// Initialize or reuse Firebase App
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+// Initialize or reuse Firebase App — NEVER throws, always falls back
+let app;
+try {
+  app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+} catch (e) {
+  console.warn('[Firebase] initializeApp failed:', e?.message);
+  app = null;
+}
 
-// Initialize Auth
-export const auth = getAuth(app);
+// Initialize Auth — safe
+let _auth = null;
+try {
+  if (app) _auth = getAuth(app);
+} catch (e) {
+  console.warn('[Firebase] getAuth failed:', e?.message);
+}
+export const auth = _auth;
 
-// Initialize Realtime Database
-export const rtdb = (typeof window !== 'undefined') ? getDatabase(app) : null;
+// Initialize Realtime Database — safe (databaseURL missing = graceful degradation)
+let _rtdb = null;
+try {
+  if (app && typeof window !== 'undefined') _rtdb = getDatabase(app);
+} catch (e) {
+  console.warn('[Firebase] getDatabase failed — offline mode active:', e?.message);
+}
+export const rtdb = _rtdb;
 export const db = rtdb; // alias for backwards compatibility
 
 export const isFirebaseConfigured = Boolean(
+  app &&
   import.meta.env.VITE_FIREBASE_API_KEY &&
   import.meta.env.VITE_FIREBASE_API_KEY !== 'demo-api-key'
 );
