@@ -106,9 +106,15 @@ export default function OnboardingScreen() {
     const finalNickname = nickname.trim() || generateNickname();
 
     try {
-      // Reuse Google UID if already authenticated via Google, otherwise create anonymous session
       const isGoogle = Boolean(state.currentUser?.googleLinked);
-      const uid = state.currentUser?.uid || await initAnonymousSession();
+
+      // Priority order for uid:
+      // 1. Existing currentUser uid (e.g. already linked to Google)
+      // 2. pendingFirebaseUid — set by bootGuestSession() → onAuthStateChanged
+      // 3. Call initAnonymousSession() as last resort
+      const uid = state.currentUser?.uid
+        || state.pendingFirebaseUid
+        || await initAnonymousSession();
 
       const sessionId = getOrCreateUniqueSessionId();
       const profilePayload = {
@@ -127,9 +133,7 @@ export default function OnboardingScreen() {
       };
 
       // Write user profile document to Realtime Cloud asynchronously
-      if (uid) {
-        syncUserProfileCloud(profilePayload);
-      }
+      syncUserProfileCloud(profilePayload);
 
       // Synchronously write to localStorage before navigating
       saveUserProfile(profilePayload);
@@ -143,7 +147,7 @@ export default function OnboardingScreen() {
       console.error('Onboarding session error:', err);
       const sessionId = getOrCreateUniqueSessionId();
       const fallbackPayload = {
-        uid: state.currentUser?.uid || sessionId,
+        uid: state.currentUser?.uid || state.pendingFirebaseUid || sessionId,
         sessionId,
         avatar: avatarId,
         nickname: finalNickname,
@@ -152,7 +156,6 @@ export default function OnboardingScreen() {
         googleLinked: Boolean(state.currentUser?.googleLinked),
       };
       saveUserProfile(fallbackPayload);
-
       dispatch({
         type: 'SET_USER',
         payload: fallbackPayload,

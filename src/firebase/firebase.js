@@ -1,17 +1,27 @@
 /**
- * Firebase Realtime Cloud Configuration - Rights Quest
- * 
- * 100% Free Spark Plan with zero credit card / zero billing requirement.
- * Powered by Firebase Realtime Database with instant cloud synchronization:
- * - Single-user profiles: `users/{userId}`
- * - Global Leaderboard: `leaderboard/{userId}`
- * - Safe Community Reflections: `community_posts/{postId}`
- * - Child-friendly Legal Q&A: `qa_questions/{questionId}`
- * - Safe Community Cheers: `leaderboard_cheers/{cheerId}`
+ * firebase.js — Firebase Auth & Realtime Database for Rights Quest
+ *
+ * Auth Architecture:
+ * 1. Every first-time visitor automatically gets an anonymous Firebase session
+ *    (signInAnonymously). Their uid is their permanent guest identity.
+ * 2. When a user optionally connects Google, we use linkWithPopup() to UPGRADE
+ *    the existing anonymous account — keeping the same uid, so all RTDB data
+ *    (XP, badges, completedStories) stays intact automatically.
+ * 3. If the Google account is already linked to a DIFFERENT account
+ *    (auth/credential-already-in-use), we sign into that existing account
+ *    and surface a clear message about which progress state wins.
  */
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, signInAnonymously, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import {
+  getAuth,
+  signInAnonymously,
+  GoogleAuthProvider,
+  linkWithPopup,
+  signInWithCredential,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
 import {
   getDatabase,
   ref,
@@ -46,103 +56,194 @@ export const rtdb = (typeof window !== 'undefined') ? getDatabase(app) : null;
 export const db = rtdb; // alias for backwards compatibility
 
 export const isFirebaseConfigured = Boolean(
-  import.meta.env.VITE_FIREBASE_API_KEY && 
+  import.meta.env.VITE_FIREBASE_API_KEY &&
   import.meta.env.VITE_FIREBASE_API_KEY !== 'demo-api-key'
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ANONYMOUS AUTH — Automatic guest session on first load
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
- * Initialize anonymous session safely
+ * Ensures every browser has an active Firebase anonymous session.
+ * Called automatically on app boot. Returns the uid.
+ * If Firebase is not configured, returns a stable local uuid instead.
  */
 export const initAnonymousSession = async () => {
   if (!isFirebaseConfigured) {
-    return (typeof crypto !== 'undefined' && crypto.randomUUID) 
-      ? crypto.randomUUID() 
+    return (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID()
       : `guest-${Date.now()}`;
   }
 
+  // Already signed in (anonymous or Google) — reuse the current uid
   if (auth.currentUser) {
     return auth.currentUser.uid;
   }
 
   try {
     const res = await signInAnonymously(auth);
+    console.log('[Auth] Anonymous session created:', res.user.uid);
     return res.user.uid;
   } catch (error) {
-    console.warn('Anonymous sign-in notice:', error?.message);
-    return (typeof crypto !== 'undefined' && crypto.randomUUID) 
-      ? crypto.randomUUID() 
+    console.warn('[Auth] Anonymous sign-in failed:', error?.message);
+    return (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID()
       : `guest-${Date.now()}`;
   }
 };
 
 /**
- * Sign in with Google (optional — for cross-device persistence)
- * Returns { uid, displayName, email, photoURL } or null on failure
+ * Boots the anonymous session on app start.
+ * Called once from AppProvider on mount — invisible to the user.
+ * Safe to call multiple times (idempotent).
  */
-export const signInWithGoogle = async () => {
+export const bootGuestSession = () => {
+  if (!isFirebaseConfigured) return;
+
+  // Already signed in — no-op
+  if (auth.currentUser) return;
+
+  // Kick off silently — don't await so it never blocks the UI
+  signInAnonymously(auth).catch((err) => {
+    console.warn('[Auth] Silent anonymous boot failed:', err?.message);
+  });
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GOOGLE LINK — Upgrades existing anonymous account to Google-backed account
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Links the currently signed-in anonymous account to a Google account.
+ * Uses linkWithPopup() so the uid stays the SAME — all RTDB data is preserved.
+ *
+ * Returns one of:
+ *   { success: true, uid, displayName, email, photoURL, isUpgrade: true }
+ *   { success: true, uid, displayName, email, photoURL, isUpgrade: false, conflictResolved: true }
+ *   { error: string }
+ */
+export const linkGoogleAccount = async () => {
   if (!isFirebaseConfigured || !auth) return { error: 'Firebase is not configured.' };
+
+  const currentUser = auth.currentUser;
+  if (!currentUser) return { error: 'No active session to link to.' };
+
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+
   try {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    const result = await signInWithPopup(auth, provider);
+    // PRIMARY PATH: anonymous account gets upgraded to Google-backed account.
+    // uid stays EXACTLY the same. All RTDB data is untouched.
+    const result = await linkWithPopup(currentUser, provider);
+    const user = result.user;
+    console.log('[Auth] Anonymous account linked to Google. uid unchanged:', user.uid);
     return {
-      uid: result.user.uid,
-      displayName: result.user.displayName,
-      email: result.user.email,
-      photoURL: result.user.photoURL,
+      success: true,
+      uid: user.uid,
+      displayName: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      isUpgrade: true,
     };
   } catch (err) {
-    console.warn('Google sign-in notice:', err?.code, err?.message);
-    return { error: err?.code || err?.message || 'sign-in-failed' };
+    if (err.code === 'auth/credential-already-in-use' || err.code === 'auth/email-already-in-use') {
+      // CONFLICT PATH: The Google account is already linked to a different Firebase account.
+      // We sign into that existing account. The guest progress is still in localStorage
+      // so we surface it to the caller to decide what to do.
+      console.warn('[Auth] Google account already linked to another uid — signing into existing account.');
+      try {
+        const credential = GoogleAuthProvider.credentialFromError(err);
+        if (!credential) return { error: 'Could not recover credential from conflict.' };
+
+        const existingResult = await signInWithCredential(auth, credential);
+        const existingUser = existingResult.user;
+        console.log('[Auth] Signed into existing Google account:', existingUser.uid);
+
+        return {
+          success: true,
+          uid: existingUser.uid,
+          displayName: existingUser.displayName,
+          email: existingUser.email,
+          photoURL: existingUser.photoURL,
+          isUpgrade: false,
+          conflictResolved: true,
+          // Caller should compare this uid against the guest uid and decide
+          // whether to merge or keep the cloud version
+        };
+      } catch (recoveryErr) {
+        return { error: recoveryErr?.message || 'Failed to resolve account conflict.' };
+      }
+    }
+
+    // Other error types
+    const code = err?.code || '';
+    if (code.includes('popup-closed-by-user') || code.includes('cancelled-popup-request')) {
+      return { error: 'popup-closed' };
+    }
+    if (code.includes('popup-blocked')) {
+      return { error: 'Popups are blocked by your browser. Please allow popups for this site and try again.' };
+    }
+    if (code.includes('operation-not-allowed') || code.includes('configuration-not-found')) {
+      return { error: 'Google Sign-in is not enabled in Firebase Console. Enable it under Authentication → Sign-in method.' };
+    }
+    if (code.includes('unauthorized-domain')) {
+      return { error: 'This domain is not authorized in Firebase Console. Add it under Authentication → Settings → Authorized domains.' };
+    }
+
+    console.warn('[Auth] linkWithPopup error:', err?.code, err?.message);
+    return { error: err?.message || 'Google sign-in failed. Please try again.' };
   }
 };
 
 /**
- * Sign out of current Firebase Auth session (preserves cloud DB profile intact)
+ * Sign out of current Firebase Auth session.
+ * After sign-out, bootGuestSession() will create a new anonymous session on next boot.
  */
 export const signOutUser = async () => {
   if (!auth) return;
   try {
     await signOut(auth);
+    console.log('[Auth] Signed out.');
   } catch (err) {
-    console.warn('Sign out notice:', err?.message);
+    console.warn('[Auth] Sign out notice:', err?.message);
   }
 };
 
 /**
- * Fetch User Profile from Realtime Cloud
+ * Subscribe to auth state changes.
+ * Returns an unsubscribe function.
  */
+export const onAuthChange = (callback) => {
+  return onAuthStateChanged(auth, callback);
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REALTIME DATABASE — Profile & Leaderboard
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const fetchUserProfileCloud = async (uid) => {
   if (!rtdb || !uid) return null;
   try {
     const userRef = ref(rtdb, `users/${uid}`);
     const snap = await get(userRef);
-    if (snap.exists()) {
-      return snap.val();
-    }
-    return null;
+    return snap.exists() ? snap.val() : null;
   } catch (err) {
-    console.warn('Fetch user profile cloud error:', err?.message);
+    console.warn('[DB] Fetch user profile error:', err?.message);
     return null;
   }
 };
 
-/**
- * Delete User and Leaderboard entries from Realtime Cloud (used to clean up abandoned anonymous accounts on sync)
- */
 export const deleteUserCloud = async (uid) => {
   if (!rtdb || !uid) return;
   try {
     await set(ref(rtdb, `users/${uid}`), null);
     await set(ref(rtdb, `leaderboard/${uid}`), null);
   } catch (err) {
-    console.warn('Delete cloud user error:', err?.message);
+    console.warn('[DB] Delete cloud user error:', err?.message);
   }
 };
 
-/**
- * Save / Update User Profile in Realtime Cloud
- */
 export const syncUserProfileCloud = async (userData) => {
   if (!rtdb || !userData?.uid) return;
   try {
@@ -152,7 +253,6 @@ export const syncUserProfileCloud = async (userData) => {
       lastUpdated: new Date().toISOString(),
     });
 
-    // Also update public leaderboard entry if XP exists
     if (userData.xp !== undefined) {
       const leaderRef = ref(rtdb, `leaderboard/${userData.uid}`);
       await set(leaderRef, {
@@ -166,13 +266,14 @@ export const syncUserProfileCloud = async (userData) => {
       });
     }
   } catch (err) {
-    console.warn('Cloud profile sync notice:', err?.message);
+    console.warn('[DB] Cloud profile sync notice:', err?.message);
   }
 };
 
-/**
- * Real-time Leaderboard Listener
- */
+// ─────────────────────────────────────────────────────────────────────────────
+// REALTIME DATABASE — Community, Q&A, Leaderboard, Impact
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const listenLeaderboardCloud = (callback) => {
   if (!rtdb) return () => {};
   try {
@@ -187,18 +288,14 @@ export const listenLeaderboardCloud = (callback) => {
         callback([]);
       }
     }, (err) => {
-      console.warn('Leaderboard cloud listener notice:', err?.message);
+      console.warn('[DB] Leaderboard listener notice:', err?.message);
     });
-
     return () => off(leaderRef, 'value', listener);
   } catch {
     return () => {};
   }
 };
 
-/**
- * Post Community Reflection
- */
 export const postCommunityReflectionCloud = async (postData) => {
   if (!rtdb) return null;
   try {
@@ -214,14 +311,11 @@ export const postCommunityReflectionCloud = async (postData) => {
     await set(newPostRef, payload);
     return payload;
   } catch (err) {
-    console.warn('Community post cloud sync notice:', err?.message);
+    console.warn('[DB] Community post sync notice:', err?.message);
     return null;
   }
 };
 
-/**
- * Listen to Community Reflections
- */
 export const listenCommunityReflectionsCloud = (storyId, callback) => {
   if (!rtdb) return () => {};
   try {
@@ -238,18 +332,14 @@ export const listenCommunityReflectionsCloud = (storyId, callback) => {
         callback([]);
       }
     }, (err) => {
-      console.warn('Community cloud listener notice:', err?.message);
+      console.warn('[DB] Community listener notice:', err?.message);
     });
-
     return () => off(postsRef, 'value', listener);
   } catch {
     return () => {};
   }
 };
 
-/**
- * Post Q&A Question
- */
 export const postQuestionCloud = async (questionData) => {
   if (!rtdb) return null;
   try {
@@ -259,20 +349,17 @@ export const postQuestionCloud = async (questionData) => {
       id: newQaRef.key,
       ...questionData,
       createdAt: new Date().toISOString(),
-      status: 'answered', // Verified statutory advice
+      status: 'answered',
       helpfulCount: 0,
     };
     await set(newQaRef, payload);
     return payload;
   } catch (err) {
-    console.warn('Q&A cloud sync notice:', err?.message);
+    console.warn('[DB] Q&A sync notice:', err?.message);
     return null;
   }
 };
 
-/**
- * Listen to Q&A Questions
- */
 export const listenQuestionsCloud = (storyId, callback) => {
   if (!rtdb) return () => {};
   try {
@@ -288,18 +375,14 @@ export const listenQuestionsCloud = (storyId, callback) => {
         callback([]);
       }
     }, (err) => {
-      console.warn('Q&A cloud listener notice:', err?.message);
+      console.warn('[DB] Q&A listener notice:', err?.message);
     });
-
     return () => off(qaRef, 'value', listener);
   } catch {
     return () => {};
   }
 };
 
-/**
- * Listen to all Q&A Questions across all stories for Advocate Moderation
- */
 export const listenAllQuestionsCloud = (callback) => {
   if (!rtdb) return () => {};
   try {
@@ -314,18 +397,14 @@ export const listenAllQuestionsCloud = (callback) => {
         callback([]);
       }
     }, (err) => {
-      console.warn('All questions cloud listener notice:', err?.message);
+      console.warn('[DB] All questions listener notice:', err?.message);
     });
-
     return () => off(qaRef, 'value', listener);
   } catch {
     return () => {};
   }
 };
 
-/**
- * Answer & Approve a Q&A Question in Realtime Cloud (Advocate Action)
- */
 export const answerQuestionCloud = async (questionId, answerData) => {
   if (!rtdb || !questionId) return false;
   try {
@@ -341,14 +420,11 @@ export const answerQuestionCloud = async (questionId, answerData) => {
     });
     return true;
   } catch (err) {
-    console.warn('Answer question cloud error:', err?.message);
+    console.warn('[DB] Answer question error:', err?.message);
     return false;
   }
 };
 
-/**
- * Post Leaderboard Cheer
- */
 export const postCheerCloud = async (cheerData) => {
   if (!rtdb) return null;
   try {
@@ -362,14 +438,11 @@ export const postCheerCloud = async (cheerData) => {
     await set(newCheerRef, payload);
     return payload;
   } catch (err) {
-    console.warn('Cheer cloud sync notice:', err?.message);
+    console.warn('[DB] Cheer sync notice:', err?.message);
     return null;
   }
 };
 
-/**
- * Listen to Leaderboard Cheers
- */
 export const listenCheersCloud = (callback) => {
   if (!rtdb) return () => {};
   try {
@@ -384,23 +457,18 @@ export const listenCheersCloud = (callback) => {
         callback([]);
       }
     }, (err) => {
-      console.warn('Cheers cloud listener notice:', err?.message);
+      console.warn('[DB] Cheers listener notice:', err?.message);
     });
-
     return () => off(cheersRef, 'value', listener);
   } catch {
     return () => {};
   }
 };
 
-/**
- * Listen to 100% Real Aggregate Learning & Impact Metrics from Realtime Database
- */
 export const listenRealtimeImpactMetrics = (callback) => {
   if (!rtdb) return () => {};
   try {
     const usersRef = ref(rtdb, 'users');
-
     const listener = onValue(usersRef, (snapshot) => {
       const users = snapshot.exists() ? snapshot.val() : {};
       const userList = Object.values(users);
@@ -425,25 +493,17 @@ export const listenRealtimeImpactMetrics = (callback) => {
 
       userList.forEach((u) => {
         totalXP += Number(u.xp || 0);
-
-        // Language
         const l = u.language || 'en';
         langCounts[l] = (langCounts[l] || 0) + 1;
-
-        // Age Tier
         const a = u.ageTier || '8-11';
         ageCounts[a] = (ageCounts[a] || 0) + 1;
 
-        // Completed Stories
         const completed = Array.isArray(u.completedStories) ? u.completedStories : [];
         totalCompletions += completed.length;
         completed.forEach((sId) => {
-          if (storyStats[sId]) {
-            storyStats[sId].completions += 1;
-          }
+          if (storyStats[sId]) storyStats[sId].completions += 1;
         });
 
-        // Quiz Scores
         const scores = u.quizScores || {};
         Object.entries(scores).forEach(([sId, score]) => {
           if (score && typeof score === 'object') {
@@ -458,10 +518,7 @@ export const listenRealtimeImpactMetrics = (callback) => {
           }
         });
 
-        // Achievements
-        if (Array.isArray(u.achievements)) {
-          totalAchievementsEarned += u.achievements.length;
-        }
+        if (Array.isArray(u.achievements)) totalAchievementsEarned += u.achievements.length;
       });
 
       const overallQuizAccuracy = totalQuizQuestions > 0
@@ -481,12 +538,12 @@ export const listenRealtimeImpactMetrics = (callback) => {
         ageCounts,
       });
     }, (err) => {
-      console.warn('Realtime impact listener error:', err?.message);
+      console.warn('[DB] Impact listener error:', err?.message);
     });
 
     return () => off(usersRef, 'value', listener);
   } catch (err) {
-    console.warn('Realtime impact metrics init error:', err?.message);
+    console.warn('[DB] Impact metrics init error:', err?.message);
     return () => {};
   }
 };

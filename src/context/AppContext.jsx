@@ -1,8 +1,11 @@
 /**
- * AppContext.jsx — Unified Global State & Dual-Persistence Engine
+ * AppContext.jsx — Unified Global State & Session Persistence Engine
  *
- * Guarantees 100% data persistence using a permanent Unique Browser Session ID.
- * Automatically saves all XP, badges, completed stories, and profile state.
+ * Auth model:
+ * - Every first-time visitor gets an anonymous Firebase session (bootGuestSession).
+ * - All progress is saved against that anonymous uid.
+ * - Google Sign-In UPGRADES (links) that anonymous account — uid stays the same.
+ * - On return visits, onAuthStateChanged restores the Firebase uid automatically.
  */
 
 import { createContext, useContext, useReducer, useEffect, useMemo } from 'react';
@@ -12,8 +15,13 @@ import {
   saveUserProfile,
   clearUserProfileSession,
 } from '../lib/sessionManager';
-import { isFirebaseConfigured, auth, syncUserProfileCloud } from '../firebase/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import {
+  isFirebaseConfigured,
+  auth,
+  bootGuestSession,
+  syncUserProfileCloud,
+  onAuthChange,
+} from '../firebase/firebase';
 
 export const AppContext = createContext();
 export const useApp = () => useContext(AppContext);
@@ -173,11 +181,32 @@ function reducer(state, action) {
       };
       break;
     }
+    // Update only the uid field — used when Firebase Auth resolves the canonical uid
+    // after anonymous boot or after Google link. Never wipes profile data.
+    case 'SYNC_UID': {
+      if (!state.currentUser) return state;
+      nextState = {
+        ...state,
+        currentUser: { ...state.currentUser, uid: action.payload },
+      };
+      break;
+    }
+    // Store the Firebase uid before the user has completed onboarding.
+    // So when they finish onboarding the correct uid is used.
+    case 'SET_FIREBASE_UID': {
+      nextState = {
+        ...state,
+        pendingFirebaseUid: action.payload,
+      };
+      // Don't persist this — it's transient state
+      return nextState;
+    }
     case 'LOGOUT': {
       clearUserProfileSession();
       return {
         currentUser: null,
         sessionId: getOrCreateUniqueSessionId(),
+        pendingFirebaseUid: null,
         xp: 0,
         badges: [],
         completedStories: [],
@@ -209,24 +238,38 @@ function reducer(state, action) {
 export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, null, loadInitialState);
 
-  // Synchronize Cloud Auth UID if connected
+  // Boot anonymous Firebase session on first load (invisible to user)
+  useEffect(() => {
+    bootGuestSession();
+  }, []);
+
+  // Synchronize uid from Firebase Auth — only update uid, never wipe profile data
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) return;
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (user && user.uid) {
-        if (state.currentUser && state.currentUser.uid !== user.uid) {
+    const unsub = onAuthChange((firebaseUser) => {
+      if (firebaseUser && firebaseUser.uid) {
+        // If we have a local profile but the uid doesn't match the Firebase uid
+        // (e.g. after Google link or on return visit), update only the uid
+        if (state.currentUser?.nickname && state.currentUser.uid !== firebaseUser.uid) {
+          console.log('[Auth] Syncing uid from Firebase:', firebaseUser.uid);
           dispatch({
-            type: 'SET_USER',
-            payload: {
-              ...state.currentUser,
-              uid: user.uid,
-            },
+            type: 'SYNC_UID',
+            payload: firebaseUser.uid,
+          });
+        }
+        // If no profile yet but Firebase has a session, store the uid so it's ready
+        // when onboarding completes
+        if (!state.currentUser) {
+          dispatch({
+            type: 'SET_FIREBASE_UID',
+            payload: firebaseUser.uid,
           });
         }
       }
     });
     return () => unsub();
-  }, [state.currentUser]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.currentUser?.uid, state.currentUser?.nickname]);
 
   // Real-time Cloud Profile & Leaderboard Sync
   useEffect(() => {
@@ -244,8 +287,8 @@ export const AppProvider = ({ children }) => {
       });
     }
   }, [
-    state.currentUser,
     state.currentUser?.uid,
+    state.currentUser?.nickname,
     state.xp,
     state.badges,
     state.completedStories,

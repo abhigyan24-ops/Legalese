@@ -1,13 +1,21 @@
 /**
- * GoogleSignIn.jsx — Optional Google Account Linking
+ * GoogleSignIn.jsx — Google Account Linking (Upgrade, not Replace)
  *
- * Shows in the profile/settings panel. Links the current anonymous
- * session to a Google account for cross-device persistence.
+ * Uses Firebase's linkWithPopup() to UPGRADE the existing anonymous account
+ * to a Google-backed account. The uid stays the SAME, so all RTDB data
+ * (XP, badges, completedStories) is preserved automatically.
+ *
+ * Handles the conflict case where the Google account already has a separate
+ * Firebase account, and surfaces a clear message to the user.
+ *
+ * Can be rendered from:
+ * - Onboarding cloud sync step
+ * - RightsMap profile panel (accessible anytime from /map)
  */
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { signInWithGoogle, fetchUserProfileCloud, deleteUserCloud, syncUserProfileCloud } from '../../firebase/firebase';
+import { linkGoogleAccount, fetchUserProfileCloud, deleteUserCloud } from '../../firebase/firebase';
 import { useApp } from '../../context/AppContext';
 
 export default function GoogleSignIn({ onSuccess }) {
@@ -15,94 +23,156 @@ export default function GoogleSignIn({ onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
+  const [conflictInfo, setConflictInfo] = useState(null);
 
   const isLinked = state.currentUser?.googleLinked;
 
-  const handleSignIn = async () => {
+  const handleLink = async () => {
     setLoading(true);
     setError('');
+    setConflictInfo(null);
+
     try {
-      const gUser = await signInWithGoogle();
-      if (!gUser || gUser.error) {
-        const errCode = gUser?.error || '';
-        if (errCode.includes('operation-not-allowed') || errCode.includes('configuration-not-found')) {
-          setError('Google Sign-in is not yet enabled in Firebase Console (Authentication → Sign-in method → Enable Google).');
-        } else if (errCode.includes('unauthorized-domain')) {
-          setError('Current domain is not authorized in Firebase Console (Authentication → Settings → Authorized domains).');
-        } else if (errCode.includes('popup-closed-by-user')) {
-          setError('Sign-in popup was closed before completing.');
-        } else if (errCode.includes('popup-blocked')) {
-          setError('Popup was blocked by your browser. Please allow popups for this site.');
-        } else {
-          setError(errCode || 'Google sign-in was cancelled or failed. Try again.');
+      const result = await linkGoogleAccount();
+
+      if (!result || result.error) {
+        const errMsg = result?.error || '';
+        if (errMsg === 'popup-closed') {
+          // User dismissed — not an error worth showing
+          return;
         }
+        setError(errMsg || 'Google sign-in was cancelled or failed. Try again.');
         return;
       }
 
-      const oldUid = state.currentUser?.uid;
+      const gUid = result.uid;
+      const gName = result.displayName;
+      const gPhoto = result.photoURL;
 
-      // 1. Check if an existing profile already exists in Firebase Realtime Database
-      const cloudData = await fetchUserProfileCloud(gUser.uid);
-
-      if (cloudData && cloudData.nickname) {
-        // User has an existing saved profile — restore all progress and go directly to /map!
-        dispatch({
-          type: 'RESTORE_CLOUD_USER',
-          payload: {
-            ...cloudData,
-            uid: gUser.uid,
-            googleLinked: true,
-            googleName: gUser.displayName,
-            googlePhoto: gUser.photoURL,
-          },
-        });
-
-        // Clean up temporary anonymous user if any
-        if (oldUid && oldUid !== gUser.uid && (!state.currentUser?.nickname || state.currentUser.nickname === 'Explorer')) {
-          await deleteUserCloud(oldUid);
-        }
-
-        setDone(true);
-        onSuccess?.({ isNewUser: false });
-      } else {
-        // Brand new Google account without a profile yet:
-        // Set Google credentials but DO NOT assume name/avatar/age — send to onboarding to customize!
+      if (result.isUpgrade) {
+        // ── HAPPY PATH ──────────────────────────────────────────────────────
+        // linkWithPopup() succeeded: the anonymous account is now Google-backed.
+        // uid is UNCHANGED. All RTDB data is already on the correct uid.
+        // We just update the local state to mark googleLinked = true.
         dispatch({
           type: 'SET_USER',
           payload: {
-            uid: gUser.uid,
-            nickname: '', // Prompt them to pick nickname
-            avatar: 'boy-short-blue-medium',
-            ageTier: '8-11',
-            language: state.language || 'en',
+            ...state.currentUser,
+            uid: gUid,
             googleLinked: true,
-            googleName: gUser.displayName,
-            googlePhoto: gUser.photoURL,
+            googleName: gName,
+            googlePhoto: gPhoto,
           },
         });
 
-        // Clean up old anonymous UID if any
-        if (oldUid && oldUid !== gUser.uid) {
-          await deleteUserCloud(oldUid);
+        setDone(true);
+        onSuccess?.({ isNewUser: false, isUpgrade: true });
+
+      } else if (result.conflictResolved) {
+        // ── CONFLICT PATH ───────────────────────────────────────────────────
+        // The Google account was already linked to a DIFFERENT Firebase uid.
+        // We've signed into that existing account. Now we need to decide which
+        // progress to use: the guest's local progress, or the existing cloud profile.
+
+        const guestXp = state.xp || 0;
+        const guestCompleted = (state.completedStories || []).length;
+
+        // Fetch the existing Google account's cloud profile
+        const cloudData = await fetchUserProfileCloud(gUid);
+        const cloudXp = cloudData?.xp || 0;
+        const cloudCompleted = (cloudData?.completedStories || []).length;
+
+        if (cloudData && cloudData.nickname && (cloudXp >= guestXp || cloudCompleted >= guestCompleted)) {
+          // Existing Google account has more or equal progress — restore it
+          dispatch({
+            type: 'RESTORE_CLOUD_USER',
+            payload: {
+              ...cloudData,
+              uid: gUid,
+              googleLinked: true,
+              googleName: gName,
+              googlePhoto: gPhoto,
+            },
+          });
+
+          // If the guest had a different uid, clean it up
+          const guestUid = state.currentUser?.uid;
+          if (guestUid && guestUid !== gUid && state.xp === 0 && guestCompleted === 0) {
+            await deleteUserCloud(guestUid);
+          }
+
+          setConflictInfo({
+            type: 'cloud_wins',
+            cloudXp,
+            cloudCompleted,
+            guestXp,
+            guestCompleted,
+          });
+        } else {
+          // Guest has more progress — keep guest progress but update uid & google info
+          // Save the guest's progress under the new (Google-linked) uid
+          dispatch({
+            type: 'SET_USER',
+            payload: {
+              ...state.currentUser,
+              uid: gUid,
+              googleLinked: true,
+              googleName: gName,
+              googlePhoto: gPhoto,
+            },
+          });
+
+          setConflictInfo({
+            type: 'guest_wins',
+            cloudXp,
+            cloudCompleted,
+            guestXp,
+            guestCompleted,
+          });
         }
 
         setDone(true);
-        onSuccess?.({ isNewUser: true });
+        onSuccess?.({ isNewUser: false, isUpgrade: false, conflictResolved: true });
       }
-    } catch {
+
+    } catch (err) {
+      console.error('[GoogleSignIn] Unexpected error:', err);
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
+  // Already linked
   if (done || isLinked) {
     return (
-      <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-sm">
-        <span className="text-lg">✅</span>
-        <span className="font-semibold">
-          Linked to Google — your progress syncs across devices!
-        </span>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-sm">
+          <span className="text-lg">✅</span>
+          <div>
+            <span className="font-semibold block">Linked to Google — progress syncs across devices!</span>
+            {state.currentUser?.googleName && (
+              <span className="text-xs text-emerald-400/80">{state.currentUser.googleName}</span>
+            )}
+          </div>
+        </div>
+        {conflictInfo && (
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs">
+            {conflictInfo.type === 'cloud_wins' ? (
+              <>
+                ℹ️ Your previous Google account had more progress ({conflictInfo.cloudXp} XP,{' '}
+                {conflictInfo.cloudCompleted} stories), so we restored that. Your guest session progress
+                ({conflictInfo.guestXp} XP) has been replaced.
+              </>
+            ) : (
+              <>
+                ℹ️ Your guest session had more progress ({conflictInfo.guestXp} XP,{' '}
+                {conflictInfo.guestCompleted} stories). Your existing Google account progress
+                ({conflictInfo.cloudXp} XP) has been replaced by your current session.
+              </>
+            )}
+          </div>
+        )}
       </div>
     );
   }
@@ -112,7 +182,7 @@ export default function GoogleSignIn({ onSuccess }) {
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.97 }}
-        onClick={handleSignIn}
+        onClick={handleLink}
         disabled={loading}
         className="flex items-center justify-center gap-3 w-full px-4 py-3 rounded-xl bg-white text-gray-700 font-bold text-sm shadow-lg hover:shadow-xl transition-all border border-gray-200 disabled:opacity-60"
       >
@@ -130,7 +200,7 @@ export default function GoogleSignIn({ onSuccess }) {
       </motion.button>
       {error && <p className="text-red-400 text-xs text-center">{error}</p>}
       <p className="text-xs text-white/40 text-center">
-        Your nickname & avatar are kept. Progress syncs across all your devices.
+        Your XP, badges & progress are kept. Sync across all your devices.
       </p>
     </div>
   );
