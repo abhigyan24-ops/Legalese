@@ -15,6 +15,8 @@ import AdvocateDashboard from './components/advocate/AdvocateDashboard';
 import CompletionCertificate from './components/certificate/CompletionCertificate';
 import TeacherToolkit from './components/teachers/TeacherToolkit';
 import ImpactDashboard from './components/impact/ImpactDashboard';
+import WaitlistPage from './components/waitlist/WaitlistPage';
+import NotFoundPage from './components/not-found/NotFoundPage';
 import { Analytics } from '@vercel/analytics/react';
 
 function RootRedirect() {
@@ -38,6 +40,7 @@ export default function App() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/showcase" element={<LandingPage />} />
+          <Route path="/waitlist" element={<WaitlistPage />} />
           <Route path="/onboarding" element={<OnboardingScreen />} />
           <Route path="/map" element={<Protected><RightsMap /></Protected>} />
           <Route path="/story/:storyId" element={<Protected><StoryScreen /></Protected>} />
@@ -51,7 +54,7 @@ export default function App() {
           <Route path="/teachers" element={<TeacherToolkit />} />
           <Route path="/impact" element={<ImpactDashboard />} />
           <Route path="/stats" element={<ImpactDashboard />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
       <Analytics />

@@ -13,18 +13,20 @@ import StoryEngine from './StoryEngine';
 // Junior & Senior story module loaders
 const juniorStoryModules = {
   'right-to-education': () => import('../../content/stories/junior/right-to-education'),
-  'right-to-healthcare': () => import('../../content/stories/junior/right-to-healthcare'),
+  'protection-from-child-marriage': () => import('../../content/stories/junior/protection-from-child-marriage'),
   'protection-from-child-labour': () => import('../../content/stories/junior/protection-from-child-labour'),
   'protection-from-abuse': () => import('../../content/stories/junior/protection-from-abuse'),
-  'protection-from-child-marriage': () => import('../../content/stories/junior/protection-from-child-marriage'),
+  'right-to-healthcare': () => import('../../content/stories/junior/right-to-healthcare'),
+  'right-to-equality': () => import('../../content/stories/junior/right-to-equality'),
 };
 
 const seniorStoryModules = {
   'right-to-education': () => import('../../content/stories/senior/right-to-education'),
-  'right-to-healthcare': () => import('../../content/stories/senior/right-to-healthcare'),
+  'protection-from-child-marriage': () => import('../../content/stories/senior/protection-from-child-marriage'),
   'protection-from-child-labour': () => import('../../content/stories/senior/protection-from-child-labour'),
   'protection-from-abuse': () => import('../../content/stories/senior/protection-from-abuse'),
-  'protection-from-child-marriage': () => import('../../content/stories/senior/protection-from-child-marriage'),
+  'right-to-healthcare': () => import('../../content/stories/senior/right-to-healthcare'),
+  'right-to-equality': () => import('../../content/stories/senior/right-to-equality'),
 };
 
 export default function StoryScreen() {
@@ -63,13 +65,14 @@ export default function StoryScreen() {
     loadStory();
   }, [storyId, ageTier]);
 
-  // Check if story is unlocked
+  // Check if story is unlocked in standard sequence
   const storyIndex = [
     'right-to-education',
-    'right-to-healthcare',
+    'protection-from-child-marriage',
     'protection-from-child-labour',
     'protection-from-abuse',
-    'protection-from-child-marriage',
+    'right-to-healthcare',
+    'right-to-equality',
   ].indexOf(storyId);
 
   if (storyIndex !== -1 && !isStoryUnlocked(storyIndex)) {

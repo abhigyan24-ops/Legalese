@@ -17,11 +17,12 @@ import sound from '../../lib/sound';
 const PASSKEY = 'RIGHTS_QUEST_LEGAL_2026';
 
 const STORY_MAP = {
-  'right-to-education': 'Right to Education (Article 21-A)',
+  'right-to-education': 'Right for Education (Article 21-A)',
+  'protection-from-child-marriage': 'Right against Child Marriage (PCMA 2006)',
+  'protection-from-child-labour': 'Right against Child Labor (CLPRA)',
+  'protection-from-abuse': 'Right against Abuse (POCSO Act 2012)',
   'right-to-healthcare': 'Right to Healthcare (Article 21)',
-  'protection-from-child-labour': 'Protection from Child Labour (CLPRA)',
-  'protection-from-abuse': 'Protection from Abuse (POCSO Act 2012)',
-  'protection-from-child-marriage': 'Protection from Child Marriage (PCMA 2006)',
+  'right-to-equality': 'Right to Equality (Articles 14, 15 & 17)',
 };
 
 export default function AdvocateDashboard() {
@@ -251,11 +252,12 @@ export default function AdvocateDashboard() {
                   className="bg-black/50 border border-white/15 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:border-[#F5B942]"
                 >
                   <option value="all">🌟 All Story Topics</option>
-                  <option value="right-to-education">🎒 Right to Education (Art 21-A)</option>
+                  <option value="right-to-education">🎒 Right for Education (Art 21-A)</option>
+                  <option value="protection-from-child-marriage">📜 Right against Child Marriage (PCMA)</option>
+                  <option value="protection-from-child-labour">🏭 Right against Child Labor (CLPRA)</option>
+                  <option value="protection-from-abuse">🛡️ Right against Abuse (POCSO)</option>
                   <option value="right-to-healthcare">🏥 Right to Healthcare (Art 21)</option>
-                  <option value="protection-from-child-labour">🏭 Protection from Child Labour</option>
-                  <option value="protection-from-abuse">🛡️ Protection from Abuse (POCSO)</option>
-                  <option value="protection-from-child-marriage">📜 Protection from Child Marriage</option>
+                  <option value="right-to-equality">⚖️ Right to Equality (Articles 14 & 15)</option>
                 </select>
               </div>
 

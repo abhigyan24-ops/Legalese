@@ -15,10 +15,11 @@ import sound from '../../lib/sound';
 
 const BADGES_LIST = [
   { id: 'right-to-education', name: 'Education Champion', icon: '🎒', article: 'Art. 21-A' },
-  { id: 'right-to-healthcare', name: 'Health Defender', icon: '🏥', article: 'Art. 21' },
+  { id: 'protection-from-child-marriage', name: 'Dreams Guardian', icon: '📜', article: 'PCMA 2006' },
   { id: 'protection-from-child-labour', name: 'Childhood Protector', icon: '🏭', article: 'Child Labour Act' },
   { id: 'protection-from-abuse', name: 'Safety Shield', icon: '🛡️', article: 'POCSO Act' },
-  { id: 'protection-from-child-marriage', name: 'Dreams Guardian', icon: '📜', article: 'PCMA 2006' },
+  { id: 'right-to-healthcare', name: 'Health Defender', icon: '🏥', article: 'Art. 21' },
+  { id: 'right-to-equality', name: 'Equality Champion', icon: '⚖️', article: 'Art. 14 & 15' },
 ];
 
 export default function CompletionCertificate() {
@@ -59,33 +60,33 @@ export default function CompletionCertificate() {
 
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Rights_Quest_Certificate_${nickname.replace(/\s+/g, '_')}.svg`;
+      link.download = `Rights-Quest-Certificate-${nickname.replace(/\s+/g, '_')}.svg`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }
-
-    setDownloading(false);
+    setTimeout(() => setDownloading(false), 800);
   };
 
   const isDark = theme === 'midnight';
 
   return (
-    <div className="min-h-screen bg-[#0F0D1B] text-[#F0EDF6] font-body select-none py-8 px-4 sm:px-8">
-      <div className="max-w-4xl mx-auto flex flex-col gap-6">
-        {/* ── TOP HEADER / TOOLBAR ── */}
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10 print:hidden">
+    <div className="min-h-screen bg-[#110D22] text-white font-body p-4 sm:p-8 flex flex-col items-center justify-center relative select-none">
+      <div className="w-full max-w-5xl flex flex-col gap-6">
+        {/* ── TOP ACTION BAR ── */}
+        <header className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-[#1D1836] border border-white/10 shadow-lg print:hidden">
           <Link
             to="/map"
             onClick={() => sound.click()}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-bold text-white transition-all shadow"
+            className="text-xs font-bold text-[#FFB84D] hover:underline flex items-center gap-1.5"
           >
-            ← Back to Rights Trail
+            <span>←</span>
+            <span>Return to Rights Map</span>
           </Link>
 
-          {/* Theme Selector */}
-          <div className="flex items-center gap-2 bg-[#1C1830] border border-white/15 p-1 rounded-xl">
+          {/* Theme Switcher Toggle */}
+          <div className="flex items-center gap-2 p-1 rounded-xl bg-black/30 border border-white/10">
             <button
               onClick={() => {
                 sound.click();
@@ -93,7 +94,7 @@ export default function CompletionCertificate() {
               }}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 theme === 'ivory'
-                  ? 'bg-amber-100 text-stone-900 shadow font-extrabold'
+                  ? 'bg-[#FAF8F5] text-black shadow font-extrabold'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -148,12 +149,9 @@ export default function CompletionCertificate() {
             className="w-full h-auto drop-shadow-md rounded-2xl"
           >
             <defs>
-              {/* Premium Gold Gradients */}
               <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stopColor="#D4AF37" />
-                <stop offset="25%" stopColor="#F9E498" />
-                <stop offset="50%" stopColor="#DFBA48" />
-                <stop offset="75%" stopColor="#FDEAB2" />
+                <stop offset="50%" stopColor="#FDEAB2" />
                 <stop offset="100%" stopColor="#B38728" />
               </linearGradient>
 
@@ -168,126 +166,99 @@ export default function CompletionCertificate() {
               </linearGradient>
             </defs>
 
-            {/* 1. Main Background */}
-            <rect
-              width="920"
-              height="640"
-              rx="16"
-              fill={isDark ? 'url(#darkBg)' : 'url(#ivoryBg)'}
-            />
+            <rect width="920" height="640" rx="16" fill={isDark ? 'url(#darkBg)' : 'url(#ivoryBg)'} />
 
-            {/* 2. Outer Geometric Border */}
             <rect
               x="24"
               y="24"
               width="872"
               height="592"
-              rx="12"
+              rx="10"
               fill="none"
               stroke="url(#goldGradient)"
               strokeWidth="2.5"
             />
-
-            {/* Inner Thin Border */}
             <rect
-              x="32"
-              y="32"
-              width="856"
-              height="576"
+              x="30"
+              y="30"
+              width="860"
+              height="580"
               rx="8"
               fill="none"
-              stroke={isDark ? 'rgba(212,175,55,0.3)' : 'rgba(179,135,40,0.3)'}
+              stroke={isDark ? 'rgba(255,184,77,0.3)' : 'rgba(179,135,40,0.3)'}
               strokeWidth="1"
+              strokeDasharray="4 4"
             />
 
-            {/* Corner Filigree Accents */}
-            <g stroke="url(#goldGradient)" strokeWidth="1.5" fill="none">
-              {/* Top-Left */}
-              <path d="M42 60 L42 42 L60 42" />
-              <circle cx="42" cy="42" r="3" fill="url(#goldGradient)" />
-              {/* Top-Right */}
-              <path d="M878 60 L878 42 L860 42" />
-              <circle cx="878" cy="42" r="3" fill="url(#goldGradient)" />
-              {/* Bottom-Left */}
-              <path d="M42 580 L42 598 L60 598" />
-              <circle cx="42" cy="598" r="3" fill="url(#goldGradient)" />
-              {/* Bottom-Right */}
-              <path d="M878 580 L878 598 L860 598" />
-              <circle cx="878" cy="598" r="3" fill="url(#goldGradient)" />
+            <g fill="url(#goldGradient)">
+              <path d="M34 34 L60 34 L60 38 L38 38 L38 60 L34 60 Z" />
+              <circle cx="48" cy="48" r="3" />
+              <path d="M886 34 L860 34 L860 38 L882 38 L882 60 L886 60 Z" />
+              <circle cx="872" cy="48" r="3" />
+              <path d="M34 606 L60 606 L60 602 L38 602 L38 580 L34 580 Z" />
+              <circle cx="48" cy="592" r="3" />
+              <path d="M886 606 L860 606 L860 602 L882 602 L882 580 L886 580 Z" />
+              <circle cx="872" cy="592" r="3" />
             </g>
 
-            {/* 3. Top Emblem / Seal */}
-            <g transform="translate(460, 85)">
-              <circle cx="0" cy="0" r="28" fill={isDark ? '#221D38' : '#FAF6EE'} stroke="url(#goldGradient)" strokeWidth="2.5" />
-              <circle cx="0" cy="0" r="24" fill="none" stroke={isDark ? '#FFB84D' : '#B38728'} strokeWidth="0.8" strokeDasharray="3 2" />
-              <text x="0" y="8" textAnchor="middle" fontSize="22">⚖️</text>
+            <g transform="translate(460, 82)">
+              <circle cx="0" cy="0" r="28" fill="url(#goldGradient)" />
+              <circle cx="0" cy="0" r="24" fill={isDark ? '#141124' : '#FDFBF7'} />
+              <text x="0" y="8" textAnchor="middle" fontSize="24">⚖️</text>
             </g>
 
-            {/* 4. Main Subtitle / Authority */}
             <text
               x="460"
-              y="142"
+              y="136"
               textAnchor="middle"
-              fill={isDark ? '#FFB84D' : '#8C6D1F'}
+              fill="url(#goldGradient)"
               fontFamily="system-ui, -apple-system, sans-serif"
-              fontSize="11"
+              fontSize="13"
               fontWeight="800"
-              letterSpacing="3.5"
+              letterSpacing="3"
             >
-              LEGALESE • CONSTITUTIONAL LITERACY INITIATIVE
+              LEGALESE • RIGHTS QUEST FOUNDATION
             </text>
 
-            {/* 5. Main Certificate Title */}
             <text
               x="460"
-              y="180"
+              y="178"
               textAnchor="middle"
-              fill={isDark ? 'url(#goldGradient)' : '#1F1A12'}
+              fill={isDark ? '#FFFFFF' : '#1F1A14'}
               fontFamily="Georgia, 'Times New Roman', serif"
-              fontSize="28"
+              fontSize="34"
               fontWeight="bold"
-              letterSpacing="1.5"
+              letterSpacing="1"
             >
-              CERTIFICATE OF CONSTITUTIONAL DEFENDER
+              Certificate of Constitutional Literacy
             </text>
 
-            {/* 6. Certification Text */}
             <text
               x="460"
-              y="218"
+              y="208"
               textAnchor="middle"
-              fill={isDark ? 'rgba(255,255,255,0.65)' : '#665C4F'}
-              fontFamily="Georgia, serif"
-              fontSize="14"
-              fontStyle="italic"
+              fill={isDark ? 'rgba(255,255,255,0.7)' : '#5A5248'}
+              fontFamily="system-ui, sans-serif"
+              fontSize="13"
+              fontWeight="500"
             >
-              This award is proudly presented to
+              This official citation of honour is hereby conferred upon
             </text>
 
-            {/* 7. Explorer Name Box */}
             <text
               x="460"
               y="268"
               textAnchor="middle"
               fill={isDark ? '#FFFFFF' : '#14110E'}
               fontFamily="system-ui, -apple-system, sans-serif"
-              fontSize="26"
+              fontSize="28"
               fontWeight="900"
-              letterSpacing="1"
             >
               {nickname}
             </text>
 
-            {/* Name Underline Decors */}
-            <path
-              d="M320 282 L600 282"
-              stroke="url(#goldGradient)"
-              strokeWidth="2"
-              fill="none"
-            />
-            <circle cx="460" cy="282" r="3.5" fill="url(#goldGradient)" />
+            <path d="M320 282 L600 282" stroke="url(#goldGradient)" strokeWidth="2" fill="none" />
 
-            {/* 8. Description */}
             <text
               x="460"
               y="320"
@@ -300,46 +271,41 @@ export default function CompletionCertificate() {
               for demonstrating courage, constitutional literacy, and mastering child rights in India:
             </text>
 
-            {/* 9. 5 Badges Cards Row */}
-            <g transform="translate(90, 348)">
+            <g transform="translate(68, 348)">
               {BADGES_LIST.map((badge, idx) => (
-                <g key={badge.id} transform={`translate(${idx * 152}, 0)`}>
-                  {/* Badge Card Background */}
+                <g key={badge.id} transform={`translate(${idx * 132}, 0)`}>
                   <rect
-                    width="134"
+                    width="120"
                     height="98"
                     rx="10"
                     fill={isDark ? '#1C1830' : '#FFFFFF'}
                     stroke={isDark ? 'rgba(255,184,77,0.3)' : 'rgba(179,135,40,0.25)'}
                     strokeWidth="1.2"
                   />
-                  {/* Icon Circle */}
                   <circle
-                    cx="67"
+                    cx="60"
                     cy="32"
                     r="18"
                     fill={isDark ? '#2A2447' : '#F7F3EB'}
                     stroke="url(#goldGradient)"
                     strokeWidth="1.2"
                   />
-                  <text x="67" y="39" textAnchor="middle" fontSize="17">
+                  <text x="60" y="39" textAnchor="middle" fontSize="17">
                     {badge.icon}
                   </text>
-                  {/* Title */}
                   <text
-                    x="67"
+                    x="60"
                     y="66"
                     textAnchor="middle"
                     fill={isDark ? '#FFFFFF' : '#1A1612'}
-                    fontSize="10"
+                    fontSize="9.5"
                     fontWeight="bold"
                     fontFamily="system-ui, sans-serif"
                   >
                     {badge.name}
                   </text>
-                  {/* Statutory Article Tag */}
                   <text
-                    x="67"
+                    x="60"
                     y="82"
                     textAnchor="middle"
                     fill={isDark ? '#FFB84D' : '#8C6D1F'}
@@ -353,7 +319,6 @@ export default function CompletionCertificate() {
               ))}
             </g>
 
-            {/* 10. Footer Section with Details */}
             <line
               x1="70"
               y1="485"

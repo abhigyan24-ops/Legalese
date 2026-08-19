@@ -34,11 +34,12 @@ function containsBlocked(text) {
 }
 
 const STORY_LABELS = {
-  'right-to-education': 'Right to Education (Art 21-A)',
+  'right-to-education': 'Right for Education (Art 21-A)',
+  'protection-from-child-marriage': 'Right against Child Marriage (PCMA)',
+  'protection-from-child-labour': 'Right against Child Labor (CLPRA)',
+  'protection-from-abuse': 'Right against Abuse (POCSO)',
   'right-to-healthcare': 'Right to Healthcare (Art 21)',
-  'protection-from-child-labour': 'Protection from Child Labour',
-  'protection-from-abuse': 'Protection from Abuse (POCSO)',
-  'protection-from-child-marriage': 'Protection from Child Marriage',
+  'right-to-equality': 'Right to Equality (Articles 14, 15 & 17)',
 };
 
 const CHEER_REACTIONS = ['🎉', '💪', '🌟', '👏', '❤️'];
@@ -314,11 +315,12 @@ export default function CommunityWall() {
             }}
             className="bg-black/50 border border-white/20 rounded-xl px-3.5 py-2 text-xs font-semibold text-white outline-none focus:border-[#F5B942]"
           >
-            <option value="right-to-education">🎒 Right to Education (Article 21-A)</option>
+            <option value="right-to-education">🎒 Right for Education (Article 21-A)</option>
+            <option value="protection-from-child-marriage">📜 Right against Child Marriage (PCMA 2006)</option>
+            <option value="protection-from-child-labour">🏭 Right against Child Labor (CLPRA)</option>
+            <option value="protection-from-abuse">🛡️ Right against Abuse (POCSO Act 2012)</option>
             <option value="right-to-healthcare">🏥 Right to Healthcare (Article 21)</option>
-            <option value="protection-from-child-labour">🏭 Protection from Child Labour (CLPRA)</option>
-            <option value="protection-from-abuse">🛡️ Protection from Abuse (POCSO Act 2012)</option>
-            <option value="protection-from-child-marriage">📜 Protection from Child Marriage (PCMA 2006)</option>
+            <option value="right-to-equality">⚖️ Right to Equality (Articles 14, 15 & 17)</option>
           </select>
         </div>
 

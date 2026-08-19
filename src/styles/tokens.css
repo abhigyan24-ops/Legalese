@@ -6,14 +6,32 @@
  */
 
 :root {
-  /* ── Colors ── warm, friendly palette */
+  /* ── Core Forest & Gold Design Tokens ── */
+  --bg-deep:       #132A20;  /* forest depths, primary dark canvas */
+  --gold:          #F5B942;  /* primary accent, CTAs, headline highlight */
+  --cream:         #F5EFE0;  /* warm cream — NOT stark white, alternating band bg */
+  --ink:           #0D1F17;  /* near-black forest ink, body text on cream */
+
+  /* ── Saturated Rights Card Tokens (Clay rule: strictly confined to card bg) ── */
+  --card-1:        #F2A65A;  /* rights-card color 1 — warm amber */
+  --card-2:        #6FBF8F;  /* rights-card color 2 — soft leaf green */
+  --card-3:        #E8845C;  /* rights-card color 3 — terracotta */
+  --card-4:        #8AA9C9;  /* rights-card color 4 — dusty blue */
+  --card-5:        #C98BB0;  /* rights-card color 5 — muted rose */
+  --card-6:        #D9C15E;  /* rights-card color 6 — muted gold-green */
+
+  /* ── Dotted Divider Tokens ── */
+  --divider:       rgba(245, 185, 66, 0.35); /* dotted rule on forest */
+  --divider-dark:  rgba(13, 31, 23, 0.25);    /* dotted rule on cream */
+
+  /* ── Colors ── warm, friendly palette (legacy support) ── */
   --color-primary:        #FF6B6B;  /* coral red  */
   --color-secondary:      #4ECDC4;  /* turquoise  */
   --color-accent:         #FFE66D;  /* warm yellow */
-  --color-background:     #FFF8F0;  /* cream       */
-  --color-surface:        #FFFFFF;  /* card white  */
-  --color-text-primary:   #2C3E50;  /* dark slate  */
-  --color-text-secondary: #7F8C8D;  /* medium gray */
+  --color-background:     #132A20;  /* deep forest */
+  --color-surface:        #F5EFE0;  /* cream */
+  --color-text-primary:   #FFF8F0;  /* parchment */
+  --color-text-secondary: #B8B0D6;  /* muted lilac */
   --color-success:        #2ECC71;  /* green       */
   --color-warning:        #F39C12;  /* orange      */
   --color-error:          #E74C3C;  /* red         */
@@ -24,9 +42,9 @@
   --color-stage-inactive: #CBD5E1;
   --color-shadow:         #0000001A;
 
-  /* ── Typography ── Baloo 2 (display) + Noto Sans (body, Devanagari + Kannada) */
-  --font-display: 'Baloo 2', 'Quicksand', cursive;
-  --font-body:    'Noto Sans', 'Noto Sans Devanagari', 'Noto Sans Kannada', sans-serif;
+  /* ── Typography ── Baloo 2 (display) + Plus Jakarta Sans / Noto Sans (body) */
+  --font-display: 'Baloo 2', 'Plus Jakarta Sans', cursive, sans-serif;
+  --font-body:    'Plus Jakarta Sans', 'Noto Sans', 'Noto Sans Devanagari', 'Noto Sans Kannada', sans-serif;
 
   /* ── Spacing scale (4px base) ── */
   --space-1: 0.25rem;  /* 4px  */

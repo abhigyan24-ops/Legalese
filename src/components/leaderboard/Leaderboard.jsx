@@ -75,8 +75,8 @@ export default function Leaderboard() {
   });
 
   const combinedList = [
-    ...filteredCloud.filter((e) => e.id !== currentUserEntry.id),
-    ...(state.currentUser ? [currentUserEntry] : []),
+    ...filteredCloud.filter((e) => e.id !== currentUserEntry.id && Number(e.xp || 0) > 0),
+    ...(state.currentUser && userXp > 0 ? [currentUserEntry] : []),
   ].sort((a, b) => (b.xp || 0) - (a.xp || 0));
 
   const getRankBadge = (rank) => {

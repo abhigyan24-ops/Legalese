@@ -272,13 +272,13 @@ export const syncUserProfileCloud = async (userData) => {
       lastUpdated: new Date().toISOString(),
     });
 
-    if (userData.xp !== undefined) {
+    if (userData.xp !== undefined && Number(userData.xp) > 0) {
       const leaderRef = ref(rtdb, `leaderboard/${userData.uid}`);
       await set(leaderRef, {
         id: userData.uid,
         nickname: userData.nickname || 'Explorer',
         avatar: userData.avatar || 'boy-short-blue-medium',
-        xp: userData.xp || 0,
+        xp: Number(userData.xp) || 0,
         badgeCount: (userData.badges || []).length,
         tier: userData.xp > 400 ? 'Diamond' : userData.xp > 300 ? 'Platinum' : userData.xp > 150 ? 'Gold' : 'Silver',
         lastUpdated: new Date().toISOString(),
@@ -501,10 +501,11 @@ export const listenRealtimeImpactMetrics = (callback) => {
 
       const storyStats = {
         'right-to-education': { completions: 0, quizCorrect: 0, quizTotal: 0 },
-        'right-to-healthcare': { completions: 0, quizCorrect: 0, quizTotal: 0 },
+        'protection-from-child-marriage': { completions: 0, quizCorrect: 0, quizTotal: 0 },
         'protection-from-child-labour': { completions: 0, quizCorrect: 0, quizTotal: 0 },
         'protection-from-abuse': { completions: 0, quizCorrect: 0, quizTotal: 0 },
-        'protection-from-child-marriage': { completions: 0, quizCorrect: 0, quizTotal: 0 },
+        'right-to-healthcare': { completions: 0, quizCorrect: 0, quizTotal: 0 },
+        'right-to-equality': { completions: 0, quizCorrect: 0, quizTotal: 0 },
       };
 
       const langCounts = { en: 0, hi: 0, kn: 0 };

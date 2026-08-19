@@ -113,6 +113,21 @@ const INITIAL_QA_SEEDS = [
     helpfulCount: 38,
     createdAtMs: Date.now() - 172800000,
   },
+  {
+    id: 'qa-equality-1',
+    storyId: 'right-to-equality',
+    question: 'Can a school or sports tournament bar students from drinking from the main water cooler or entering the library based on their caste or background?',
+    author: 'EqualityPioneer33',
+    time: '1 day ago',
+    status: 'answered',
+    answer: {
+      text: 'Under Articles 14, 15(2), and 17 of the Constitution of India and the Protection of Civil Rights Act 1955, any discrimination or untouchability in access to public water facilities, sports grounds, and educational spaces is completely illegal and punishable by law.',
+      answeredBy: 'Adv. Smita Patel • High Court Legal Aid Panel',
+      answeredAt: 'Verified Constitutional Advice',
+    },
+    helpfulCount: 47,
+    createdAtMs: Date.now() - 86400000,
+  },
 ];
 
 // Helper: Read from LocalStorage
