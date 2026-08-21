@@ -55,6 +55,9 @@ export default function EndingBadge({ badge, badgeIcon, outcome, bonusXp }) {
     weak: 'Keep Learning',
   };
 
+  const badgeName = typeof badge === 'object' ? (badge?.name || badge?.badgeName || 'Rights Champion') : (badge || 'Rights Champion');
+  const icon = badgeIcon || (typeof badge === 'object' ? badge?.icon : null) || '🎓';
+
   return (
     <div className="flex flex-col items-center gap-6 py-8">
       {/* Badge container with scale-in animation */}
@@ -72,7 +75,7 @@ export default function EndingBadge({ badge, badgeIcon, outcome, bonusXp }) {
           } p-8 rounded-full shadow-2xl`}
         >
           {/* Badge icon */}
-          <div className="text-6xl">{badgeIcon}</div>
+          <div className="text-6xl">{icon}</div>
 
           {/* Outcome ring (strong only) */}
           {outcome === 'strong' && (
@@ -87,14 +90,14 @@ export default function EndingBadge({ badge, badgeIcon, outcome, bonusXp }) {
           isVisible ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}
       >
-        <h2 className="text-3xl font-display font-bold text-primary mb-2">
-          {outcomeLabels[outcome]}
+        <h2 className="text-3xl font-display font-bold text-[#F5B942] mb-2">
+          {outcomeLabels[outcome] || outcomeLabels.strong}
         </h2>
-        <h3 className="text-2xl font-display text-text-primary mb-4">
-          {badge}
+        <h3 className="text-2xl font-display text-white mb-4">
+          {badgeName}
         </h3>
-        <div className="inline-block bg-accent px-6 py-2 rounded-full">
-          <span className="text-xl font-bold text-text-primary">
+        <div className="inline-block bg-[#F5B942]/20 border border-[#F5B942]/40 px-6 py-2 rounded-full">
+          <span className="text-xl font-bold text-[#FFE7A8]">
             +{bonusXp} XP
           </span>
         </div>

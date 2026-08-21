@@ -344,7 +344,7 @@ export default function CompletionCertificate() {
                 DEFENDER MERIT RECORD
               </text>
               <text x="0" y="20" textAnchor="middle" fill={isDark ? '#FFB84D' : '#8C6D1F'} fontSize="14" fontWeight="800" fontFamily="system-ui, sans-serif">
-                {totalXp} XP EARNED • {completedCount}/5 QUESTS COMPLETED
+                {totalXp} XP EARNED • {completedCount}/{BADGES_LIST.length} QUESTS COMPLETED
               </text>
             </g>
 

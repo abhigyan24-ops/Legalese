@@ -248,7 +248,7 @@ const SENIOR_STORIES = [
 
 export default function RightsMap() {
   const navigate = useNavigate();
-  const { state, dispatch } = useApp();
+  const { state, dispatch, isStoryUnlocked } = useApp();
   const lang = state.language || 'en';
   const completed = new Set(state.completedStories || []);
   const ageTier = state.currentUser?.ageTier || '8-11';
@@ -263,13 +263,6 @@ export default function RightsMap() {
   const perf = getPerformanceSummary(state);
   const unlockedAchievementsCount = (state.achievements || []).length;
 
-  const isStoryUnlocked = (idx) => {
-    if (idx === 0) return true;
-    if (idx === 1) return true;
-    if (idx === 2) return true;
-    return completed.size >= 2;
-  };
-
   const calculateLearningNudge = () => {
     if (completed.size === 0) {
       return {
@@ -281,10 +274,10 @@ export default function RightsMap() {
       };
     }
 
-    if (completed.size >= 5) {
+    if (completed.size >= STORIES.length) {
       return {
         headline: '👑 Master Constitutional Defender!',
-        message: 'You have conquered all 5 Rights Quests! Claim your official Rights Defender Keepsake Certificate.',
+        message: `You have conquered all ${STORIES.length} Rights Quests! Claim your official Rights Defender Keepsake Certificate.`,
         icon: '🎓',
         type: 'champion',
       };
@@ -395,7 +388,7 @@ export default function RightsMap() {
                   </span>
                 </div>
                 <div className="text-xs text-[#B8B0D6]">
-                  Completed: <strong className="text-white">{completed.size}/5</strong> Quests
+                  Completed: <strong className="text-white">{completed.size}/{STORIES.length}</strong> Quests
                 </div>
               </div>
             </div>
@@ -418,13 +411,13 @@ export default function RightsMap() {
                 to="/certificate"
                 onClick={() => sound.click()}
                 className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-bold transition-all shadow ${
-                  completed.size >= 5
+                  completed.size >= STORIES.length
                     ? 'bg-gradient-to-r from-amber-500/30 to-purple-500/30 border-[#F5B942] text-[#FFE7A8] animate-pulse'
                     : 'bg-white/10 hover:bg-white/20 border-white/15 text-white/80'
                 }`}
               >
                 <span>🎓</span>
-                <span>{completed.size >= 5 ? 'Certificate ✓' : `Certificate (${completed.size}/5)`}</span>
+                <span>{completed.size >= STORIES.length ? 'Certificate ✓' : `Certificate (${completed.size}/${STORIES.length})`}</span>
               </Link>
 
               <Link
@@ -548,8 +541,8 @@ export default function RightsMap() {
           </div>
 
 
-          {/* ── 5-STORY COMPLETION BANNER ── */}
-          {completed.size >= 5 && (
+          {/* ── 6-STORY COMPLETION BANNER ── */}
+          {completed.size >= STORIES.length && (
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -561,7 +554,7 @@ export default function RightsMap() {
                 </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-display font-extrabold text-[#FFE7A8]">
-                    All 5 Constitutional Rights Mastered!
+                    All {STORIES.length} Constitutional Rights Mastered!
                   </h3>
                   <p className="text-xs text-[#FBF3E3]/80 mt-0.5">
                     You have completed the entire Living Constitutional Trail. Claim and download your official
@@ -626,7 +619,7 @@ export default function RightsMap() {
                 The Rights Trail
               </h1>
               <p className="text-xs sm:text-sm text-white/75 mt-2 leading-relaxed font-normal">
-                Travel across 5 illustrated interactive stories. Make courageous choices, invoke constitutional
+                Travel across {STORIES.length} illustrated interactive stories. Make courageous choices, invoke constitutional
                 articles, and defend children’s legal rights.
               </p>
             </div>

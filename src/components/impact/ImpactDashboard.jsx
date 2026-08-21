@@ -352,7 +352,7 @@ export default function ImpactDashboard() {
               </div>
             </motion.div>
           ) : (
-            /* ── ALL 5 STORIES OVERVIEW TILES ── */
+            /* ── ALL 6 STORIES OVERVIEW TILES ── */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {Object.entries(STORY_INFO).map(([id, item]) => {
                 const s = metrics.storyStats[id] || { completions: 0, quizCorrect: 0, quizTotal: 0 };

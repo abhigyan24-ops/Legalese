@@ -47,6 +47,17 @@ export default function StoryEngine({ story, onComplete }) {
   const [pendingAchievement, setPendingAchievement] = useState(null);
   const activeEvent = getActiveEvent();
 
+  // Reset engine state when story changes
+  useEffect(() => {
+    if (story?.startNode) {
+      setCurrentNodeId(story.startNode);
+      setHearts(3);
+      setPathHistory([]);
+      setQuizAnswers({});
+      setQuizSubmitted(false);
+    }
+  }, [story?.id, story?.startNode]);
+
   // Accessibility Panel State
   const [showA11yModal, setShowA11yModal] = useState(false);
   const [textSize, setTextSize] = useState('standard'); // 'standard' | 'large' | 'xlarge'
@@ -238,11 +249,21 @@ export default function StoryEngine({ story, onComplete }) {
     stopSpeaking();
     const outcome = endingNode.outcome || 'strong';
     const bonusXp = endingNode.bonusXp || (outcome === 'strong' ? 50 : 25);
-    const storyId = story.id || 'right-to-education';
+    const storyId = story?.id || 'right-to-education';
+
+    const badgeObj = typeof endingNode.badge === 'object' ? endingNode.badge : (endingNode.endingBadge || story?.badge);
+    const badgeName = (typeof endingNode.badge === 'string' ? endingNode.badge : null)
+      || badgeObj?.name
+      || endingNode.badgeName
+      || 'Rights Champion';
+    const badgeIcon = (typeof endingNode.badgeIcon === 'string' ? endingNode.badgeIcon : null)
+      || badgeObj?.icon
+      || '🎓';
+
     const badge = {
       storyId,
-      badgeName: endingNode.badge || 'Rights Champion',
-      badgeIcon: endingNode.badgeIcon || '🎓',
+      badgeName,
+      badgeIcon,
       earnedAt: new Date().toISOString(),
     };
 
@@ -365,18 +386,14 @@ export default function StoryEngine({ story, onComplete }) {
         },
       });
 
-      if (isFirebaseConfigured && db) {
-        const statsRef = doc(db, 'stats', story.id);
-        setDoc(
-          statsRef,
-          {
-            quizAttempts: increment(1),
-            quizPassCount: increment(correctCount === story.quiz.length ? 1 : 0),
-            totalQuestionsAnswered: increment(story.quiz.length),
-            totalCorrectAnswers: increment(correctCount),
+      if (isFirebaseConfigured) {
+        syncUserProfileCloud({
+          uid: state.currentUser.uid,
+          quizScores: {
+            ...(state.quizScores || {}),
+            [story.id]: scoreData,
           },
-          { merge: true }
-        ).catch(() => {});
+        });
       }
     }
   };
@@ -811,10 +828,22 @@ export default function StoryEngine({ story, onComplete }) {
           <div className="max-w-2xl w-full mx-auto py-6 flex flex-col items-center gap-6">
             {/* Animated Badge & Confetti */}
             <EndingBadge
-              badge={currentNode.badge}
-              badgeIcon={currentNode.badgeIcon}
+              badge={
+                (typeof currentNode.badge === 'string' ? currentNode.badge : null)
+                || (typeof currentNode.badge === 'object' ? currentNode.badge?.name : null)
+                || currentNode.endingBadge?.name
+                || story?.badge?.name
+                || 'Rights Champion'
+              }
+              badgeIcon={
+                (typeof currentNode.badgeIcon === 'string' ? currentNode.badgeIcon : null)
+                || (typeof currentNode.badge === 'object' ? currentNode.badge?.icon : null)
+                || currentNode.endingBadge?.icon
+                || story?.badge?.icon
+                || '🎓'
+              }
               outcome={currentNode.outcome || 'strong'}
-              bonusXp={currentNode.bonusXp || 50}
+              bonusXp={currentNode.bonusXp || (currentNode.outcome === 'strong' ? 50 : 25)}
             />
 
             {/* Ending Narrative Text */}

@@ -55,7 +55,7 @@ export const flushOfflineQueue = async () => {
   for (const task of queue) {
     try {
       if (task.type === 'STORY_COMPLETION') {
-        const { uid, badge, storyId, newTotalXp, nickname, avatar, badgeCount } = task.payload;
+        const { uid, badge, storyId, newTotalXp, nickname, avatar } = task.payload;
         await syncUserProfileCloud({
           uid,
           nickname,
@@ -63,6 +63,12 @@ export const flushOfflineQueue = async () => {
           xp: newTotalXp,
           badges: [badge],
           completedStories: [storyId],
+        });
+      } else if (task.type === 'QUIZ_SCORE') {
+        const { uid, storyId, quizScore } = task.payload;
+        await syncUserProfileCloud({
+          uid,
+          quizScores: { [storyId]: quizScore },
         });
       }
     } catch (err) {

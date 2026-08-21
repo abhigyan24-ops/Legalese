@@ -26,10 +26,10 @@ export const ACHIEVEMENTS = [
   {
     id: 'rights_champion',
     title: 'Rights Champion',
-    description: 'Complete all 5 stories on the Rights Trail',
+    description: 'Complete all 6 stories on the Rights Trail',
     icon: '🏆',
     rarity: 'legendary',
-    check: (state) => (state.completedStories || []).length >= 5,
+    check: (state) => (state.completedStories || []).length >= 6,
   },
 
   // ── XP Milestones ──

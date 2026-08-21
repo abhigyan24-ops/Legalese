@@ -295,9 +295,21 @@ export const AppProvider = ({ children }) => {
     state.language,
   ]);
 
-  const isStoryUnlocked = (storyIndex) => {
-    if (storyIndex < 3) return true; // stories 1-3 always unlocked
-    return (state.completedStories || []).length >= 3;
+  const isStoryUnlocked = (storyIndexOrId) => {
+    const index = typeof storyIndexOrId === 'number'
+      ? storyIndexOrId
+      : [
+          'right-to-education',
+          'protection-from-child-marriage',
+          'protection-from-child-labour',
+          'protection-from-abuse',
+          'right-to-healthcare',
+          'right-to-equality',
+        ].indexOf(storyIndexOrId);
+
+    if (index < 0) return true;
+    if (index < 3) return true; // stories 0, 1, 2 always unlocked
+    return (state.completedStories || []).length >= 2;
   };
 
   const value = useMemo(
