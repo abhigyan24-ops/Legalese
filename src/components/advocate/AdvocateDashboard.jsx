@@ -14,7 +14,7 @@ import { listenAllQuestionsCloud, answerQuestionCloud } from '../../firebase/fir
 import { draftAdvocateAnswerAI } from '../../lib/groqAI';
 import sound from '../../lib/sound';
 
-const PASSKEY = 'RIGHTS_QUEST_LEGAL_2026';
+
 
 const STORY_MAP = {
   'right-to-education': 'Right for Education (Article 21-A)',
@@ -58,7 +58,8 @@ export default function AdvocateDashboard() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (passInput.trim() === PASSKEY) {
+    const advocatePasskey = (import.meta.env.VITE_ADVOCATE_PASSKEY || '').trim();
+    if (advocatePasskey && passInput.trim() === advocatePasskey) {
       sound.win();
       setIsAuthenticated(true);
       sessionStorage.setItem('rq_advocate_authenticated', 'true');
@@ -190,8 +191,7 @@ export default function AdvocateDashboard() {
               {error && <p className="text-xs text-rose-400 font-bold">{error}</p>}
 
               <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-[11px] text-white/60">
-                🔑 <strong>Demo Access Passkey:</strong>{' '}
-                <code className="text-[#F5B942] font-mono select-all">RIGHTS_QUEST_LEGAL_2026</code>
+                🔒 <strong>Restricted Access:</strong> Enter the authorized legal advocate passkey to access this moderation console.
               </div>
 
               <button
