@@ -14,6 +14,8 @@ import {
   postCommunityReflectionCloud,
   listenQuestionsCloud,
   postQuestionCloud,
+  cheerCommunityPostCloud,
+  reportCommunityPostCloud,
 } from '../../firebase/firebase';
 import { getAllQuestions, saveQuestion, markHelpful } from '../../lib/storageEngine';
 import { generateLegalAnswer, moderateContent } from '../../lib/groqAI';
@@ -164,20 +166,18 @@ export default function CommunityWall() {
 
   const handleCheer = async (postId, emoji) => {
     sound.click();
-    if (!db || postId.startsWith('local-')) return;
+    if (!postId || postId.startsWith('local-')) return;
     try {
-      await updateDoc(doc(db, 'community_posts', postId), {
-        [`cheers.${emoji}`]: increment(1),
-      });
+      await cheerCommunityPostCloud(postId, emoji);
     } catch {
-      // offline
+      // offline fallback
     }
   };
 
   const handleReport = async (postId) => {
-    if (reported.has(postId) || !db || postId.startsWith('local-')) return;
+    if (reported.has(postId) || !postId || postId.startsWith('local-')) return;
     try {
-      await updateDoc(doc(db, 'community_posts', postId), { reportCount: increment(1) });
+      await reportCommunityPostCloud(postId);
       setReported((prev) => new Set([...prev, postId]));
     } catch {
       setReported((prev) => new Set([...prev, postId]));

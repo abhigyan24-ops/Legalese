@@ -34,15 +34,16 @@ import {
   query,
   limitToLast,
 } from 'firebase/database';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'demo-api-key',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'legalese-787ec.firebaseapp.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'legalese-787ec',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'legalese-787ec.firebasestorage.app',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '20449344204',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:20449344204:web:cbc964ccc7dae64274a069',
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || 'https://legalese-787ec-default-rtdb.firebaseio.com',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || '',
 };
 
 // Initialize or reuse Firebase App — NEVER throws, always falls back
@@ -71,7 +72,16 @@ try {
   console.warn('[Firebase] getDatabase failed — offline mode active:', e?.message);
 }
 export const rtdb = _rtdb;
-export const db = rtdb; // alias for backwards compatibility
+
+// Initialize Cloud Firestore — safe
+let _firestore = null;
+try {
+  if (app && typeof window !== 'undefined') _firestore = getFirestore(app);
+} catch (e) {
+  console.warn('[Firebase] getFirestore failed:', e?.message);
+}
+export const firestore = _firestore;
+export const db = _firestore;
 
 export const isFirebaseConfigured = Boolean(
   app &&
@@ -459,6 +469,34 @@ export const postCheerCloud = async (cheerData) => {
   } catch (err) {
     console.warn('[DB] Cheer sync notice:', err?.message);
     return null;
+  }
+};
+
+export const cheerCommunityPostCloud = async (postId, emoji) => {
+  if (!rtdb || !postId) return false;
+  try {
+    const cheerRef = ref(rtdb, `community_posts/${postId}/cheers/${emoji}`);
+    const snap = await get(cheerRef);
+    const count = (snap.exists() ? snap.val() : 0) + 1;
+    await set(cheerRef, count);
+    return true;
+  } catch (err) {
+    console.warn('[DB] Cheer post error:', err?.message);
+    return false;
+  }
+};
+
+export const reportCommunityPostCloud = async (postId) => {
+  if (!rtdb || !postId) return false;
+  try {
+    const reportRef = ref(rtdb, `community_posts/${postId}/reportCount`);
+    const snap = await get(reportRef);
+    const count = (snap.exists() ? snap.val() : 0) + 1;
+    await set(reportRef, count);
+    return true;
+  } catch (err) {
+    console.warn('[DB] Report post error:', err?.message);
+    return false;
   }
 };
 

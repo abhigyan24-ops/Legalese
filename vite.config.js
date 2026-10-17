@@ -60,10 +60,8 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           // Animation library
           'vendor-motion': ['framer-motion'],
-          // Firebase (split auth from database)
-          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/database'],
-          // 3D (only used in landing)
-          'vendor-3d': ['three', '@react-three/fiber', '@react-three/drei'],
+          // Firebase (split auth, database, firestore)
+          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/database', 'firebase/firestore'],
         },
       },
     },

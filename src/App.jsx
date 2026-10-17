@@ -40,6 +40,7 @@ export default function App() {
           <Route path="/" element={<RootRedirect />} />
           <Route path="/landing" element={<LandingPage />} />
           <Route path="/showcase" element={<LandingPage />} />
+          <Route path="/challenge" element={<LandingPage />} />
           <Route path="/waitlist" element={<WaitlistPage />} />
           <Route path="/onboarding" element={<OnboardingScreen />} />
           <Route path="/map" element={<Protected><RightsMap /></Protected>} />

@@ -268,7 +268,6 @@ export const AppProvider = ({ children }) => {
       }
     });
     return () => unsub();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.currentUser?.uid, state.currentUser?.nickname]);
 
   // Real-time Cloud Profile & Leaderboard Sync
